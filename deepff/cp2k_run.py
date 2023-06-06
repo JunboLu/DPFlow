@@ -168,7 +168,7 @@ def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 
   cp2k_calc_dir = ''.join((work_dir, '/iter_', str(iter_id), '/03.cp2k_calc'))
   sys_num = process.get_sys_num(cp2k_calc_dir)
 
-  for i in range(10):
+  for cycle in range(10):
     check_cp2k_run = check_cp2k_job(cp2k_calc_dir, sys_num, atoms_num_tot)
     if ( all(i == 0 for i in data_op.list_reshape(data_op.list_reshape(check_cp2k_run))) ):
       print ('  Success: ab initio force calculations for %d systems by cp2k' %(sys_num), flush=True)
@@ -230,7 +230,7 @@ def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 
                 if ( os.path.exists(undo_task_flag_file) ):
                   subprocess.run('rm %s' %(undo_task_flag_file), \
                                  cwd=''.join((cp2k_sys_task_dir, '/traj_', str(undo_id))), shell=True)
-              submit_cp2kfrc(cp2k_sys_task_dir, iter_id, undo_task, cp2k_queue[0], cp2k_exe, max_cp2k_job, \
+              submit_cp2kfrc(cp2k_sys_task_dir, i, j, iter_id, undo_task, cp2k_queue[0], cp2k_exe, max_cp2k_job, \
                              cp2k_core_num, cp2k_env_file, submit_system, max_cp2k_job+i)
               while True:
                 time.sleep(10)
@@ -426,7 +426,7 @@ def run_cp2kfrc_ws(work_dir, iter_id, cp2k_exe, parallel_exe, cp2k_env_file, \
   run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, cp2k_job_per_node, \
                    host, ssh, proc_num_per_node, parallel_exe, None, None, None, None)
   
-def submit_cp2kfrc(cp2k_sys_task_dir, iter_id, undo_task, cp2k_queue, cp2k_exe, \
+def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_queue, cp2k_exe, \
                    max_cp2k_job, cp2k_core_num, cp2k_env_file, submit_system, cycle_id):
 
   '''
@@ -435,6 +435,10 @@ def submit_cp2kfrc(cp2k_sys_task_dir, iter_id, undo_task, cp2k_queue, cp2k_exe, 
   Args:
     cp2k_sys_task_dir: string
       cp2k_sys_task_dir is the directory of cp2k for one system and one task
+    sys_id: int
+      sys_id is the id of system.
+    task_id: int
+      task_id is the id of task.
     iter_id: int
       iter_id is the iteration id.
     undo_task: 1-d int list
@@ -457,6 +461,8 @@ def submit_cp2kfrc(cp2k_sys_task_dir, iter_id, undo_task, cp2k_queue, cp2k_exe, 
     none
   '''
 
+  job_label = ''.join(('cp2k_', str(cycle_id), '_sys_', str(sys_id), '_task_', str(task_id)))
+
   line_num = file_tools.grep_line_num('#%Module', cp2k_env_file, cp2k_sys_task_dir)
   if ( line_num == 0 ):
     set_cp2k_env = 'source %s' %(cp2k_env_file)
@@ -468,7 +474,7 @@ def submit_cp2kfrc(cp2k_sys_task_dir, iter_id, undo_task, cp2k_queue, cp2k_exe, 
   if ( submit_system == 'lsf' ):
 
     submit_file_name_abs = ''.join((cp2k_sys_task_dir, '/cp2k_', str(cycle_id), '.sub'))
-    script_1 = gen_shell_str.gen_lsf_normal(cp2k_queue, cp2k_core_num, iter_id, 'cp2k')
+    script_1 = gen_shell_str.gen_lsf_normal(cp2k_queue, cp2k_core_num, iter_id, job_label)
     script_2 = gen_shell_str.gen_cd_lsfcwd()
     script_3 = gen_shell_str.gen_cp2k_script(set_cp2k_env, cp2k_sys_task_dir, task_index, cp2k_core_num, cp2k_exe)
     with open(submit_file_name_abs, 'w') as f:
@@ -478,7 +484,7 @@ def submit_cp2kfrc(cp2k_sys_task_dir, iter_id, undo_task, cp2k_queue, cp2k_exe, 
   if ( submit_system == 'pbs' ):
 
     submit_file_name_abs = ''.join((cp2k_sys_task_dir, '/cp2k_', str(cycle_id), '.sub'))
-    script_1 = gen_shell_str.gen_pbs_normal(cp2k_queue, cp2k_core_num, 0, iter_id, 'cp2k')
+    script_1 = gen_shell_str.gen_pbs_normal(cp2k_queue, cp2k_core_num, 0, iter_id, job_label)
     script_2 = gen_shell_str.gen_cd_pbscwd()
     script_3 = gen_shell_str.gen_cp2k_script(set_cp2k_env, cp2k_sys_task_dir, task_index, cp2k_core_num, cp2k_exe)
     with open(submit_file_name_abs, 'w') as f:
@@ -488,7 +494,7 @@ def submit_cp2kfrc(cp2k_sys_task_dir, iter_id, undo_task, cp2k_queue, cp2k_exe, 
   if ( submit_system == 'slurm' ):
 
     submit_file_name_abs = ''.join((cp2k_sys_task_dir, '/cp2k_', str(cycle_id), '.sub'))
-    script_1 = gen_shell_str.gen_slurm_normal(cp2k_queue, cp2k_core_num, iter_id, 'cp2k')
+    script_1 = gen_shell_str.gen_slurm_normal(cp2k_queue, cp2k_core_num, iter_id, job_label)
     script_2 = gen_shell_str.gen_cp2k_script(set_cp2k_env, cp2k_sys_task_dir, task_index, cp2k_core_num, cp2k_exe)
     with open(submit_file_name_abs, 'w') as f:
       f.write(script_1+script_2)
@@ -554,7 +560,7 @@ def run_cp2kfrc_as(work_dir, iter_id, cp2k_queue, cp2k_exe, max_cp2k_job, \
         for k in undo_task_split:
           undo_task_parts.append(k)
         for k in range(len(undo_task_parts)):
-          submit_cp2kfrc(cp2k_sys_task_dir, iter_id, undo_task_parts[k], cp2k_queue[k], cp2k_exe, \
+          submit_cp2kfrc(cp2k_sys_task_dir, i, j, iter_id, undo_task_parts[k], cp2k_queue[k], cp2k_exe, \
                          max_cp2k_job, cp2k_core_num, cp2k_env_file, submit_system, k)
 
         while True:

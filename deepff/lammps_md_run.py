@@ -595,11 +595,13 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
         lmp_md_id_cycle.append(lmp_md_id)
         lmp_sys_task_dir = ''.join((lmp_dir, '/sys_', str(sys_task_index[lmp_md_id][0]), \
                                     '/task_', str(sys_task_index[lmp_md_id][1])))
+        job_label = ''.join(('md_', 'sys_', str(sys_task_index[lmp_md_id][0]), \
+                             '_task_', str(sys_task_index[lmp_md_id][1])))
         if ( submit_system == 'lsf' ):
           submit_file_name_abs = ''.join((lmp_sys_task_dir, '/lmp.sub'))
           with open(submit_file_name_abs, 'w') as f:
             if ( lmp_gpu_num > 0 and not analyze_gpu ):
-              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, 'lmp_md')
+              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
               script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
@@ -608,7 +610,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
               f.write(script_1+script_2+script_3+script_4+script_5+script_6)
 
             if ( lmp_gpu_num > 0 and analyze_gpu ):
-              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, 'lmp_md')
+              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
               script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
@@ -618,7 +620,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
               f.write(script_1+script_2+script_3+script_4+script_5+script_6+script_7)
 
             if ( lmp_gpu_num == 0 ):
-              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, 'lmp_md')
+              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
               script_2 = gen_shell_str.gen_cd_lsfcwd()
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_4 = gen_shell_str.gen_lmp_file_label()
@@ -631,7 +633,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
           submit_file_name_abs = ''.join((lmp_sys_task_dir, '/lmp.sub'))
           with open(submit_file_name_abs, 'w') as f:
             if ( lmp_gpu_num > 0 ):
-              script_1 = gen_shell_str.gen_pbs_normal(lmp_queue_sub[j], lmp_core_num, lmp_gpu_num, iter_id, 'lmp_md')
+              script_1 = gen_shell_str.gen_pbs_normal(lmp_queue_sub[j], lmp_core_num, lmp_gpu_num, iter_id, job_label)
               script_2 = gen_shell_str.gen_cd_pbscwd()
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_4 = gen_shell_str.gen_lmp_file_label()
@@ -640,7 +642,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
               f.write(script_1+script_2+script_3+script_4+script_5+script_6)
 
             if ( lmp_gpu_num == 0 ):
-              script_1 = gen_shell_str.gen_pbs_normal(lmp_queue_sub[j], lmp_core_num, lmp_gpu_num, iter_id, 'lmp_md')
+              script_1 = gen_shell_str.gen_pbs_normal(lmp_queue_sub[j], lmp_core_num, lmp_gpu_num, iter_id, job_label)
               script_2 = gen_shell_str.gen_cd_pbscwd()
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_4 = gen_shell_str.gen_lmp_file_label()
@@ -653,7 +655,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
           submit_file_name_abs = ''.join((lmp_sys_task_dir, '/lmp.sub'))
           with open(submit_file_name_abs, 'w') as f:
             if ( lmp_gpu_num > 0 ):
-              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, iter_id, 'lmp_md')
+              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
               script_2 = gen_shell_str.gen_slurm_gpu_set(lmp_gpu_num)
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_4 = gen_shell_str.gen_lmp_file_label()
@@ -662,7 +664,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
               f.write(script_1+script_2+script_3+script_4+script_5+script_6)
 
             if ( lmp_gpu_num == 0 ):
-              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, iter_id, 'lmp_md')
+              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
               script_2 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_3 = gen_shell_str.gen_lmp_file_label()
               script_4 = gen_shell_str.gen_lmp_cpu_cmd(lmp_core_num, lmp_exe)
