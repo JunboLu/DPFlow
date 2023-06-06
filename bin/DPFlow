@@ -1,0 +1,49 @@
+#! /bin/bash
+
+export DPFlow_path=/home/lujunbo/code/DPFlow
+export python_exe=/home/lujunbo/bin/deepmd-kit/bin/python3.9
+
+work_dir=`pwd`
+inp_file="$1"
+
+dos2unix ${inp_file} 1> /dev/null 2> /dev/null
+
+if [ "$inp_file" ]; then
+string=`grep 'run_type' ${inp_file}`
+string_split=(${string// / })
+run_type=${string_split[1]}
+
+if [[ $run_type == analyze ]]; then
+string=`grep 'analyze_job' ${inp_file}`
+string_split=(${string// / })
+analyze_job=${string_split[1]}
+fi
+
+if [[ $run_type == model ]]; then
+string=`grep 'model_type' ${inp_file}`
+string_split=(${string// / })
+model_type=${string_split[1]}
+fi
+
+if [[ $run_type == deepff ]]; then
+string=`grep 'deepff_type' ${inp_file}`
+string_split=(${string// / })
+deepff_type=${string_split[1]}
+fi
+
+if [[ ${run_type} == deepff ]]; then
+${python_exe} ${DPFlow_path}/deepff/deepff_run.py ${work_dir} ${inp_file} ${deepff_type}
+elif [[ ${run_type} == analyze ]]; then
+${python_exe} ${DPFlow_path}/analyze/analyze_run.py ${work_dir} ${inp_file} ${analyze_job}
+elif [[ ${run_type} == handle_restart ]]; then
+${python_exe} ${DPFlow_path}/handle_restart/handle_restart_run.py ${work_dir} ${inp_file} ${run_type}
+elif [[ ${run_type} == model ]]; then
+${python_exe} ${DPFlow_path}/model/model_run.py ${work_dir} ${inp_file} ${model_type}
+else
+echo "************************************Error**************************************"
+echo "The run_type in input is wrong, please set or check global/run_type"
+fi
+else
+echo "************************************Error**************************************"
+echo "DPFlow need a input file!"
+fi

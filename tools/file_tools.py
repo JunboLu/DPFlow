@@ -1,0 +1,122 @@
+#! /usr/env/bin python
+
+import os
+from DPFlow.tools import call
+from DPFlow.tools import data_op
+
+def upper_file(file_name, save_dir):
+
+  '''
+  upper_file: make the character in the file to be upper
+
+  Args:
+    file_name: string
+      file_name is the name of the file needed to be revised.
+    save_dir: string
+      save_dir is the saving dir for revised file.
+  Returns:
+    rev_file_name: string
+      rev_file_name is the name of revised file.
+  '''
+
+  rev_file_name = ''.join((os.path.abspath(os.path.expanduser(save_dir)), '/upper_file'))
+  rev_file = open(rev_file_name, 'w')
+  origin_file = open(file_name, 'r')
+
+  while True:
+    line = origin_file.readline()
+    rev_file.write(line.upper())
+    if not line:
+      break
+
+  rev_file.close()
+  origin_file.close()
+
+  return rev_file_name
+
+def space_file(file_name, space_char, save_dir):
+
+  '''
+  space_file
+
+  Args:
+    file_name: string
+      file_name is the name of the file needed to be revised.
+    space_char: string
+    save_dir: string
+      save_dir is the saving dir for revised file.
+  Returns:
+    rev_file_name: string
+      rev_file_name is the name of revised file.
+  '''
+
+  rev_file_name = ''.join((os.path.abspath(os.path.expanduser(save_dir)), '/space_file'))
+  rev_file = open(rev_file_name, 'w')
+  origin_file = open(file_name, 'r')
+
+  while True:
+    line = origin_file.readline()
+    line_split = data_op.split_str(line, ' ')
+    line_comb = data_op.comb_list_2_str(line_split, space_char)
+    rev_file.write(line_comb)
+    if not line:
+      break
+
+  rev_file.close()
+
+  return rev_file_name
+
+def grep_line_num(choosed_str, file_name, work_dir):
+
+  '''
+  grep_line_num : get the line number for a choosed string.
+
+  Args:
+    choosed_str: string
+      choosed_str is the choosed string.
+    file_name: string
+      file_name is the name of file.
+  Returns:
+    line_num : int
+      line_num is the line number for a choosed string.
+  '''
+
+  line_num = []
+  cmd = 'grep -n "%s" %s' %(choosed_str, file_name)
+  line = call.call_returns_shell(work_dir, cmd)
+  if ( len(line) >= 1 and 'Binary file' in line[0] ):
+    cmd = 'grep -a -n "%s" %s' %(choosed_str, file_name)
+    line = call.call_returns_shell(work_dir, cmd)
+  if ( len(line) != 0 ):
+    for i in range(len(line)):
+      line_num.append(int(line[i].split(':')[0]))
+  else:
+    line_num = 0
+
+  return line_num
+
+def is_binary(filename):
+
+  '''
+  is_binary: judge whether a file is binary file
+
+  Args:
+    filename: string
+      filename is the name of file.
+  Returns:
+    True or False
+  '''
+  with open(filename, 'rb') as f:
+    for block in f:
+      if b'\0' in block:
+        return True
+  return False
+
+if __name__ == '__main__':
+
+  choosed_line = "'&model_devi'"
+  file_name = '/home/lujunbo/WORK/Deepmd/DPFlow/co2/md/input.inp'
+  work_dir = '/home/lujunbo/WORK/Deepmd/DPFlow/co2/md'
+  line_num = grep_line_num(choosed_line, file_name, work_dir)
+  print (line_num)
+

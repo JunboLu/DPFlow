@@ -1,0 +1,8 @@
+&global
+  run_type handle_restart
+&end global
+
+&handle_restart
+  cp2k_inp_file input.inp
+  data_dir ./
+&end handle_restart

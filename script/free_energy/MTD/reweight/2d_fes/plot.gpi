@@ -1,0 +1,36 @@
+# Terminal settings
+#set terminal pngcairo size 1000,700 enhanced font 'Verdana,18'
+#set output "plot.png"
+#set border lw 1.5
+#set font 'Verdana,18'
+#set size 1000,700
+
+set xlabel "Distance (nm)"
+set ylabel "Coordination Na-O"
+set cblabel "Free energy (kcal/mol)"
+
+set xr [0.2:0.7]
+set yr [3:7]
+#Here we use 300 K, kb*300=0.59616107, for other
+#temperatures, you need to change this value.
+set zr [-3 * 0.59616107:6 * 0.59616107]
+
+set style line 1 lt 1 lw 2 ps 1 pt 5 lc rgb "black"
+set style line 2 lt 1 lw 2 ps 1 pt 7 lc rgb "red"
+set style line 3 lt 1 lw 2 ps 1 pt 9 lc rgb "blue"
+
+set key bottom left
+
+set pm3d map
+
+#Here we use 300 K, kb*300=0.59616107, for other
+#temperatures, you need to change this value.
+spl "./histo_wall" u 1:2:(-log($3) * 0.59616107) w pm3d notitle
+
+set term post color
+set output 'plot.eps'
+replot
+
+pause -1
+
+

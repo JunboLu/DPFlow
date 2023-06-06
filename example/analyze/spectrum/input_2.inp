@@ -1,0 +1,25 @@
+&global
+  run_type analyze
+  analyze_job power_spectrum
+&end global
+
+&analyze
+  &power_spectrum
+    type water_mode
+    traj_vel_file ./WATER-vel-1.xyz
+    traj_coord_file ./WATER-pos-1.xyz
+    init_step 30000
+    end_step 50000
+    &box
+      A 12.42 0.0 0.0
+      B  0.0 12.42 0.0
+      C  0.0 0.0 12.42
+    &end box
+    atom_id 1-192
+    max_frame_corr 5000
+    normalize 1
+    start_wave 0
+    end_wave 4000
+    increment_wave 1
+  &end power_spectrum
+&end analyze

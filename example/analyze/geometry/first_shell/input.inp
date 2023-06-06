@@ -1,0 +1,22 @@
+&global
+  run_type analyze
+  analyze_job geometry 
+&end global
+
+&analyze
+  &geometry
+    &first_shell
+      traj_coord_file ./mm.xyz
+      atom_type_pair Th O
+      first_shell_dist 2.6
+      dist_conv 0.3
+      init_step 12713
+      end_step 12713
+      &box
+        A 12.42 0.0 0.0
+        B 0.0 12.42 0.0
+        C 0.0 0.0 12.42
+      &end box
+    &end first_shell
+  &end geometry
+&end analyze
