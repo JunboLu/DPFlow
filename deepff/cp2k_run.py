@@ -92,7 +92,7 @@ def check_cp2k_job(cp2k_calc_dir, sys_num, atoms_num_tot):
 
   return check_cp2k_run
 
-def find_undo_task(cp2k_sys_task_dir, atoms_num):
+def find_undo_task(cp2k_sys_task_dir, atoms_num, job_mode):
 
   '''
   find_undo_task: find the uncompleted cp2k force jobs.
@@ -115,23 +115,39 @@ def find_undo_task(cp2k_sys_task_dir, atoms_num):
     frc_file_name_abs = ''.join((cp2k_sys_task_traj_dir, '/cp2k-1_0.xyz'))
     log_file_name_abs = ''.join((cp2k_sys_task_traj_dir, '/cp2k.out'))
     coord_file_name_abs = ''.join((cp2k_sys_task_traj_dir, '/cp2k-1.coordLog'))
-    if ( os.path.exists(frc_file_name_abs) and os.path.exists(log_file_name_abs) and \
-         os.path.exists(coord_file_name_abs)):
-      if ( not file_tools.is_binary(frc_file_name_abs) and \
-           not file_tools.is_binary(log_file_name_abs) and \
-           not file_tools.is_binary(coord_file_name_abs) and \
-           len(open(frc_file_name_abs, 'r').readlines()) == atoms_num+5 and \
-           len(open(coord_file_name_abs, 'r').readlines()) == atoms_num+8 ):
-        pass
+    if ( job_mode == 'workstation' ):
+      if ( os.path.exists(frc_file_name_abs) and os.path.exists(log_file_name_abs) and \
+           os.path.exists(coord_file_name_abs) ):
+        if ( not file_tools.is_binary(frc_file_name_abs) and \
+             not file_tools.is_binary(log_file_name_abs) and \
+             not file_tools.is_binary(coord_file_name_abs) and \
+             len(open(frc_file_name_abs, 'r').readlines()) == atoms_num+5 and \
+             len(open(coord_file_name_abs, 'r').readlines()) == atoms_num+8 ):
+          pass
+        else:
+          undo_task.append(i)
       else:
         undo_task.append(i)
-    else:
-      undo_task.append(i)
+
+    if ( job_mode == 'auto_submit' ):
+      if ( os.path.exists(frc_file_name_abs) and os.path.exists(log_file_name_abs) and \
+           os.path.exists(coord_file_name_abs) and os.path.exists(flag_file_name_abs) ):
+        if ( not file_tools.is_binary(frc_file_name_abs) and \
+             not file_tools.is_binary(log_file_name_abs) and \
+             not file_tools.is_binary(coord_file_name_abs) and \
+             len(open(frc_file_name_abs, 'r').readlines()) == atoms_num+5 and \
+             len(open(coord_file_name_abs, 'r').readlines()) == atoms_num+8 ):
+          pass
+        else:
+          undo_task.append(i)
+      else:
+        undo_task.append(i)
 
   return undo_task
 
-def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, cp2k_job_per_node, host, ssh, \
-                     proc_num_per_node, parallel_exe, cp2k_queue, max_cp2k_job, cp2k_core_num, submit_system):
+def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, job_mode, \
+                     cp2k_job_per_node, host, ssh, proc_num_per_node, parallel_exe, \
+                     cp2k_queue, max_cp2k_job, cp2k_core_num, submit_system):
 
   '''
   rum_undo_lmpfrc: run uncompleted cp2k force calculation.
@@ -195,7 +211,7 @@ def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 
             print (str_print, flush=True)
             exit()
           elif ( len(undo_task) < 20 ):
-            if ( mode == 'workstation' ):
+            if ( job_mode == 'workstation' ):
               run_start = 0
               run_end = run_start+cp2k_job_per_node*len(host)
               if ( run_end > len(undo_task) ):
@@ -224,7 +240,7 @@ def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 
                   run_start = len(undo_task)-1
                 if ( run_end >= len(undo_task) ):
                   run_end = len(undo_task)
-            elif ( mode == 'auto_submit' ):
+            elif ( job_mode == 'auto_submit' ):
               for undo_id in undo_task:
                 undo_task_flag_file = ''.join((cp2k_sys_task_dir, '/traj_', str(undo_id), '/success.flag'))
                 if ( os.path.exists(undo_task_flag_file) ):
@@ -392,7 +408,7 @@ def run_cp2kfrc_ws(work_dir, iter_id, cp2k_exe, parallel_exe, cp2k_env_file, \
 
     for j in range(task_num):
       cp2k_sys_task_dir = ''.join((cp2k_sys_dir, '/', task_dir[j]))
-      undo_task = find_undo_task(cp2k_sys_task_dir, atoms_num_tot[i])
+      undo_task = find_undo_task(cp2k_sys_task_dir, atoms_num_tot[i], 'workstation')
       run_start = 0
       run_end = run_start+cp2k_job_per_node*len(host)
       if ( run_end > len(undo_task) ):
@@ -423,8 +439,8 @@ def run_cp2kfrc_ws(work_dir, iter_id, cp2k_exe, parallel_exe, cp2k_env_file, \
           run_end = len(undo_task)
 
   #check running cp2k tasks
-  run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, cp2k_job_per_node, \
-                   host, ssh, proc_num_per_node, parallel_exe, None, None, None, None)
+  run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 'workstation', \
+                   cp2k_job_per_node, host, ssh, proc_num_per_node, parallel_exe, None, None, None, None)
   
 def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_queue, cp2k_exe, \
                    max_cp2k_job, cp2k_core_num, cp2k_env_file, submit_system, cycle_id):
@@ -470,10 +486,10 @@ def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_
     set_cp2k_env = 'module load %s' %(cp2k_env_file)
 
   task_index = data_op.comb_list_2_str(undo_task, ' ')
-
+  
+  submit_file_name_abs = ''.join((cp2k_sys_task_dir, '/cp2k_', str(cycle_id), '.sub'))
   if ( submit_system == 'lsf' ):
 
-    submit_file_name_abs = ''.join((cp2k_sys_task_dir, '/cp2k_', str(cycle_id), '.sub'))
     script_1 = gen_shell_str.gen_lsf_normal(cp2k_queue, cp2k_core_num, iter_id, job_label)
     script_2 = gen_shell_str.gen_cd_lsfcwd()
     script_3 = gen_shell_str.gen_cp2k_script(set_cp2k_env, cp2k_sys_task_dir, task_index, cp2k_core_num, cp2k_exe)
@@ -483,7 +499,6 @@ def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_
 
   if ( submit_system == 'pbs' ):
 
-    submit_file_name_abs = ''.join((cp2k_sys_task_dir, '/cp2k_', str(cycle_id), '.sub'))
     script_1 = gen_shell_str.gen_pbs_normal(cp2k_queue, cp2k_core_num, 0, iter_id, job_label)
     script_2 = gen_shell_str.gen_cd_pbscwd()
     script_3 = gen_shell_str.gen_cp2k_script(set_cp2k_env, cp2k_sys_task_dir, task_index, cp2k_core_num, cp2k_exe)
@@ -493,7 +508,6 @@ def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_
 
   if ( submit_system == 'slurm' ):
 
-    submit_file_name_abs = ''.join((cp2k_sys_task_dir, '/cp2k_', str(cycle_id), '.sub'))
     script_1 = gen_shell_str.gen_slurm_normal(cp2k_queue, cp2k_core_num, iter_id, job_label)
     script_2 = gen_shell_str.gen_cp2k_script(set_cp2k_env, cp2k_sys_task_dir, task_index, cp2k_core_num, cp2k_exe)
     with open(submit_file_name_abs, 'w') as f:
@@ -546,7 +560,7 @@ def run_cp2kfrc_as(work_dir, iter_id, cp2k_queue, cp2k_exe, max_cp2k_job, \
     for j in range(task_num):
       cp2k_sys_task_dir = ''.join((cp2k_sys_dir, '/', task_dir[j]))
       traj_num = process.get_traj_num(cp2k_sys_task_dir)
-      undo_task = find_undo_task(cp2k_sys_task_dir, atoms_num_tot[i])
+      undo_task = find_undo_task(cp2k_sys_task_dir, atoms_num_tot[i], 'auto_submit')
       if ( len(undo_task) != 0 ):
         for undo_id in undo_task:
           undo_task_flag_file = ''.join((cp2k_sys_task_dir, '/traj_', str(undo_id), '/success.flag'))
@@ -572,8 +586,8 @@ def run_cp2kfrc_as(work_dir, iter_id, cp2k_queue, cp2k_exe, max_cp2k_job, \
           if all(judge):
             break
 
-  run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, None, None, None, \
-                   None, None, cp2k_queue, max_cp2k_job, cp2k_core_num, submit_system)
+  run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 'auto_submit', None, \
+                   None, None, None, None, cp2k_queue, max_cp2k_job, cp2k_core_num, submit_system)
 
 if __name__ == '__main__':
   from collections import OrderedDict

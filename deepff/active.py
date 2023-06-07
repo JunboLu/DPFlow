@@ -247,9 +247,11 @@ def model_devi_iter(work_dir, inp_file, deepmd_dic, lammps_dic, cp2k_dic, active
                                        lmp_frc_job_per_node, host, device, atoms_num_tot, \
                                        use_bias_tot, 'model_devi')
       elif ( job_mode == 'auto_submit' ):
+        #It is better to use cp2k queue for lammps force calculation.
+        #We find it will be very slow when we use gpu queue for lammps force calculation.
         lammps_frc_run.run_lmpfrc_as(work_dir, i, 'model_devi', use_bias_tot, lmp_path, lmp_exe, \
-                                     lmp_queue, lmp_core_num, lmp_gpu_num, parallel_exe, \
-                                     submit_system, atoms_num_tot, analyze_gpu)
+                                     cp2k_queue, cp2k_core_num, max_cp2k_job, parallel_exe, \
+                                     submit_system, atoms_num_tot)
 
       write_data.write_restart_inp(inp_file, i, 3, data_num, work_dir)
 
@@ -550,8 +552,8 @@ def dp_test_iter(work_dir, inp_file, deepmd_dic, lammps_dic, active_learn_dic, c
                                        lmp_frc_job_per_node, host, device, atoms_num_tot, use_bias_tot, 'dp_test')
       elif ( job_mode == 'auto_submit' ):
         lammps_frc_run.run_lmpfrc_as(work_dir, i, 'dp_test', use_bias_tot, lmp_path, lmp_exe, \
-                                     lmp_queue, lmp_core_num, lmp_gpu_num, parallel_exe, \
-                                     submit_system, atoms_num_tot, analyze_gpu)
+                                     cp2k_queue, cp2k_core_num, max_cp2k_num, parallel_exe, \
+                                     submit_system, atoms_num_tot)
 
       write_data.write_restart_inp(inp_file, i, 3, data_num, work_dir)
 

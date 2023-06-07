@@ -597,6 +597,9 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
                                     '/task_', str(sys_task_index[lmp_md_id][1])))
         job_label = ''.join(('md_', 'sys_', str(sys_task_index[lmp_md_id][0]), \
                              '_task_', str(sys_task_index[lmp_md_id][1])))
+        flag_file_name_abs = ''.join((lmp_sys_task_dir, '/success.flag'))
+        if ( os.path.exists(flag_file_name_abs) ):
+          subprocess.run('rm %s' %(flag_file_name_abs), cwd=lmp_sys_task_dir, shell=True)
         if ( submit_system == 'lsf' ):
           submit_file_name_abs = ''.join((lmp_sys_task_dir, '/lmp.sub'))
           with open(submit_file_name_abs, 'w') as f:
@@ -654,7 +657,15 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
         if ( submit_system == 'slurm' ):
           submit_file_name_abs = ''.join((lmp_sys_task_dir, '/lmp.sub'))
           with open(submit_file_name_abs, 'w') as f:
-            if ( lmp_gpu_num > 0 ):
+            if ( lmp_gpu_num > 0 and not analyze_gpu ):
+              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
+              script_2 = gen_shell_str.gen_slurm_gpu_set(lmp_gpu_num)
+              script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
+              script_4 = gen_shell_str.gen_lmp_file_label()
+              script_5 = gen_shell_str.gen_lmp_gpu_cmd(lmp_exe)
+              f.write(script_1+script_2+script_3+script_4+script_5)
+
+            if ( lmp_gpu_num > 0 and analyze_gpu ):
               script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
               script_2 = gen_shell_str.gen_slurm_gpu_set(lmp_gpu_num)
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)

@@ -201,6 +201,18 @@ def gen_lmpmd_task(lmp_dic, work_dir, iter_id, atom_mass_dic, tot_atoms_type_dic
 
   iter_dir = ''.join((work_dir, '/iter_', str(iter_id)))
   lmp_dir = ''.join((iter_dir, '/02.lammps_calc'))
+
+  md_in_file_analyze = ''.join((work_dir, '/iter_', str(iter_id), '/02.lammps_calc/sys_0/task_0/md_in.lammps'))
+  if ( os.path.exists(md_in_file_analyze) ):
+    thermo_line_num = file_tools.grep_line_num('THERMO_FREQ', md_in_file_analyze, work_dir) 
+    if ( thermo_line_num != 0 ):
+      thermo_line = linecache.getline(md_in_file_analyze, thermo_line_num[0])
+      thermo_line_split = data_op.split_str(thermo_line, ' ')
+      thermo_freq = lmp_dic['thermo_freq']
+      if ( thermo_freq != int(thermo_line_split[3]) ):
+        cmd = "rm -rf %s" %(lmp_dir)
+        call.call_simple_shell(work_dir, cmd)
+
   if ( not os.path.exists(lmp_dir) ):
     cmd = "mkdir %s" %('02.lammps_calc')
     call.call_simple_shell(iter_dir, cmd)

@@ -206,11 +206,11 @@ cd %s
     log_info.log_error('Running error: %s command running error in %s' %(err.cmd, model_dir))
 
 def run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type, mode, \
-                    parallel_exe, lmp_path, lmp_exe, lmp_frc_job_per_node, host_info, \
-                    ssh, lmp_queue, lmp_core_num, lmp_gpu_num, submit_system, analyze_gpu):
+                    parallel_exe, lmp_path, lmp_exe, lmp_frc_job_per_node, host, \
+                    ssh, lmp_queue, lmp_core_num, submit_system):
 
   '''
-  rum_undo_lmpfrc: run uncompleted lammps force calculation.
+  run_undo_lmpfrc: run uncompleted lammps force calculation.
 
   Args:
     work_dir: string
@@ -241,8 +241,6 @@ def run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type,
       lmp_queue is the queue name of lammps job.
     lmp_core_num: int
       lmp_core_num is the number of cores for each lammps md job.
-    lmp_gpu_num: int
-      lmp_gpu_num is the number of gpus for each lammps md job.
     submit_system: string
       submit_system is the submition system.
   Returns :
@@ -280,7 +278,7 @@ def run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type,
                   for l in range(cycle):
                     task_index = undo_task[start:end]
                     lmpfrc_parallel(model_dir, work_dir, task_index, parallel_exe, lmp_path, \
-                                    lmp_exe, lmp_frc_job_per_node, host_info, ssh)
+                                    lmp_exe, lmp_frc_job_per_node, host, ssh)
                     start = min(len(undo_task)-1, start+lmp_frc_job_per_node*len(host))
                     end = min(len(undo_task), end+lmp_frc_job_per_node*len(host))
                 elif ( mode == 'auto_submit' ):
@@ -289,8 +287,8 @@ def run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type,
                     if ( os.path.exists(undo_task_flag_file) ):
                       subprocess.run('rm %s' %(undo_task_flag_file), \
                                      cwd=''.join((model_dir, '/traj_', str(undo_id))), shell=True)
-                  submit_lmpfrc_discrete(lmp_dir, i, j, k, iter_id, undo_task, lmp_queue[0], lmp_exe, lmp_core_num, \
-                                         lmp_gpu_num, parallel_exe, submit_system, analyze_gpu)
+                  submit_lmpfrc_discrete(lmp_dir, i, j, k, iter_id, undo_task, lmp_queue, \
+                                         lmp_exe, lmp_core_num, parallel_exe, submit_system)
                   while True:
                     time.sleep(10)
                     judge = []
@@ -411,13 +409,12 @@ def run_lmpfrc_ws(work_dir, iter_id, lmp_path, lmp_exe, parallel_exe, lmp_frc_jo
             end = min(len(undo_task), end+lmp_frc_job_per_node*len(host))
 
   run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type, 'workstation', \
-                  parallel_exe, lmp_path, lmp_exe, lmp_frc_job_per_node, host_info, \
-                  ssh, None, None, None, None, None)
+                  parallel_exe, lmp_path, lmp_exe, lmp_frc_job_per_node, host_info, ssh, None, None, None)
 
   print ('  Success: lammps force calculations for %d systems by lammps' %(sys_num), flush=True)
 
-def submit_lmpfrc_discrete(lmp_dir, sys_id, task_id, model_id, iter_id, undo_task, lmp_queue, \
-                           lmp_exe, lmp_core_num, lmp_gpu_num, parallel_exe, submit_system, analyze_gpu):
+def submit_lmpfrc_discrete(lmp_dir, sys_id, task_id, model_id, iter_id, undo_task, \
+                           lmp_queue, lmp_exe, lmp_core_num, parallel_exe, submit_system):
 
   '''
   submit_lmpfrc_discrete: submit discrete lammps force jobs to remote host.
@@ -435,14 +432,12 @@ def submit_lmpfrc_discrete(lmp_dir, sys_id, task_id, model_id, iter_id, undo_tas
       iter_id is the iteration id.
     undo_task: 1-d int list
       undo_task are id of uncompleted lammps force tasks.
-    lmp_exe: string
-      lmp_exe is the lammps executable file.
     lmp_queue: string
       lmp_queue is the queue name of lammps job.
+    lmp_exe: string
+      lmp_exe is the lammps executable file.
     lmp_core_num: int
       lmp_core_num is the number of cores for each lammps md job.
-    lmp_gpu_num: int
-      lmp_gpu_num is the number of gpus for each lammps md job.
     parallel_exe: string
       parallel_exe is the parallel exacutable file.
     submit_system: string
@@ -458,73 +453,37 @@ def submit_lmpfrc_discrete(lmp_dir, sys_id, task_id, model_id, iter_id, undo_tas
   if ( submit_system == 'lsf' ):
 
     submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    if ( lmp_gpu_num > 0 and not analyze_gpu ):
-      script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num)
-      script_3 = gen_shell_str.gen_cd_lsfcwd()
-      script_4 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3+script_4)
-
-    elif ( lmp_gpu_num > 0 and analyze_gpu ):
-      script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num)
-      script_3 = gen_shell_str.gen_cd_lsfcwd()
-      script_4 = gen_shell_str.gen_gpu_analyze(lmp_gpu_num)
-      script_5 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3+script_4+script_5)
-
-    elif ( lmp_gpu_num == 0 ):
-      script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_cd_lsfcwd()
-      script_3 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3)
+    script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
+    script_2 = gen_shell_str.gen_cd_lsfcwd()
+    script_3 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
+    with open(submit_file_name_abs, 'w') as f:
+      f.write(script_1+script_2+script_3)
 
     subprocess.run('bsub < ./lmp_frc.sub', cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
 
   if ( submit_system == 'pbs' ):
 
     submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    if ( lmp_gpu_num > 0 ):
-      script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_cd_pbscwd()
-      script_3 = gen_shell_str.gen_gpu_analyze(lmp_gpu_num)
-      script_4 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3+script_4)
-
-    elif ( lmp_gpu_num == 0 ):
-      script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_cd_pbscwd()
-      script_3 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3)
+    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, iter_id, job_label)
+    script_2 = gen_shell_str.gen_cd_pbscwd()
+    script_3 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
+    with open(submit_file_name_abs, 'w') as f:
+      f.write(script_1+script_2+script_3)
 
     subprocess.run('qsub ./lmp_frc.sub', cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
 
   if ( submit_system == 'slurm' ):
 
     submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    if ( lmp_gpu_num > 0 ):
-      script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_slurm_gpu_set(lmp_gpu_num)
-      script_3 = gen_shell_str.gen_gpu_analyze(lmp_gpu_num)
-      script_4 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3+script_4)
-
-    elif ( lmp_gpu_num == 0 ):
-      script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2)
+    script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, iter_id, job_label)
+    script_2 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
+    with open(submit_file_name_abs, 'w') as f:
+      f.write(script_1+script_2)
 
     subprocess.run('sbatch ./lmp_frc.sub', cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
 
-def submit_lmpfrc_serial(lmp_dir, sys_id, task_id, model_id, iter_id, start, end, lmp_queue, lmp_exe, \
-                         lmp_core_num, lmp_gpu_num, parallel_exe, submit_system, analyze_gpu):
+def submit_lmpfrc_serial(lmp_dir, sys_id, task_id, model_id, cycle_id, iter_id, start, end, \
+                         lmp_queue, lmp_exe, lmp_core_num, parallel_exe, submit_system):
 
   '''
   submit_lmpfrc_serial: submit serial lammps force jobs to remote host.
@@ -538,6 +497,8 @@ def submit_lmpfrc_serial(lmp_dir, sys_id, task_id, model_id, iter_id, start, end
       task_id is the id of task.
     model_id: int
       model_id is the id of model.
+    cycle_id: int
+      cycle_id is the id of cp2k submition.
     iter_id: int
       iter_id is the iteration id.
     start: int
@@ -550,8 +511,6 @@ def submit_lmpfrc_serial(lmp_dir, sys_id, task_id, model_id, iter_id, start, end
       lmp_exe is the lammps executable file.
     lmp_core_num: int
       lmp_core_num is the number of cores for each lammps md job.
-    lmp_gpu_num: int
-      lmp_gpu_num is the number of gpus for each lammps md job.
     parallel_exe: string
       parallel_exe is the parallel exacutable file.
     submit_system: string
@@ -563,76 +522,38 @@ def submit_lmpfrc_serial(lmp_dir, sys_id, task_id, model_id, iter_id, start, end
   model_dir = ''.join((lmp_dir, '/sys_', str(sys_id), '/task_', str(task_id), '/model_', str(model_id)))
   job_label = ''.join(('lmp_frc', '_sys_', str(sys_id), '_task_', str(task_id), '_model_', str(model_id)))
 
+  submit_file_name_abs = ''.join((model_dir, '/lmp_frc_', str(cycle_id), '.sub'))
   if ( submit_system == 'lsf' ): 
 
-    submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    if ( lmp_gpu_num > 0 and not analyze_gpu ):
-      script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num)
-      script_3 = gen_shell_str.gen_cd_lsfcwd()
-      script_4 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3+script_4)
+    script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
+    script_2 = gen_shell_str.gen_cd_lsfcwd()
+    script_3 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
+    with open(submit_file_name_abs, 'w') as f:
+      f.write(script_1+script_2+script_3)
 
-    elif ( lmp_gpu_num > 0 and analyze_gpu ):
-      script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num)
-      script_3 = gen_shell_str.gen_cd_lsfcwd()
-      script_4 = gen_shell_str.gen_gpu_analyze(lmp_gpu_num)
-      script_5 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3+script_4+script_5)
-
-    elif ( lmp_gpu_num == 0 ):
-      script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_cd_lsfcwd()
-      script_3 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3)
-
-    subprocess.run('bsub < ./lmp_frc.sub', cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
+    subprocess.run('bsub < ./lmp_frc_%d.sub'%(cycle_id), cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
 
   if ( submit_system == 'pbs' ):
 
-    submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    if ( lmp_gpu_num > 0 ):
-      script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_cd_pbscwd()
-      script_3 = gen_shell_str.gen_gpu_analyze(lmp_gpu_num)
-      script_4 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3+script_4)
+    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, iter_id, job_label)
+    script_2 = gen_shell_str.gen_cd_pbscwd()
+    script_3 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
+    with open(submit_file_name_abs, 'w') as f:
+      f.write(script_1+script_2+script_3)
 
-    elif ( lmp_gpu_num == 0 ):
-      script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_cd_pbscwd()
-      script_3 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3)
-
-    subprocess.run('qsub ./lmp_frc.sub', cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
+    subprocess.run('qsub ./lmp_frc_%d.sub'%(cycle_id), cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
 
   if ( submit_system == 'slurm' ):
 
-    submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    if ( lmp_gpu_num > 0 ):
-      script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_slurm_gpu_set(lmp_gpu_num)
-      script_3 = gen_shell_str.gen_gpu_analyze(lmp_gpu_num)
-      script_4 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2+script_3+script_4)
+    script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, iter_id, job_label)
+    script_2 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
+    with open(submit_file_name_abs, 'w') as f:
+      f.write(script_1+script_2)
 
-    elif ( lmp_gpu_num == 0 ):
-      script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, iter_id, job_label)
-      script_2 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
-      with open(submit_file_name_abs, 'w') as f:
-        f.write(script_1+script_2)
+    subprocess.run('sbatch ./lmp_frc_%d.sub'%(cycle_id), cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
 
-    subprocess.run('sbatch ./lmp_frc.sub', cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
-
-def run_lmpfrc_as(work_dir, iter_id, active_type, use_bias_tot, lmp_path, lmp_exe, lmp_queue, \
-                  lmp_core_num, lmp_gpu_num, parallel_exe, submit_system, atoms_num_tot, analyze_gpu):
+def run_lmpfrc_as(work_dir, iter_id, active_type, use_bias_tot, lmp_path, lmp_exe, lmp_frc_queue, \
+                  lmp_frc_core_num, max_lmp_frc_job, parallel_exe, submit_system, atoms_num_tot):
 
   '''
   run_lmpmdfrc_as: kernel function to run lammps force for auto_submit mode.
@@ -650,16 +571,18 @@ def run_lmpfrc_as(work_dir, iter_id, active_type, use_bias_tot, lmp_path, lmp_ex
       lmp_path is the path of lammps.
     lmp_exe: string
       lmp_exe is the lammps executable file.
-    lmp_queue: string
-      lmp_queue is the queue name of lammps job.
-    lmp_core_num: int
-      lmp_core_num is the number of cores for each lammps md job.
-    lmp_gpu_num: int
-      lmp_gpu_num is the number of gpus for each lammps md job.
+    lmp_frc_queue: string
+      lmp_frc_queue is the queue name of lammps force job.
+    lmp_frc_core_num: int
+      lmp_frc_core_num is the number of cores for each lammps md job.
+    max_lmp_frc_job: int
+      max_lmp_frc_job is the maximum number of sumbition for lammps force jobs.
     parallel_exe: string
       parallel_exe is the parallel exacutable file.
     submit_system: string
       submit_system is the submition system.
+    atoms_num_tot: 1-d dictionary, dim = num of lammps systems
+      example: {1:192,2:90}
   Returns:
     none
   '''
@@ -671,6 +594,9 @@ def run_lmpfrc_as(work_dir, iter_id, active_type, use_bias_tot, lmp_path, lmp_ex
 
   #Check generating lammps force tasks.
   check_gen_lmpfrc(lmp_dir, sys_num, active_type, use_bias_tot)
+
+  lmp_frc_queue = lmp_frc_queue*max_lmp_frc_job
+  lmp_frc_queue_sub = lmp_frc_queue[0:max_lmp_frc_job]
 
   #Run lammps force.
   for i in range(sys_num):
@@ -713,10 +639,12 @@ echo 'success' > success.flag
             traj_dir = ''.join((model_dir, '/traj_', str(l)))
             dump_file_name_abs = ''.join((traj_dir, '/atom.dump'))
             log_file_name_abs = ''.join((traj_dir, '/lammps.out'))
+            flag_file_name_abs = ''.join((traj_dir, '/success.flag'))
             if ( os.path.exists(dump_file_name_abs) ):
               if ( not file_tools.is_binary(dump_file_name_abs) and \
                  len(open(dump_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+9 and \
                  os.path.exists(log_file_name_abs) and \
+                 os.path.exists(flag_file_name_abs) and \
                  file_tools.grep_line_num('Step', log_file_name_abs, traj_dir) != 0 and \
                  file_tools.grep_line_num('Loop time', log_file_name_abs, traj_dir) != 0 ):
                 pass
@@ -731,11 +659,20 @@ echo 'success' > success.flag
                 subprocess.run('rm %s' %(undo_task_flag_file), \
                                cwd=''.join((model_dir, '/traj_', str(undo_id))), shell=True)
           if ( len(undo_task) != 0 and len(undo_task) < 20 ):
-            submit_lmpfrc_discrete(lmp_dir, i, j, k, iter_id, undo_task, lmp_queue[0], lmp_exe, lmp_core_num, \
-                                   lmp_gpu_num, parallel_exe, submit_system, analyze_gpu)
+            submit_lmpfrc_discrete(lmp_dir, i, j, k, iter_id, undo_task, lmp_frc_queue_sub[0], \
+                                   lmp_exe, lmp_frc_core_num/2, parallel_exe, submit_system)
           elif ( len(undo_task) > 20 ):
-            submit_lmpfrc_serial(lmp_dir, i, j, k, iter_id, undo_task[0], undo_task[len(undo_task)-1], lmp_queue[0], \
-                                 lmp_exe, lmp_core_num, lmp_gpu_num, parallel_exe, submit_system, analyze_gpu)
+            lmp_frc_job_per_submit = math.ceil(len(undo_task)/max_lmp_frc_job)
+            undo_task_split = data_op.list_split(undo_task, lmp_frc_job_per_submit)
+            undo_task_parts = []
+            for l in undo_task_split:
+              undo_task_parts.append(l)
+            for l in range(len(undo_task_parts)):
+              undo_task_l = undo_task_parts[l]
+              start = undo_task_l[0]
+              end = undo_task_l[len(undo_task_l)-1]
+              submit_lmpfrc_serial(lmp_dir, i, j, k, l, iter_id, start, end, lmp_frc_queue_sub[l], \
+                                   lmp_exe, lmp_frc_core_num/2, parallel_exe, submit_system)
           while True:
             time.sleep(10)
             judge = []
@@ -747,7 +684,7 @@ echo 'success' > success.flag
 
   run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type, \
                   'auto_submit', parallel_exe, lmp_path, lmp_exe, None, None, None, \
-                  lmp_queue, lmp_core_num, lmp_gpu_num, submit_system, analyze_gpu)
+                  lmp_frc_queue_sub[0], lmp_frc_core_num/2, submit_system)
 
   print ('  Success: lammps force calculations for %d systems by lammps' %(sys_num), flush=True)
 

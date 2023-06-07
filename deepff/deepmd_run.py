@@ -150,7 +150,7 @@ def check_deepmd_run(train_dir, model_num):
   if ( len(check_deepmd_run) != 0 and all(i == 0 for i in check_deepmd_run) ):
     print ('  Success: train %d models by deepmd-kit' %(model_num), flush=True)
   else:
-    log_info.log_error('deepmd-kit running error, please check iteration %d' %(iter_id))
+    log_info.log_error('deepmd-kit running error, please check iteration %s' %(train_dir))
     exit()
 
 def deepmd_parallel_cycle(work_dir, deepmd_train_dir, dp_path, cuda_dir, dp_cmd, model_str, \
@@ -574,6 +574,9 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
         dp_cmd = pre_process(work_dir, iter_id, use_prev_model, train_id, train_id, dp_version, base)
         train_id_dir = ''.join((train_dir, '/', str(train_id)))
         job_label = ''.join(('dp_', str(train_id))) 
+        flag_file_name_abs = ''.join((train_id_dir, '/success.flag'))
+        if ( os.path.exists(flag_file_name_abs) ):
+          subprocess.run('rm %s' %(flag_file_name_abs), cwd=train_id_dir, shell=True)
         if ( submit_system == 'lsf' ):
           submit_file_name_abs = ''.join((train_id_dir, '/dp.sub'))
           with open(submit_file_name_abs, 'w') as f:
@@ -629,7 +632,15 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
         if ( submit_system == 'slurm' ):
           submit_file_name_abs = ''.join((train_id_dir, '/dp.sub'))
           with open(submit_file_name_abs, 'w') as f:
-            if ( dp_gpu_num > 0 ):
+            if ( dp_gpu_num > 0 and not analyze_gpu):
+              script_1 = gen_shell_str.gen_slurm_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
+              script_2 = gen_shell_str.gen_slurm_gpu_set(1)
+              script_3 = gen_shell_str.gen_dp_env(dp_path)
+              script_4 = gen_shell_str.gen_cuda_env(cuda_dir)
+              script_5 = gen_shell_str.gen_dp_cmd(dp_cmd)
+              f.write(script_1+script_2+script_3+script_4+script_5)
+
+            if ( dp_gpu_num > 0 and analyze_gpu):
               script_1 = gen_shell_str.gen_slurm_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
               script_2 = gen_shell_str.gen_slurm_gpu_set(1)
               script_3 = gen_shell_str.gen_dp_env(dp_path)
