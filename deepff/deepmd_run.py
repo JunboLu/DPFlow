@@ -582,7 +582,7 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
           with open(submit_file_name_abs, 'w') as f:
             if ( dp_gpu_num > 0 and not analyze_gpu ):
               script_1 = gen_shell_str.gen_lsf_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
-              script_2 = gen_shell_str.gen_lsf_gpu_set(1)
+              script_2 = gen_shell_str.gen_lsf_gpu_set(1, dp_core_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_dp_env(dp_path)
               script_5 = gen_shell_str.gen_cuda_env(cuda_dir)
@@ -591,11 +591,11 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
 
             if ( dp_gpu_num > 0 and analyze_gpu ):
               script_1 = gen_shell_str.gen_lsf_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
-              script_2 = gen_shell_str.gen_lsf_gpu_set(1)
+              script_2 = gen_shell_str.gen_lsf_gpu_set(1, dp_core_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_dp_env(dp_path)
               script_5 = gen_shell_str.gen_cuda_env(cuda_dir)
-              script_6 = gen_shell_str.gen_gpu_analyze(1)
+              script_6 = gen_shell_str.gen_gpu_analyze(1,1)
               script_7 = gen_shell_str.gen_dp_cmd(dp_cmd)
               f.write(script_1+script_2+script_3+script_4+script_5+script_6+script_7)
 

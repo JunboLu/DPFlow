@@ -24,10 +24,10 @@ def gen_lsf_normal(queue, core_num, iter_id, job_name):
 #BSUB -q %s
 #BSUB -n %d
 #BSUB -J iter_%d_%s
-#BSUB -R "span[ptile=%d]"
+#BSUB -R "span[hosts=1]"
 #BSUB -e %s.err
 #BSUB -o %s.out
-''' %(queue, core_num, iter_id, job_name, core_num, '%J', '%J')
+''' %(queue, core_num, iter_id, job_name, '%J', '%J')
 
   return script
 
@@ -106,10 +106,10 @@ def gen_slurm_normal(core_num, queue, iter_id, job_name):
 
   return script
 
-def gen_lsf_gpu_set(gpu_num):
+def gen_slurm_gpu_set(gpu_num):
 
   '''
-  gen_lsf_gpu_set: generate input for lsf gpu setting
+  gen_slurm_gpu_set: generate input for lsf gpu setting
 
   Args:
     gpu_num: int
@@ -127,7 +127,7 @@ def gen_lsf_gpu_set(gpu_num):
 
   return script
 
-def gen_lsf_gpu_set(gpu_num):
+def gen_lsf_gpu_set(gpu_num, core_num):
 
   '''
   gen_lsf_gpu_set: generate input for lsf gpu setting
@@ -144,7 +144,8 @@ def gen_lsf_gpu_set(gpu_num):
 
   script = '''
 #BSUB -gpu "num=%d/host"
-''' %(gpu_num)
+#BSUB -R "affinity[core(%d)]"
+''' %(gpu_num, core_num)
 
   return script
 

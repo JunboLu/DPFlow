@@ -1395,6 +1395,16 @@ def check_environ(environ_dic, proc_num_one_node):
     else:
       environ_dic['dp_gpu_num'] = 0
 
+    if ( environ_dic['submit_system'] == 'lsf' and \
+         environ_dic['dp_gpu_num'] > 0 and \
+         environ_dic['dp_core_num'] > 1 ):
+      log_info.log_error('Warning: we will set affinity for lsf submit script, the dp job may wait for a long time. Please make dp_core_num small!')
+
+    if ( environ_dic['submit_system'] == 'lsf' and \
+         environ_dic['lmp_gpu_num'] > 0 and \
+         environ_dic['lmp_core_num'] > 1 ):
+      log_info.log_error('Warning: we will set affinity for lsf submit script, the lammps md job may wait for a long time. Please make lmp_core_num small!')
+
     environ_dic['cp2k_job_per_node'] = 0
     environ_dic['lmp_frc_job_per_node'] = 0
     environ_dic['lmp_md_job_per_node'] = 0

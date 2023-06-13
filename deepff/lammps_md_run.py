@@ -605,7 +605,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
           with open(submit_file_name_abs, 'w') as f:
             if ( lmp_gpu_num > 0 and not analyze_gpu ):
               script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
-              script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num)
+              script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num, lmp_core_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_5 = gen_shell_str.gen_lmp_file_label()
@@ -614,7 +614,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
 
             if ( lmp_gpu_num > 0 and analyze_gpu ):
               script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
-              script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num)
+              script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num, lmp_core_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_5 = gen_shell_str.gen_lmp_file_label()
