@@ -81,7 +81,8 @@ def check_cp2k_job(cp2k_calc_dir, sys_num, atoms_num_tot):
                not file_tools.is_binary(log_file_name_abs) and \
                not file_tools.is_binary(coord_file_name_abs) and \
                len(open(frc_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+5 and \
-               len(open(coord_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+8 ):
+               len(open(coord_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+8 and \
+               file_tools.grep_line_num('Total energy:', log_file_name_abs, cp2k_sys_task_traj_dir) != 0 ):
             check_cp2k_run_ij.append(0)
           else:
             check_cp2k_run_ij.append(1)
@@ -115,6 +116,7 @@ def find_undo_task(cp2k_sys_task_dir, atoms_num, job_mode):
     frc_file_name_abs = ''.join((cp2k_sys_task_traj_dir, '/cp2k-1_0.xyz'))
     log_file_name_abs = ''.join((cp2k_sys_task_traj_dir, '/cp2k.out'))
     coord_file_name_abs = ''.join((cp2k_sys_task_traj_dir, '/cp2k-1.coordLog'))
+    flag_file_name_abs = ''.join((cp2k_sys_task_traj_dir, '/success.flag'))
     if ( job_mode == 'workstation' ):
       if ( os.path.exists(frc_file_name_abs) and os.path.exists(log_file_name_abs) and \
            os.path.exists(coord_file_name_abs) ):
@@ -122,7 +124,8 @@ def find_undo_task(cp2k_sys_task_dir, atoms_num, job_mode):
              not file_tools.is_binary(log_file_name_abs) and \
              not file_tools.is_binary(coord_file_name_abs) and \
              len(open(frc_file_name_abs, 'r').readlines()) == atoms_num+5 and \
-             len(open(coord_file_name_abs, 'r').readlines()) == atoms_num+8 ):
+             len(open(coord_file_name_abs, 'r').readlines()) == atoms_num+8 and \
+             file_tools.grep_line_num('Total energy:', log_file_name_abs, cp2k_sys_task_traj_dir) != 0 ):
           pass
         else:
           undo_task.append(i)
@@ -332,13 +335,13 @@ x_arr=(${x///})
 new_direc=$direc/traj_${x_arr[0]}
 cd $new_direc
 if [ -f "cp2k-1_0.xyz" ]; then
-rm cp2k-1_0.xyz cp2k-1.coordLog
+rm cp2k-1_0.xyz cp2k-1.coordLog cp2k-1.Log
 fi
 mpirun -np ${x_arr[1]} %s $new_direc/input.inp 1> $new_direc/cp2k.out 2> $new_direc/cp2k.err
 converge_info=`grep "SCF run NOT converged" cp2k.out`
 if [ $? -eq 0 ]; then
 if [ -f "cp2k-1_0.xyz" ]; then
-rm cp2k-1_0.xyz cp2k-1.coordLog
+rm cp2k-1_0.xyz cp2k-1.coordLog cp2k-1.Log
 fi
 mpirun -np ${x_arr[1]} %s $new_direc/input.inp 1> $new_direc/cp2k.out 2> $new_direc/cp2k.err
 fi

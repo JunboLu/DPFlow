@@ -1,0 +1,8 @@
+在deepmd程序中实现学习率的consine decay，修改代码(dp-2.2.2)：
+
+cd /work/chem-lujb/bin/deepmd-kit-2.0.2-cuda-11.3/lib/python3.9/site-packages/deepmd/train
+替换trainer.py
+mkdir optimizer
+cp lion_tf1.py
+cd /work/chem-lujb/bin/deepmd-kit-2.0.2-cuda-11.3/lib/python3.9/site-packages/deepmd/utils
+替换 argcheck.py learning_rate.py  

@@ -1473,7 +1473,7 @@ def check_environ(environ_dic, proc_num_one_node):
   if ( 'dp_version' in environ_dic.keys() ):
     dp_version = environ_dic['dp_version']
     dp_version_sup = ['1.3.3', '2.0.0', '2.0.1', '2.0.2', '2.0.3', '2.1.0', '2.1.1', '2.1.2', \
-                      '2.1.3', '2.1.4', '2.1.5', '2.2.0', '2.2.1']
+                      '2.1.3', '2.1.4', '2.1.5', '2.2.0', '2.2.1', '2.2.2']
     if ( dp_version not in dp_version_sup ):
       log_info.log_error('Input error: current deepmd-kit version is not supported, please check or reset deepff/environ/dp_version')
       exit()

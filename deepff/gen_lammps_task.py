@@ -665,8 +665,8 @@ def combine_frag_traj_file(lmp_task_dir):
           for j in range(loop_line_num, whole_line_num+1, 1):
             line = linecache.getline(log_file_name_abs, j)
             tot_log_file.write(line)
-      #call.call_simple_shell(lmp_task_dir, 'rm %s' %(dump_file_name_abs))
-      #call.call_simple_shell(lmp_task_dir, 'rm %s' %(log_file_name_abs))
+      call.call_simple_shell(lmp_task_dir, 'rm %s' %(dump_file_name_abs))
+      call.call_simple_shell(lmp_task_dir, 'rm %s' %(log_file_name_abs))
       linecache.clearcache()
 
     tot_dump_file.close()
