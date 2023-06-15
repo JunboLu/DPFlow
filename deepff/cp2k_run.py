@@ -200,20 +200,7 @@ def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 
           cp2k_sys_task_dir = ''.join((cp2k_sys_dir, '/task_', str(j)))
           traj_num = process.get_traj_num(cp2k_sys_task_dir)
           undo_task = [index for (index,value) in enumerate(check_cp2k_run[i][j]) if value==1]
-          if ( len(undo_task) > 20 ):
-            undo_task_str = data_op.comb_list_2_str(undo_task, ' ')
-            str_print = '  Warning: ab initio force calculations fail for tasks %s in system %d in task %d by cp2k' \
-                        %(undo_task_str, i, j)
-            str_print = data_op.str_wrap(str_print, 80, '  ')
-            print (str_print, flush=True)
-            str_print = '''  Running error: two many cp2k jobs fail in No.%d iteration, two possible reasons:
-  (1) The MD trajectory by lammps crash, so the choosed geometry is very bad.
-  (2) Running error by parallel or mpi. For this case, you could restart the
-      calculation.''' %(iter_id)
-            print ('Warning'.center(80,'*'), flush=True)
-            print (str_print, flush=True)
-            exit()
-          elif ( len(undo_task) < 20 ):
+          if ( len(undo_task) != 0 and len(undo_task) < traj_num ):
             if ( job_mode == 'workstation' ):
               run_start = 0
               run_end = run_start+cp2k_job_per_node*len(host)
