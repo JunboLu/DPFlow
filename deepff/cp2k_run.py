@@ -233,8 +233,12 @@ def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 
             elif ( job_mode == 'auto_submit' ):
               for undo_id in undo_task:
                 undo_task_flag_file = ''.join((cp2k_sys_task_dir, '/traj_', str(undo_id), '/success.flag'))
+                undo_task_log_file = ''.join((cp2k_sys_task_dir, '/traj_', str(undo_id), '/cp2k.out'))
                 if ( os.path.exists(undo_task_flag_file) ):
                   subprocess.run('rm %s' %(undo_task_flag_file), \
+                                 cwd=''.join((cp2k_sys_task_dir, '/traj_', str(undo_id))), shell=True)
+                if ( os.path.exists(undo_task_log_file) ):
+                  subprocess.run('rm %s' %(undo_task_log_file), \
                                  cwd=''.join((cp2k_sys_task_dir, '/traj_', str(undo_id))), shell=True)
               submit_cp2kfrc(cp2k_sys_task_dir, i, j, iter_id, undo_task, cp2k_queue[0], cp2k_exe, max_cp2k_job, \
                              cp2k_core_num, cp2k_env_file, submit_system, max_cp2k_job+i)
@@ -322,13 +326,25 @@ x_arr=(${x///})
 new_direc=$direc/traj_${x_arr[0]}
 cd $new_direc
 if [ -f "cp2k-1_0.xyz" ]; then
-rm cp2k-1_0.xyz cp2k-1.coordLog cp2k-1.Log
+rm cp2k-1_0.xyz
+fi
+if [ -f "cp2k-1.coordLog" ]; then
+rm cp2k-1.coordLog
+fi
+if [ -f "cp2k-1.Log" ]; then
+rm cp2k-1.Log
 fi
 mpirun -np ${x_arr[1]} %s $new_direc/input.inp 1> $new_direc/cp2k.out 2> $new_direc/cp2k.err
 converge_info=`grep "SCF run NOT converged" cp2k.out`
 if [ $? -eq 0 ]; then
 if [ -f "cp2k-1_0.xyz" ]; then
-rm cp2k-1_0.xyz cp2k-1.coordLog cp2k-1.Log
+rm cp2k-1_0.xyz
+fi
+if [ -f "cp2k-1.coordLog" ]; then
+rm cp2k-1.coordLog
+fi
+if [ -f "cp2k-1.Log" ]; then
+rm cp2k-1.Log
 fi
 mpirun -np ${x_arr[1]} %s $new_direc/input.inp 1> $new_direc/cp2k.out 2> $new_direc/cp2k.err
 fi
@@ -569,12 +585,19 @@ def run_cp2kfrc_as(work_dir, iter_id, cp2k_queue, cp2k_exe, max_cp2k_job, \
 
         while True:
           time.sleep(10)
-          judge = []
+          judge_flag = []
+          judge_log = []
           for k in range(traj_num):
             flag_file_name = ''.join((cp2k_sys_task_dir, '/traj_', str(k), '/success.flag'))
-            judge.append(os.path.exists(flag_file_name))
-          if all(judge):
+            log_file_name = ''.join((cp2k_sys_task_dir, '/traj_', str(k), '/cp2k.out'))
+            judge_flag.append(os.path.exists(flag_file_name))
+            judge_log.append(os.path.exists(log_file_name))
+          if all(judge_flag):
             break
+          else:
+            if all(judge_log):
+              time.sleep(600)
+              break
 
   run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 'auto_submit', None, \
                    None, None, None, None, cp2k_queue, max_cp2k_job, cp2k_core_num, submit_system)

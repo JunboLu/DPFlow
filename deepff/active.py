@@ -502,7 +502,7 @@ def dp_test_iter(work_dir, inp_file, deepmd_dic, lammps_dic, active_learn_dic, c
         print (str_print, flush=True)
       write_data.write_restart_inp(inp_file, i, 1, data_num, work_dir)
       if ( i>0 ):
-        failure_model = process.check_deepff_run(work_dir, i)
+        failure_model = process.check_deepff_run(work_dir, i, dp_version)
         if ( len(failure_model) == 0 ):
           pass
         else:
@@ -552,7 +552,7 @@ def dp_test_iter(work_dir, inp_file, deepmd_dic, lammps_dic, active_learn_dic, c
                                        lmp_frc_job_per_node, host, device, atoms_num_tot, use_bias_tot, 'dp_test')
       elif ( job_mode == 'auto_submit' ):
         lammps_frc_run.run_lmpfrc_as(work_dir, i, 'dp_test', use_bias_tot, lmp_path, lmp_exe, \
-                                     cp2k_queue, cp2k_core_num, max_cp2k_num, parallel_exe, \
+                                     cp2k_queue, cp2k_core_num, max_cp2k_job, parallel_exe, \
                                      submit_system, atoms_num_tot)
 
       write_data.write_restart_inp(inp_file, i, 3, data_num, work_dir)

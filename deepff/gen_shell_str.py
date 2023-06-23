@@ -539,13 +539,25 @@ if [ -f "success.flag" ]; then
 rm success.flag
 fi
 if [ -f "cp2k-1_0.xyz" ]; then
-rm cp2k-1_0.xyz cp2k-1.coordLog cp2k-1.Log
+rm cp2k-1_0.xyz
+fi
+if [ -f "cp2k-1.coordLog" ]; then
+rm cp2k-1.coordLog
+fi
+if [ -f "cp2k-1.Log" ]; then
+rm cp2k-1.Log
 fi
 mpirun -np %d %s $new_direc/input.inp 1> $new_direc/cp2k.out 2> $new_direc/cp2k.err
 converge_info=`grep "SCF run NOT converged" cp2k.out`
 if [ $? -eq 0 ]; then
 if [ -f "cp2k-1_0.xyz" ]; then
-rm cp2k-1_0.xyz cp2k-1.coordLog cp2k-1.Log
+rm cp2k-1_0.xyz
+fi
+if [ -f "cp2k-1.coordLog" ]; then
+rm cp2k-1.coordLog
+fi
+if [ -f "cp2k-1.Log" ]; then
+rm cp2k-1.Log
 fi
 mpirun -np %d %s $new_direc/input.inp 1> $new_direc/cp2k.out 2> $new_direc/cp2k.err
 fi

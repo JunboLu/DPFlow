@@ -286,6 +286,10 @@ def gen_deepmd_test_task(deepmd_test_dic, work_dir, iter_id, data_num, tot_atoms
 
     numb_test = deepmd_dic['training']['numb_test']
     init_train_data = deepmd_dic['training']['systems']
+    for init_data in init_train_data:
+      if ( not os.path.exists(init_data) ):
+        log_info.log_err('%s does not exist, the directory for training may be changed.')
+        exit()
     data_dir, final_data_dir = assign_data_dir(work_dir, init_train_data, iter_id, numb_test)
 
     if ( iter_id > 1 and len(final_data_dir) == 0 ):
@@ -304,7 +308,6 @@ def gen_deepmd_test_task(deepmd_test_dic, work_dir, iter_id, data_num, tot_atoms
     use_prev_model = deepmd_test_dic['use_prev_model']
     lr_scale = deepmd_test_dic['lr_scale']
     start_lr = deepmd_test_dic['start_lr']
-    stop_batch = deepmd_test_dic['stop_batch']
     batch_size = deepmd_dic['training']['batch_size']
     
     if not fix_stop_batch:
@@ -327,7 +330,7 @@ def gen_deepmd_test_task(deepmd_test_dic, work_dir, iter_id, data_num, tot_atoms
         deepmd_dic['learning_rate']['start_lr'] = start_lr/(100.0)
       else:
         deepmd_dic['learning_rate']['start_lr'] = start_lr/(lr_scale**iter_id)
-      deepmd_dic['training']['stop_batch'] = int(deepmd_test_dic['stop_batch']/2)
+      deepmd_dic['training']['stop_batch'] = int(deepmd_dic['training']['stop_batch']/2)
       prob_sys_1, prob_sys_2 = assign_prob(data_dir, final_data_dir, data_num, iter_id, 1)
       auto_prob_style = data_op.comb_list_2_str(['prob_sys_size', prob_sys_1, prob_sys_2], ';')
       deepmd_dic['training']['auto_prob_style'] = auto_prob_style

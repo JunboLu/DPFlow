@@ -666,6 +666,8 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
       if all(judge):
         break
      
+  #Check the deepmd tasks.
+  check_deepmd_run(train_dir, model_num)
 
 if __name__ == '__main__':
   from DPFlow.deepff import deepmd_run
