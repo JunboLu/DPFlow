@@ -244,12 +244,19 @@ def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 
                              cp2k_core_num, cp2k_env_file, submit_system, max_cp2k_job+i)
               while True:
                 time.sleep(10)
-                judge = []
+                judge_flag = []
+                judge_log = []
                 for k in range(traj_num):
                   flag_file_name = ''.join((cp2k_sys_task_dir, '/traj_', str(k), '/success.flag'))
-                  judge.append(os.path.exists(flag_file_name))
-                if all(judge):
+                  log_file_name = ''.join((cp2k_sys_task_dir, '/traj_', str(k), '/cp2k.out'))
+                  judge_flag.append(os.path.exists(flag_file_name))
+                  judge_log.append(os.path.exists(log_file_name))
+                if all(judge_flag):
                   break
+                else:
+                  if all(judge_log):
+                    time.sleep(600)
+                    break
 
           elif ( len(undo_task) == traj_num):
             log_info.log_error('Running error: ab initio force calculations running error, please check iteration %d' %(iter_id))
