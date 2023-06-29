@@ -471,7 +471,7 @@ def get_job_id(work_dir, submit_system, job_type, rand_int):
     for i in job_name_info:
       if ( ''.join((job_type, str(rand_int))) in i ):
         job_index = job_name_info.index(i)
-        job_id_choose = job_id_info(job_index)
+        job_id_choose = job_id_info[job_index]
         job_id = int(data_op.comb_list_2_str([int(s) for s in job_id_choose if s.isdigit()], ''))
 
   return job_id

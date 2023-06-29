@@ -42,7 +42,7 @@ def pre_process(work_dir, iter_id, use_prev_model, start, end, dp_version, base)
   lcurve_file_exists = []
   final_batch = []
   for i in model_list:
-    if ( i == 0 ):
+    if ( i == model_list[len(model_list)-1] ):
       input_file = ''.join((deepmd_train_dir, '/', str(i), '/input.json'))
       with open(input_file, 'r') as f:
         deepmd_dic = json.load(f)

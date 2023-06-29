@@ -64,7 +64,7 @@ def gen_pbs_normal(queue, core_num, gpu_num, job_name):
 #PBS -l nodes=1:ppn=%d
 #PBS -j oe
 #PBS -V
-#PBS -N iter_%d_%s
+#PBS -N %s
 #PBS -o output.o
 #PBS -e error.e
 ''' %(queue, core_num, job_name)
