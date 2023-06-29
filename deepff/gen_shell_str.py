@@ -1,6 +1,6 @@
 #! /env/bin/python
 
-def gen_lsf_normal(queue, core_num, iter_id, job_name):
+def gen_lsf_normal(queue, core_num, job_name):
 
   '''
   gen_lsf_normal: generate normal input for lsf submit script
@@ -10,8 +10,6 @@ def gen_lsf_normal(queue, core_num, iter_id, job_name):
       queue is the name of queue.
     core_num: int
       core_num is the number of cpu cores.
-    iter_id: int
-      iter_id is the iteration id.
     job_name: string
       job_name is the name of job.
   Return:
@@ -23,15 +21,15 @@ def gen_lsf_normal(queue, core_num, iter_id, job_name):
 #!/bin/bash
 #BSUB -q %s
 #BSUB -n %d
-#BSUB -J iter_%d_%s
+#BSUB -J %s
 #BSUB -R "span[hosts=1]"
 #BSUB -e %s.err
 #BSUB -o %s.out
-''' %(queue, core_num, iter_id, job_name, '%J', '%J')
+''' %(queue, core_num, job_name, '%J', '%J')
 
   return script
 
-def gen_pbs_normal(queue, core_num, gpu_num, iter_id, job_name):
+def gen_pbs_normal(queue, core_num, gpu_num, job_name):
 
   '''
   gen_pbs_normal: generate normal input for pbs submit script
@@ -41,8 +39,6 @@ def gen_pbs_normal(queue, core_num, gpu_num, iter_id, job_name):
       queue is the name of queue.
     core_num: int
       core_num is the number of cpu cores.
-    iter_id: int
-      iter_id is the iteration id.
     job_name: string
       job_name is the name of job.
   Return:
@@ -57,10 +53,10 @@ def gen_pbs_normal(queue, core_num, gpu_num, iter_id, job_name):
 #PBS -l nodes=1:ppn=%d:gpu=%d
 #PBS -j oe
 #PBS -V
-#PBS -N iter_%d_%s
+#PBS -N %s
 #PBS -o output.o
 #PBS -e error.e
-''' %(queue, core_num, gpu_num, iter_id, job_name)
+''' %(queue, core_num, gpu_num, job_name)
   else:
     script = '''
 #!/bin/bash
@@ -71,11 +67,11 @@ def gen_pbs_normal(queue, core_num, gpu_num, iter_id, job_name):
 #PBS -N iter_%d_%s
 #PBS -o output.o
 #PBS -e error.e
-''' %(queue, core_num, iter_id, job_name)
+''' %(queue, core_num, job_name)
 
   return script
 
-def gen_slurm_normal(core_num, queue, iter_id, job_name):
+def gen_slurm_normal(core_num, queue, job_name):
 
   '''
   gen_pbs_normal: generate normal input for pbs submit script
@@ -85,8 +81,6 @@ def gen_slurm_normal(core_num, queue, iter_id, job_name):
       queue is the name of queue.
     core_num: int
       core_num is the number of cpu cores.
-    iter_id: int
-      iter_id is the iteration id.
     job_name: string
       job_name is the name of job.
   Return:
@@ -102,7 +96,7 @@ def gen_slurm_normal(core_num, queue, iter_id, job_name):
 #SBATCH --job-name=iter_%d_%s
 #SBATCH -o output.o
 #SBATCH -e error.e
-''' %(core_num, queue, iter_id, job_name)
+''' %(core_num, queue, job_name)
 
   return script
 

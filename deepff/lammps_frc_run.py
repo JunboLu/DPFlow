@@ -263,40 +263,41 @@ def run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type,
           lmp_sys_task_dir = ''.join((lmp_sys_dir, '/task_', str(j)))
           model_num = process.get_lmp_model_num(lmp_sys_task_dir)
           for k in range(model_num):
-            if ( len(check_lmp_frc_run[i][j][k]) != 0 and all(m == 0 for m in check_lmp_frc_run[i][j][k]) ):
-              lmp_frc_statu.append(0)
-            else:
-              lmp_frc_statu.append(1)
-              undo_task = [index for (index,value) in enumerate(check_lmp_frc_run[i][j][k]) if value==1]
-              model_dir = ''.join((lmp_dir, '/sys_', str(i), '/task_', str(j), '/model_', str(k)))
-              traj_num = process.get_traj_num(model_dir)
-              if ( len(undo_task) != 0 ):
-                if ( mode == 'workstation' ):
-                  cycle = math.ceil(len(undo_task)/(lmp_frc_job_per_node*len(host)))
-                  start = 0
-                  end = min(len(undo_task), lmp_frc_job_per_node*len(host))
-                  for l in range(cycle):
-                    task_index = undo_task[start:end]
-                    lmpfrc_parallel(model_dir, work_dir, task_index, parallel_exe, lmp_path, \
-                                    lmp_exe, lmp_frc_job_per_node, host, ssh)
-                    start = min(len(undo_task)-1, start+lmp_frc_job_per_node*len(host))
-                    end = min(len(undo_task), end+lmp_frc_job_per_node*len(host))
-                elif ( mode == 'auto_submit' ):
-                  for undo_id in undo_task:
-                    undo_task_flag_file = ''.join((model_dir, '/traj_', str(undo_id), '/success.flag'))
-                    if ( os.path.exists(undo_task_flag_file) ):
-                      subprocess.run('rm %s' %(undo_task_flag_file), \
-                                     cwd=''.join((model_dir, '/traj_', str(undo_id))), shell=True)
-                  submit_lmpfrc_discrete(lmp_dir, i, j, k, iter_id, undo_task, lmp_queue, \
-                                         lmp_exe, lmp_core_num, parallel_exe, submit_system)
-                  while True:
-                    time.sleep(10)
-                    judge = []
-                    for l in range(traj_num):
-                      flag_file_name = ''.join((model_dir, '/traj_', str(l), '/success.flag'))
-                      judge.append(os.path.exists(flag_file_name))
-                    if all(judge):
-                       break
+            if ( use_bias_tot[i] or k != 0 ):
+              if ( len(check_lmp_frc_run[i][j][k]) != 0 and all(m == 0 for m in check_lmp_frc_run[i][j][k]) ):
+                lmp_frc_statu.append(0)
+              else:
+                lmp_frc_statu.append(1)
+                undo_task = [index for (index,value) in enumerate(check_lmp_frc_run[i][j][k]) if value==1]
+                model_dir = ''.join((lmp_dir, '/sys_', str(i), '/task_', str(j), '/model_', str(k)))
+                traj_num = process.get_traj_num(model_dir)
+                if ( len(undo_task) != 0 ):
+                  if ( mode == 'workstation' ):
+                    cycle = math.ceil(len(undo_task)/(lmp_frc_job_per_node*len(host)))
+                    start = 0
+                    end = min(len(undo_task), lmp_frc_job_per_node*len(host))
+                    for l in range(cycle):
+                      task_index = undo_task[start:end]
+                      lmpfrc_parallel(model_dir, work_dir, task_index, parallel_exe, lmp_path, \
+                                      lmp_exe, lmp_frc_job_per_node, host, ssh)
+                      start = min(len(undo_task)-1, start+lmp_frc_job_per_node*len(host))
+                      end = min(len(undo_task), end+lmp_frc_job_per_node*len(host))
+                  elif ( mode == 'auto_submit' ):
+                    for undo_id in undo_task:
+                      undo_task_flag_file = ''.join((model_dir, '/traj_', str(undo_id), '/success.flag'))
+                      if ( os.path.exists(undo_task_flag_file) ):
+                        subprocess.run('rm %s' %(undo_task_flag_file), \
+                                       cwd=''.join((model_dir, '/traj_', str(undo_id))), shell=True)
+                    submit_lmpfrc_discrete(work_dir, i, j, k, iter_id, undo_task, lmp_queue, \
+                                           lmp_exe, lmp_core_num, parallel_exe, submit_system)
+                    while True:
+                      time.sleep(10)
+                      judge = []
+                      for l in range(traj_num):
+                        flag_file_name = ''.join((model_dir, '/traj_', str(l), '/success.flag'))
+                        judge.append(os.path.exists(flag_file_name))
+                      if all(judge):
+                         break
       else:
         for j in range(task_num):
           lmp_frc_statu.append(0)
@@ -371,57 +372,58 @@ def run_lmpfrc_ws(work_dir, iter_id, lmp_path, lmp_exe, parallel_exe, lmp_frc_jo
         lmp_sys_task_dir = ''.join((lmp_sys_dir, '/task_', str(j)))
         model_num = process.get_lmp_model_num(lmp_sys_task_dir)
         for k in range(model_num):
-          model_dir = ''.join((lmp_sys_task_dir, '/model_', str(k)))
-          host_name_proc = []
-          for l in range(len(host)):
-            host_name_proc.append(''.join((str(lmp_frc_job_per_node), '/', host[l])))
-          host_info = data_op.comb_list_2_str(host_name_proc, ',')
-          traj_num = process.get_traj_num(model_dir)
+          if ( use_bias_tot[i] or k != 0 ):
+            model_dir = ''.join((lmp_sys_task_dir, '/model_', str(k)))
+            host_name_proc = []
+            for l in range(len(host)):
+              host_name_proc.append(''.join((str(lmp_frc_job_per_node), '/', host[l])))
+            host_info = data_op.comb_list_2_str(host_name_proc, ',')
+            traj_num = process.get_traj_num(model_dir)
 
-          calculated_id = 0
-          undo_task = []
-          for l in range(traj_num):
-            traj_dir = ''.join((model_dir, '/traj_', str(l)))
-            dump_file_name_abs = ''.join((traj_dir, '/atom.dump'))
-            log_file_name_abs = ''.join((traj_dir, '/lammps.out'))
-            if ( os.path.exists(dump_file_name_abs) ):
-              if ( not file_tools.is_binary(dump_file_name_abs) and \
-                 len(open(dump_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+9 and \
-                 os.path.exists(log_file_name_abs) and \
-                 file_tools.grep_line_num('Step', log_file_name_abs, traj_dir) != 0 and \
-                 file_tools.grep_line_num('Loop time', log_file_name_abs, traj_dir) != 0 ):
-                pass
+            calculated_id = 0
+            undo_task = []
+            for l in range(traj_num):
+              traj_dir = ''.join((model_dir, '/traj_', str(l)))
+              dump_file_name_abs = ''.join((traj_dir, '/atom.dump'))
+              log_file_name_abs = ''.join((traj_dir, '/lammps.out'))
+              if ( os.path.exists(dump_file_name_abs) ):
+                if ( not file_tools.is_binary(dump_file_name_abs) and \
+                   len(open(dump_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+9 and \
+                   os.path.exists(log_file_name_abs) and \
+                   file_tools.grep_line_num('Step', log_file_name_abs, traj_dir) != 0 and \
+                   file_tools.grep_line_num('Loop time', log_file_name_abs, traj_dir) != 0 ):
+                  pass
+                else:
+                  undo_task.append(l)
               else:
                 undo_task.append(l)
-            else:
-              undo_task.append(l)
 
-          start = 0
-          end = min(len(undo_task), start+lmp_frc_job_per_node*len(host))
-          cycle = math.ceil(len(undo_task)/(lmp_frc_job_per_node*len(host)))
+            start = 0
+            end = min(len(undo_task), start+lmp_frc_job_per_node*len(host))
+            cycle = math.ceil(len(undo_task)/(lmp_frc_job_per_node*len(host)))
 
-          for l in range(cycle):
-            if ( use_bias_tot[i] or k != 0 ):
-              task_index = undo_task[start:end]
-              lmpfrc_parallel(model_dir, work_dir, task_index, parallel_exe, lmp_path, \
-                              lmp_exe, lmp_frc_job_per_node, host_info, ssh)
-            start = min(len(undo_task)-1, start+lmp_frc_job_per_node*len(host))
-            end = min(len(undo_task), end+lmp_frc_job_per_node*len(host))
+            for l in range(cycle):
+              if ( use_bias_tot[i] or k != 0 ):
+                task_index = undo_task[start:end]
+                lmpfrc_parallel(model_dir, work_dir, task_index, parallel_exe, lmp_path, \
+                                lmp_exe, lmp_frc_job_per_node, host_info, ssh)
+              start = min(len(undo_task)-1, start+lmp_frc_job_per_node*len(host))
+              end = min(len(undo_task), end+lmp_frc_job_per_node*len(host))
 
   run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type, 'workstation', \
                   parallel_exe, lmp_path, lmp_exe, lmp_frc_job_per_node, host_info, ssh, None, None, None)
 
   print ('  Success: lammps force calculations for %d systems by lammps' %(sys_num), flush=True)
 
-def submit_lmpfrc_discrete(lmp_dir, sys_id, task_id, model_id, iter_id, undo_task, \
-                           lmp_queue, lmp_exe, lmp_core_num, parallel_exe, submit_system):
+def submit_lmpfrc_discrete(work_dir, sys_id, task_id, model_id, iter_id, undo_task, lmp_queue, \
+                           lmp_exe, lmp_core_num, parallel_exe, submit_system, return_job_id=False):
 
   '''
   submit_lmpfrc_discrete: submit discrete lammps force jobs to remote host.
 
   Args:
-    lmp_dir: string
-      lmp_dir is directory of lammps calculation.
+    work_dir: string
+      work_dir is the working directory.
     sys_id: int
       sys_id is the id of system.
     task_id: int
@@ -443,17 +445,21 @@ def submit_lmpfrc_discrete(lmp_dir, sys_id, task_id, model_id, iter_id, undo_tas
     submit_system: string
       submit_system is the submition system.
   Returns:
-    none
+    job_id: int
+      job_id is the id of job.
   '''
 
+  lmp_dir = ''.join((work_dir, '/iter_', str(iter_id), '/02.lammps_calc'))
   model_dir = ''.join((lmp_dir, '/sys_', str(sys_id), '/task_', str(task_id), '/model_', str(model_id)))
   task_index = data_op.comb_list_2_str(undo_task, ' ')
 
-  job_label = ''.join(('lmp_frc', '_sys_', str(sys_id), '_task_', str(task_id), '_model_', str(model_id)))
+  rand_int = np.random.randint(10000000000)
+  job_label = ''.join(('lmp_frc_', str(rand_int)))
+
   if ( submit_system == 'lsf' ):
 
     submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
+    script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, job_label)
     script_2 = gen_shell_str.gen_cd_lsfcwd()
     script_3 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
     with open(submit_file_name_abs, 'w') as f:
@@ -464,7 +470,7 @@ def submit_lmpfrc_discrete(lmp_dir, sys_id, task_id, model_id, iter_id, undo_tas
   if ( submit_system == 'pbs' ):
 
     submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, iter_id, job_label)
+    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, job_label)
     script_2 = gen_shell_str.gen_cd_pbscwd()
     script_3 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
     with open(submit_file_name_abs, 'w') as f:
@@ -475,22 +481,26 @@ def submit_lmpfrc_discrete(lmp_dir, sys_id, task_id, model_id, iter_id, undo_tas
   if ( submit_system == 'slurm' ):
 
     submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, iter_id, job_label)
+    script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, job_label)
     script_2 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
     with open(submit_file_name_abs, 'w') as f:
       f.write(script_1+script_2)
 
     subprocess.run('sbatch ./lmp_frc.sub', cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
 
-def submit_lmpfrc_serial(lmp_dir, sys_id, task_id, model_id, cycle_id, iter_id, start, end, \
-                         lmp_queue, lmp_exe, lmp_core_num, parallel_exe, submit_system):
+  if return_job_id:
+    job_id = process.get_job_id(work_dir, submit_system, 'lmp_frc_', rand_int)
+    return job_id
+
+def submit_lmpfrc_serial(work_dir, sys_id, task_id, model_id, cycle_id, iter_id, start, end, \
+                         lmp_queue, lmp_exe, lmp_core_num, parallel_exe, submit_system, return_job_id=False):
 
   '''
   submit_lmpfrc_serial: submit serial lammps force jobs to remote host.
 
   Args:
-    lmp_dir: string
-      lmp_dir is directory of lammps calculation.
+    work_dir: string
+      work_dir is the working directory.
     sys_id: int
       sys_id is the id of system.
     task_id: int
@@ -516,16 +526,19 @@ def submit_lmpfrc_serial(lmp_dir, sys_id, task_id, model_id, cycle_id, iter_id, 
     submit_system: string
       submit_system is the submition system.
   Returns:
-    none
+    job_id: int
+      job_id is the id of job.
   '''
 
+  lmp_dir = ''.join((work_dir, '/iter_', str(iter_id), '/02.lammps_calc'))
   model_dir = ''.join((lmp_dir, '/sys_', str(sys_id), '/task_', str(task_id), '/model_', str(model_id)))
-  job_label = ''.join(('lmp_frc', '_sys_', str(sys_id), '_task_', str(task_id), '_model_', str(model_id)))
+  rand_int = np.random.randint(10000000000)
+  job_label = ''.join(('lmp_frc_', str(rand_int)))
 
   submit_file_name_abs = ''.join((model_dir, '/lmp_frc_', str(cycle_id), '.sub'))
   if ( submit_system == 'lsf' ): 
 
-    script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, iter_id, job_label)
+    script_1 = gen_shell_str.gen_lsf_normal(lmp_queue, lmp_core_num, job_label)
     script_2 = gen_shell_str.gen_cd_lsfcwd()
     script_3 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
     with open(submit_file_name_abs, 'w') as f:
@@ -535,7 +548,7 @@ def submit_lmpfrc_serial(lmp_dir, sys_id, task_id, model_id, cycle_id, iter_id, 
 
   if ( submit_system == 'pbs' ):
 
-    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, iter_id, job_label)
+    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, job_label)
     script_2 = gen_shell_str.gen_cd_pbscwd()
     script_3 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
     with open(submit_file_name_abs, 'w') as f:
@@ -545,12 +558,16 @@ def submit_lmpfrc_serial(lmp_dir, sys_id, task_id, model_id, cycle_id, iter_id, 
 
   if ( submit_system == 'slurm' ):
 
-    script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, iter_id, job_label)
+    script_1 = gen_shell_str.gen_slurm_normal(lmp_queue, lmp_core_num, job_label)
     script_2 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
     with open(submit_file_name_abs, 'w') as f:
       f.write(script_1+script_2)
 
     subprocess.run('sbatch ./lmp_frc_%d.sub'%(cycle_id), cwd=model_dir, shell=True, stdout=subprocess.DEVNULL)
+
+  if return_job_id:
+    job_id = process.get_job_id(work_dir, submit_system, 'lmp_frc_', rand_int)
+    return job_id
 
 def run_lmpfrc_as(work_dir, iter_id, active_type, use_bias_tot, lmp_path, lmp_exe, lmp_frc_queue, \
                   lmp_frc_core_num, max_lmp_frc_job, parallel_exe, submit_system, atoms_num_tot):
@@ -607,8 +624,9 @@ def run_lmpfrc_as(work_dir, iter_id, active_type, use_bias_tot, lmp_path, lmp_ex
         lmp_sys_task_dir = ''.join((lmp_sys_dir, '/task_', str(j)))
         model_num = process.get_lmp_model_num(lmp_sys_task_dir)
         for k in range(model_num):
-          model_dir = ''.join((lmp_sys_task_dir, '/model_', str(k)))
-          produce = '''
+          if ( use_bias_tot[i] or k != 0 ):
+            model_dir = ''.join((lmp_sys_task_dir, '/model_', str(k)))
+            produce = '''
 #! /bin/bash
 
 lmp_path=%s
@@ -627,60 +645,83 @@ fi
 echo 'success' > success.flag
 ''' %(lmp_path, lmp_exe)
 
-          produce_file_name_abs = ''.join((model_dir, '/produce.sh'))
-          with open(produce_file_name_abs, 'w') as f:
-            f.write(produce)
-          subprocess.run('chmod +x produce.sh', cwd=model_dir, shell=True)
+            produce_file_name_abs = ''.join((model_dir, '/produce.sh'))
+            with open(produce_file_name_abs, 'w') as f:
+              f.write(produce)
+            subprocess.run('chmod +x produce.sh', cwd=model_dir, shell=True)
  
-          traj_num = process.get_traj_num(model_dir)
+            traj_num = process.get_traj_num(model_dir)
 
-          undo_task = []
-          for l in range(traj_num):
-            traj_dir = ''.join((model_dir, '/traj_', str(l)))
-            dump_file_name_abs = ''.join((traj_dir, '/atom.dump'))
-            log_file_name_abs = ''.join((traj_dir, '/lammps.out'))
-            flag_file_name_abs = ''.join((traj_dir, '/success.flag'))
-            if ( os.path.exists(dump_file_name_abs) ):
-              if ( not file_tools.is_binary(dump_file_name_abs) and \
-                 len(open(dump_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+9 and \
-                 os.path.exists(log_file_name_abs) and \
-                 os.path.exists(flag_file_name_abs) and \
-                 file_tools.grep_line_num('Step', log_file_name_abs, traj_dir) != 0 and \
-                 file_tools.grep_line_num('Loop time', log_file_name_abs, traj_dir) != 0 ):
-                pass
+            undo_task = []
+            for l in range(traj_num):
+              traj_dir = ''.join((model_dir, '/traj_', str(l)))
+              dump_file_name_abs = ''.join((traj_dir, '/atom.dump'))
+              log_file_name_abs = ''.join((traj_dir, '/lammps.out'))
+              flag_file_name_abs = ''.join((traj_dir, '/success.flag'))
+              if ( os.path.exists(dump_file_name_abs) ):
+                if ( not file_tools.is_binary(dump_file_name_abs) and \
+                   len(open(dump_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+9 and \
+                   os.path.exists(log_file_name_abs) and \
+                   os.path.exists(flag_file_name_abs) and \
+                   file_tools.grep_line_num('Step', log_file_name_abs, traj_dir) != 0 and \
+                   file_tools.grep_line_num('Loop time', log_file_name_abs, traj_dir) != 0 ):
+                  pass
+                else:
+                  undo_task.append(l)
               else:
                 undo_task.append(l)
+            if ( len(undo_task) != 0 ):
+              for undo_id in undo_task:
+                undo_task_flag_file = ''.join((model_dir, '/traj_', str(undo_id), '/success.flag'))
+                if ( os.path.exists(undo_task_flag_file) ):
+                  subprocess.run('rm %s' %(undo_task_flag_file), \
+                                 cwd=''.join((model_dir, '/traj_', str(undo_id))), shell=True)
+            if ( len(undo_task) != 0 and len(undo_task) < 20 ):
+              undo_task_parts = []
+              undo_task_parts.append(undo_task)
+              job_id = []
+              failure_id = []
+              job_id_part = submit_lmpfrc_discrete(work_dir, i, j, k, iter_id, undo_task, lmp_frc_queue_sub[0], \
+                                                   lmp_exe, lmp_frc_core_num/2, parallel_exe, submit_system, True)
+              if ( job_id_part > 0 ):
+                job_id.append(job_id_part)
+              else:
+                failure_id.append(0)
+            elif ( len(undo_task) > 20 ):
+              lmp_frc_job_per_submit = math.ceil(len(undo_task)/max_lmp_frc_job)
+              undo_task_split = data_op.list_split(undo_task, lmp_frc_job_per_submit)
+              undo_task_parts = []
+              for l in undo_task_split:
+                undo_task_parts.append(l)
+              job_id = []
+              failure_id = []
+              for l in range(len(undo_task_parts)):
+                undo_task_l = undo_task_parts[l]
+                start = undo_task_l[0]
+                end = undo_task_l[len(undo_task_l)-1]
+                job_id_part = submit_lmpfrc_serial(work_dir, i, j, k, l, iter_id, start, end, lmp_frc_queue_sub[l], \
+                                                   lmp_exe, lmp_frc_core_num/2, parallel_exe, submit_system, True)
+                if ( job_id_part > 0 ):
+                  job_id.append(job_id_part)
+                else:
+                  failure_id.append(l)
+            if ( len(job_id) == len(undo_task_parts) ):
+              str_print = 'Success: submit lammps force job for system %d task %d model %d in iteration %d with job id %s' %(i, j, k, iter_id, data_op.comb_list_2_str(job_id, ' '))
+              str_print = data_op.str_wrap(str_print, 80, '  ')
+              print (str_print, flush=True)
+
+              while True:
+                time.sleep(10)
+                judge = []
+                for l in range(traj_num):
+                  flag_file_name = ''.join((model_dir, '/traj_', str(l), '/success.flag'))
+                  judge.append(os.path.exists(flag_file_name))
+                if all(judge):
+                  break
             else:
-              undo_task.append(l)
-          if ( len(undo_task) != 0 ):
-            for undo_id in undo_task:
-              undo_task_flag_file = ''.join((model_dir, '/traj_', str(undo_id), '/success.flag'))
-              if ( os.path.exists(undo_task_flag_file) ):
-                subprocess.run('rm %s' %(undo_task_flag_file), \
-                               cwd=''.join((model_dir, '/traj_', str(undo_id))), shell=True)
-          if ( len(undo_task) != 0 and len(undo_task) < 20 ):
-            submit_lmpfrc_discrete(lmp_dir, i, j, k, iter_id, undo_task, lmp_frc_queue_sub[0], \
-                                   lmp_exe, lmp_frc_core_num/2, parallel_exe, submit_system)
-          elif ( len(undo_task) > 20 ):
-            lmp_frc_job_per_submit = math.ceil(len(undo_task)/max_lmp_frc_job)
-            undo_task_split = data_op.list_split(undo_task, lmp_frc_job_per_submit)
-            undo_task_parts = []
-            for l in undo_task_split:
-              undo_task_parts.append(l)
-            for l in range(len(undo_task_parts)):
-              undo_task_l = undo_task_parts[l]
-              start = undo_task_l[0]
-              end = undo_task_l[len(undo_task_l)-1]
-              submit_lmpfrc_serial(lmp_dir, i, j, k, l, iter_id, start, end, lmp_frc_queue_sub[l], \
-                                   lmp_exe, lmp_frc_core_num/2, parallel_exe, submit_system)
-          while True:
-            time.sleep(10)
-            judge = []
-            for l in range(traj_num):
-              flag_file_name = ''.join((model_dir, '/traj_', str(l), '/success.flag'))
-              judge.append(os.path.exists(flag_file_name))
-            if all(judge):
-              break
+              log_info.log_error('Fail to submit lammps force job for system %d task %d model %d in iteration %d' \
+                                 %(i, j, k, iter_id))
+              exit()
 
   run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type, \
                   'auto_submit', parallel_exe, lmp_path, lmp_exe, None, None, None, \

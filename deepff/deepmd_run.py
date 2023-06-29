@@ -11,6 +11,7 @@ from DPFlow.tools import file_tools
 from DPFlow.tools import call
 from DPFlow.tools import log_info
 from DPFlow.tools import data_op
+from DPFlow.deepff import process
 from DPFlow.deepff import gen_shell_str
 
 def pre_process(work_dir, iter_id, use_prev_model, start, end, dp_version, base):
@@ -567,13 +568,16 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
   cycle = math.ceil(model_num/max_dp_job)
   for i in range(cycle):
     train_id_cycle = []
+    rand_cycle = []
     for j in range(max_dp_job):
       train_id = i*max_dp_job+j
       if ( train_id < model_num ):
         train_id_cycle.append(train_id)
         dp_cmd = pre_process(work_dir, iter_id, use_prev_model, train_id, train_id, dp_version, base)
         train_id_dir = ''.join((train_dir, '/', str(train_id)))
-        job_label = ''.join(('dp_', str(train_id))) 
+        rand_int = np.random.randint(10000000000)
+        rand_cycle.append(rand_int)
+        job_label = ''.join(('dp_', str(rand_int))) 
         flag_file_name_abs = ''.join((train_id_dir, '/success.flag'))
         if ( os.path.exists(flag_file_name_abs) ):
           subprocess.run('rm %s' %(flag_file_name_abs), cwd=train_id_dir, shell=True)
@@ -581,7 +585,7 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
           submit_file_name_abs = ''.join((train_id_dir, '/dp.sub'))
           with open(submit_file_name_abs, 'w') as f:
             if ( dp_gpu_num > 0 and not analyze_gpu ):
-              script_1 = gen_shell_str.gen_lsf_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_lsf_normal(dp_queue_sub[j], dp_core_num, job_label)
               script_2 = gen_shell_str.gen_lsf_gpu_set(1, dp_core_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_dp_env(dp_path)
@@ -590,7 +594,7 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
               f.write(script_1+script_2+script_3+script_4+script_5+script_6)
 
             if ( dp_gpu_num > 0 and analyze_gpu ):
-              script_1 = gen_shell_str.gen_lsf_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_lsf_normal(dp_queue_sub[j], dp_core_num, job_label)
               script_2 = gen_shell_str.gen_lsf_gpu_set(1, dp_core_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_dp_env(dp_path)
@@ -600,7 +604,7 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
               f.write(script_1+script_2+script_3+script_4+script_5+script_6+script_7)
 
             if ( dp_gpu_num == 0 ):
-              script_1 = gen_shell_str.gen_lsf_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_lsf_normal(dp_queue_sub[j], dp_core_num, job_label)
               script_2 = gen_shell_str.gen_cd_lsfcwd()
               script_3 = gen_shell_str.gen_dp_env(dp_path)
               script_4 = gen_shell_str.gen_dp_cmd(dp_cmd)
@@ -612,7 +616,7 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
           submit_file_name_abs = ''.join((train_id_dir, '/dp.sub'))
           with open(submit_file_name_abs, 'w') as f:
             if ( dp_gpu_num > 0 ):
-              script_1 = gen_shell_str.gen_pbs_normal(dp_queue_sub[j], dp_core_num, dp_gpu_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_pbs_normal(dp_queue_sub[j], dp_core_num, dp_gpu_num, job_label)
               script_2 = gen_shell_str.gen_cd_pbscwd()
               script_3 = gen_shell_str.gen_dp_env(dp_path)
               script_4 = gen_shell_str.gen_cuda_env(cuda_dir)
@@ -621,7 +625,7 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
               f.write(script_1+script_2+script_3+script_4+script_5+script_6)
 
             if ( dp_gpu_num == 0 ):
-              script_1 = gen_shell_str.gen_pbs_normal(dp_queue_sub[j], dp_core_num, dp_gpu_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_pbs_normal(dp_queue_sub[j], dp_core_num, dp_gpu_num, job_label)
               script_2 = gen_shell_str.gen_cd_pbscwd()
               script_3 = gen_shell_str.gen_dp_env(dp_path)
               script_4 = gen_shell_str.gen_dp_cmd(dp_cmd)
@@ -633,7 +637,7 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
           submit_file_name_abs = ''.join((train_id_dir, '/dp.sub'))
           with open(submit_file_name_abs, 'w') as f:
             if ( dp_gpu_num > 0 and not analyze_gpu):
-              script_1 = gen_shell_str.gen_slurm_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_slurm_normal(dp_queue_sub[j], dp_core_num, job_label)
               script_2 = gen_shell_str.gen_slurm_gpu_set(1)
               script_3 = gen_shell_str.gen_dp_env(dp_path)
               script_4 = gen_shell_str.gen_cuda_env(cuda_dir)
@@ -641,7 +645,7 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
               f.write(script_1+script_2+script_3+script_4+script_5)
 
             if ( dp_gpu_num > 0 and analyze_gpu):
-              script_1 = gen_shell_str.gen_slurm_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_slurm_normal(dp_queue_sub[j], dp_core_num, job_label)
               script_2 = gen_shell_str.gen_slurm_gpu_set(1)
               script_3 = gen_shell_str.gen_dp_env(dp_path)
               script_4 = gen_shell_str.gen_cuda_env(cuda_dir)
@@ -650,22 +654,40 @@ def run_deepmd_as(work_dir, iter_id, dp_queue, dp_core_num, dp_gpu_num, max_dp_j
               f.write(script_1+script_2+script_3+script_4+script_5+script_6)
 
             if ( dp_gpu_num == 0 ):
-              script_1 = gen_shell_str.gen_slurm_normal(dp_queue_sub[j], dp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_slurm_normal(dp_queue_sub[j], dp_core_num, job_label)
               script_2 = gen_shell_str.gen_dp_env(dp_path)
               script_3 = gen_shell_str.gen_dp_cmd(dp_cmd)
               f.write(script_1+script_2+script_3)
 
           subprocess.run('sbatch ./dp.sub', cwd=train_id_dir, shell=True, stdout=subprocess.DEVNULL)
 
-    while True:
-      time.sleep(10)
-      judge = []
-      for j in train_id_cycle:
-        flag_file_name = ''.join((train_dir, '/', str(j), '/success.flag'))
-        judge.append(os.path.exists(flag_file_name))
-      if all(judge):
-        break
-     
+    job_id = []
+    failure_id = []
+    for j in range(len(train_id_cycle)):
+      job_id_j = process.get_job_id(work_dir, submit_system, 'dp_', rand_cycle[j])
+      if ( job_id_j > 0 ):
+        job_id.append(job_id_j)
+      else:
+        failure_id.append(train_id_cycle[j])
+    if ( len(job_id) == len(train_id_cycle) ):
+      for j in range(len(train_id_cycle)):
+        str_print = 'Success: submit dp train job for model %d in iteration %d with job id %d' \
+                     %(train_id_cycle[j], iter_id, job_id[j])
+        str_print = data_op.str_wrap(str_print, 80, '  ')
+        print (str_print, flush=True)
+      while True:
+        time.sleep(10)
+        judge = []
+        for j in train_id_cycle:
+          flag_file_name = ''.join((train_dir, '/', str(j), '/success.flag'))
+          judge.append(os.path.exists(flag_file_name))
+        if all(judge):
+          break
+    else:
+      log_info.log_error('Fail to submit dp train job for model %s in iteration %d' \
+                         %(data_op.comb_list_2_str(failure_id, ' '), iter_id))
+      exit()
+
   #Check the deepmd tasks.
   check_deepmd_run(train_dir, model_num)
 

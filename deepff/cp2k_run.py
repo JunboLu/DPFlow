@@ -240,7 +240,7 @@ def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 
                 if ( os.path.exists(undo_task_log_file) ):
                   subprocess.run('rm %s' %(undo_task_log_file), \
                                  cwd=''.join((cp2k_sys_task_dir, '/traj_', str(undo_id))), shell=True)
-              submit_cp2kfrc(cp2k_sys_task_dir, i, j, iter_id, undo_task, cp2k_queue[0], cp2k_exe, max_cp2k_job, \
+              submit_cp2kfrc(work_dir, i, j, iter_id, undo_task, cp2k_queue[0], cp2k_exe, max_cp2k_job, \
                              cp2k_core_num, cp2k_env_file, submit_system, max_cp2k_job+i)
               while True:
                 time.sleep(10)
@@ -455,8 +455,8 @@ def run_cp2kfrc_ws(work_dir, iter_id, cp2k_exe, parallel_exe, cp2k_env_file, \
   run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 'workstation', \
                    cp2k_job_per_node, host, ssh, proc_num_per_node, parallel_exe, None, None, None, None)
   
-def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_queue, cp2k_exe, \
-                   max_cp2k_job, cp2k_core_num, cp2k_env_file, submit_system, cycle_id):
+def submit_cp2kfrc(work_dir, sys_id, task_id, iter_id, undo_task, cp2k_queue, cp2k_exe, \
+                   max_cp2k_job, cp2k_core_num, cp2k_env_file, submit_system, cycle_id, return_job_id=False):
 
   '''
   submit_cp2kfrc: submit discrete cp2k force jobs to remote host.
@@ -490,7 +490,12 @@ def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_
     none
   '''
 
-  job_label = ''.join(('cp2k_', str(cycle_id), '_sys_', str(sys_id), '_task_', str(task_id)))
+  import numpy as np
+
+  cp2k_sys_task_dir = ''.join((work_dir, '/iter_', str(iter_id), '/03.cp2k_calc/sys_', \
+                               str(sys_id), '/task_', str(task_id)))
+  rand_int = np.random.randint(10000000000)
+  job_label = ''.join(('cp2k_', str(rand_int)))
 
   line_num = file_tools.grep_line_num('#%Module', cp2k_env_file, cp2k_sys_task_dir)
   if ( line_num == 0 ):
@@ -503,7 +508,7 @@ def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_
   submit_file_name_abs = ''.join((cp2k_sys_task_dir, '/cp2k_', str(cycle_id), '.sub'))
   if ( submit_system == 'lsf' ):
 
-    script_1 = gen_shell_str.gen_lsf_normal(cp2k_queue, cp2k_core_num, iter_id, job_label)
+    script_1 = gen_shell_str.gen_lsf_normal(cp2k_queue, cp2k_core_num, job_label)
     script_2 = gen_shell_str.gen_cd_lsfcwd()
     script_3 = gen_shell_str.gen_cp2k_script(set_cp2k_env, cp2k_sys_task_dir, task_index, cp2k_core_num, cp2k_exe)
     with open(submit_file_name_abs, 'w') as f:
@@ -512,7 +517,7 @@ def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_
 
   if ( submit_system == 'pbs' ):
 
-    script_1 = gen_shell_str.gen_pbs_normal(cp2k_queue, cp2k_core_num, 0, iter_id, job_label)
+    script_1 = gen_shell_str.gen_pbs_normal(cp2k_queue, cp2k_core_num, 0, job_label)
     script_2 = gen_shell_str.gen_cd_pbscwd()
     script_3 = gen_shell_str.gen_cp2k_script(set_cp2k_env, cp2k_sys_task_dir, task_index, cp2k_core_num, cp2k_exe)
     with open(submit_file_name_abs, 'w') as f:
@@ -521,11 +526,15 @@ def submit_cp2kfrc(cp2k_sys_task_dir, sys_id, task_id, iter_id, undo_task, cp2k_
 
   if ( submit_system == 'slurm' ):
 
-    script_1 = gen_shell_str.gen_slurm_normal(cp2k_queue, cp2k_core_num, iter_id, job_label)
+    script_1 = gen_shell_str.gen_slurm_normal(cp2k_queue, cp2k_core_num, job_label)
     script_2 = gen_shell_str.gen_cp2k_script(set_cp2k_env, cp2k_sys_task_dir, task_index, cp2k_core_num, cp2k_exe)
     with open(submit_file_name_abs, 'w') as f:
       f.write(script_1+script_2)
     subprocess.run('sbatch ./cp2k_%d.sub'%(cycle_id), cwd=cp2k_sys_task_dir, shell=True, stdout=subprocess.DEVNULL)
+
+  if return_job_id:
+    job_id = process.get_job_id(work_dir, submit_system, 'cp2k_', rand_int)
+    return job_id
 
 def run_cp2kfrc_as(work_dir, iter_id, cp2k_queue, cp2k_exe, max_cp2k_job, \
                    cp2k_core_num, cp2k_env_file, submit_system, atoms_num_tot):
@@ -586,25 +595,39 @@ def run_cp2kfrc_as(work_dir, iter_id, cp2k_queue, cp2k_exe, max_cp2k_job, \
         undo_task_parts = []
         for k in undo_task_split:
           undo_task_parts.append(k)
+        job_id = []
+        failure_id = []
         for k in range(len(undo_task_parts)):
-          submit_cp2kfrc(cp2k_sys_task_dir, i, j, iter_id, undo_task_parts[k], cp2k_queue[k], cp2k_exe, \
-                         max_cp2k_job, cp2k_core_num, cp2k_env_file, submit_system, k)
-
-        while True:
-          time.sleep(10)
-          judge_flag = []
-          judge_log = []
-          for k in range(traj_num):
-            flag_file_name = ''.join((cp2k_sys_task_dir, '/traj_', str(k), '/success.flag'))
-            log_file_name = ''.join((cp2k_sys_task_dir, '/traj_', str(k), '/cp2k.out'))
-            judge_flag.append(os.path.exists(flag_file_name))
-            judge_log.append(os.path.exists(log_file_name))
-          if all(judge_flag):
-            break
+          job_id_part = submit_cp2kfrc(work_dir, i, j, iter_id, undo_task_parts[k], cp2k_queue[k], \
+                        cp2k_exe, max_cp2k_job, cp2k_core_num, cp2k_env_file, submit_system, k, True)
+          if ( job_id_part > 0 ):
+            job_id.append(job_id_part)
           else:
-            if all(judge_log):
-              time.sleep(600)
+            failure_id.append(k)
+        if ( len(job_id) == len(undo_task_parts) ):
+          str_print = 'Success: submit cp2k job for system %d task %d in iteration %d with job id %s' %(i, j, iter_id, data_op.comb_list_2_str(job_id, ' '))
+          str_print = data_op.str_wrap(str_print, 80, '  ')
+          print (str_print, flush=True)
+
+          while True:
+            time.sleep(10)
+            judge_flag = []
+            judge_log = []
+            for k in range(traj_num):
+              flag_file_name = ''.join((cp2k_sys_task_dir, '/traj_', str(k), '/success.flag'))
+              log_file_name = ''.join((cp2k_sys_task_dir, '/traj_', str(k), '/cp2k.out'))
+              judge_flag.append(os.path.exists(flag_file_name))
+              judge_log.append(os.path.exists(log_file_name))
+            if all(judge_flag):
               break
+            else:
+              if all(judge_log):
+                time.sleep(600)
+                break
+        else:
+          log_info.log_error('Fail to submit lammps force job for system %d task %d in iteration %d' \
+                           %(i, j, iter_id))
+          exit()
 
   run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 'auto_submit', None, \
                    None, None, None, None, cp2k_queue, max_cp2k_job, cp2k_core_num, submit_system)

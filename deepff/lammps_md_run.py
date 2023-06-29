@@ -589,14 +589,16 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
   cycle = math.ceil((total_task_num-calculated_num)/max_lmp_job)
   for i in range(cycle):
     lmp_md_id_cycle = []
+    rand_cycle = []
     for j in range(max_lmp_job):
       lmp_md_id = calculated_num+i*max_lmp_job+j
       if ( lmp_md_id < total_task_num ):
+        rand_int = np.random.randint(10000000000)
+        rand_cycle.append(rand_int)
         lmp_md_id_cycle.append(lmp_md_id)
         lmp_sys_task_dir = ''.join((lmp_dir, '/sys_', str(sys_task_index[lmp_md_id][0]), \
                                     '/task_', str(sys_task_index[lmp_md_id][1])))
-        job_label = ''.join(('md_', 'sys_', str(sys_task_index[lmp_md_id][0]), \
-                             '_task_', str(sys_task_index[lmp_md_id][1])))
+        job_label = ''.join(('lmp_md_', str(rand_int)))
         flag_file_name_abs = ''.join((lmp_sys_task_dir, '/success.flag'))
         if ( os.path.exists(flag_file_name_abs) ):
           subprocess.run('rm %s' %(flag_file_name_abs), cwd=lmp_sys_task_dir, shell=True)
@@ -604,7 +606,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
           submit_file_name_abs = ''.join((lmp_sys_task_dir, '/lmp.sub'))
           with open(submit_file_name_abs, 'w') as f:
             if ( lmp_gpu_num > 0 and not analyze_gpu ):
-              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, job_label)
               script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num, lmp_core_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
@@ -613,7 +615,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
               f.write(script_1+script_2+script_3+script_4+script_5+script_6)
 
             if ( lmp_gpu_num > 0 and analyze_gpu ):
-              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, job_label)
               script_2 = gen_shell_str.gen_lsf_gpu_set(lmp_gpu_num, lmp_core_num)
               script_3 = gen_shell_str.gen_cd_lsfcwd()
               script_4 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
@@ -623,7 +625,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
               f.write(script_1+script_2+script_3+script_4+script_5+script_6+script_7)
 
             if ( lmp_gpu_num == 0 ):
-              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_lsf_normal(lmp_queue_sub[j], lmp_core_num, job_label)
               script_2 = gen_shell_str.gen_cd_lsfcwd()
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_4 = gen_shell_str.gen_lmp_file_label()
@@ -636,7 +638,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
           submit_file_name_abs = ''.join((lmp_sys_task_dir, '/lmp.sub'))
           with open(submit_file_name_abs, 'w') as f:
             if ( lmp_gpu_num > 0 ):
-              script_1 = gen_shell_str.gen_pbs_normal(lmp_queue_sub[j], lmp_core_num, lmp_gpu_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_pbs_normal(lmp_queue_sub[j], lmp_core_num, lmp_gpu_num, job_label)
               script_2 = gen_shell_str.gen_cd_pbscwd()
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_4 = gen_shell_str.gen_lmp_file_label()
@@ -645,7 +647,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
               f.write(script_1+script_2+script_3+script_4+script_5+script_6)
 
             if ( lmp_gpu_num == 0 ):
-              script_1 = gen_shell_str.gen_pbs_normal(lmp_queue_sub[j], lmp_core_num, lmp_gpu_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_pbs_normal(lmp_queue_sub[j], lmp_core_num, lmp_gpu_num, job_label)
               script_2 = gen_shell_str.gen_cd_pbscwd()
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_4 = gen_shell_str.gen_lmp_file_label()
@@ -658,7 +660,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
           submit_file_name_abs = ''.join((lmp_sys_task_dir, '/lmp.sub'))
           with open(submit_file_name_abs, 'w') as f:
             if ( lmp_gpu_num > 0 and not analyze_gpu ):
-              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, job_label)
               script_2 = gen_shell_str.gen_slurm_gpu_set(lmp_gpu_num)
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_4 = gen_shell_str.gen_lmp_file_label()
@@ -666,7 +668,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
               f.write(script_1+script_2+script_3+script_4+script_5)
 
             if ( lmp_gpu_num > 0 and analyze_gpu ):
-              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, job_label)
               script_2 = gen_shell_str.gen_slurm_gpu_set(lmp_gpu_num)
               script_3 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_4 = gen_shell_str.gen_lmp_file_label()
@@ -675,7 +677,7 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
               f.write(script_1+script_2+script_3+script_4+script_5+script_6)
 
             if ( lmp_gpu_num == 0 ):
-              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, iter_id, job_label)
+              script_1 = gen_shell_str.gen_slurm_normal(lmp_queue_sub[j], lmp_core_num, job_label)
               script_2 = gen_shell_str.gen_lmp_env(lmp_path, mpi_path)
               script_3 = gen_shell_str.gen_lmp_file_label()
               script_4 = gen_shell_str.gen_lmp_cpu_cmd(lmp_core_num, lmp_exe)
@@ -683,15 +685,35 @@ def run_lmpmd_as(work_dir, iter_id, lmp_queue, max_lmp_job, lmp_core_num, lmp_gp
 
           subprocess.run('sbatch ./lmp.sub', cwd=lmp_sys_task_dir, shell=True, stdout=subprocess.DEVNULL)
 
-    while True:
-      time.sleep(10)
-      judge = []
+    job_id = []
+    failure_id = []
+    for j in range(len(lmp_md_id_cycle)):
+      job_id_j = process.get_job_id(work_dir, submit_system, 'lmp_md_', rand_cycle[j])
+      if ( job_id_j > 0 ):
+        job_id.append(job_id_j)
+      else:
+        failure_id.append(lmp_md_id_cycle[j])
+    if ( len(job_id) == len(lmp_md_id_cycle) ):
+      for j in range(len(lmp_md_id_cycle)):
+        lmp_md_id = lmp_md_id_cycle[j]
+        str_print = 'Success: submit lammps md job for system %d task %d in iteration %d with job id %d' \
+                     %(sys_task_index[lmp_md_id][0], sys_task_index[lmp_md_id][1], iter_id, job_id[j])
+        str_print = data_op.str_wrap(str_print, 80, '  ')
+        print (str_print, flush=True)
+      while True:
+        time.sleep(10)
+        judge = []
+        for j in lmp_md_id_cycle:
+          flag_file_name = ''.join((lmp_dir, '/sys_', str(sys_task_index[j][0]), \
+                                    '/task_', str(sys_task_index[j][1]), '/success.flag'))
+          judge.append(os.path.exists(flag_file_name))
+        if all(judge):
+          break
+    else:
       for j in lmp_md_id_cycle:
-        flag_file_name = ''.join((lmp_dir, '/sys_', str(sys_task_index[j][0]), \
-                                  '/task_', str(sys_task_index[j][1]), '/success.flag'))
-        judge.append(os.path.exists(flag_file_name))
-      if all(judge):
-        break
+        log_info.log_error('Fail to submit lammps md job for system %d task %d in iteration %d' \
+                           %(sys_task_index[j][0], sys_task_index[j][1], iter_id))
+      exit()
 
   process_md_file(lmp_dir, sys_task_index)
 

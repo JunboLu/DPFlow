@@ -433,6 +433,49 @@ def get_md_sys_info(lmp_dic, tot_atoms_type_dic):
 
   return sys_num, atoms_type_multi_sys, atoms_num_tot, use_bias_tot
 
+def get_job_id(work_dir, submit_system, job_type, rand_int):
+
+  '''
+  get_job_id: get the job id for different jobs.
+
+  Args:
+    work_dir: string
+      work_dir is working directory of DPFlow.
+    submit_system: string
+      submit_system is the submition system.
+    job_type: string
+      four job_type: 'dp_', 'lmp_frc', 'lmp_md', 'cp2k_frc'.
+    rand_int: int
+      rand_int is the random integer.
+  Returns:
+    job_id: int
+      job_id is the id of job.
+  '''
+
+  job_id = -1
+
+  if ( submit_system == 'lsf' or submit_system == 'slurm' ):
+    if ( submit_system == 'lsf' ):
+      cmd = 'bjobs -w --noheader | grep %s' %(''.join((job_type, str(rand_int))))
+    elif ( submit_system == 'slurm' ):
+      cmd = 'squeue -o  "%.18i %.9P %.24j %.12u %.12T %.12M %.16l %.6D %R" | grep %s' \
+          %(''.join((job_type, str(rand_int))))
+    submit_info = call.call_returns_shell(work_dir, cmd)
+    if ( len(submit_info) != 0 ):
+      job_id = int(data_op.split_str(submit_info[0], ' ')[0])
+  elif ( submit_system == 'pbs' ):
+    cmd = 'qstat -f | grep "Job_Name"'
+    job_name_info = call.call_returns_shell(work_dir, cmd)
+    cmd = 'qstat -f | grep "Job Id:"'
+    job_id_info = call.call_returns_shell(work_dir, cmd)
+    for i in job_name_info:
+      if ( ''.join((job_type, str(rand_int))) in i ):
+        job_index = job_name_info.index(i)
+        job_id_choose = job_id_info(job_index)
+        job_id = int(data_op.comb_list_2_str([int(s) for s in job_id_choose if s.isdigit()], ''))
+
+  return job_id
+
 if __name__ == '__main__':
   from DPFlow.deepff import process
   check_deepff_run('/home/lujunbo/WORK/Deepmd/C2H6/TRAINING/train_md_mtd/active_mtd', 0)
