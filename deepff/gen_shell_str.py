@@ -93,7 +93,7 @@ def gen_slurm_normal(core_num, queue, job_name):
 
 #SBATCH -n %d
 #SBATCH -p %s
-#SBATCH --job-name=iter_%d_%s
+#SBATCH --job-name=%s
 #SBATCH -o output.o
 #SBATCH -e error.e
 ''' %(core_num, queue, job_name)
