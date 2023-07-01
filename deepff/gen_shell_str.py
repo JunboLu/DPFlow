@@ -372,7 +372,7 @@ def gen_lmp_cpu_cmd(core_num, lmp_exe):
       script is the returning script.
   '''
 
-  script_ = '''
+  script = '''
 if [ -f "success.flag" ]; then
 rm success.flag
 fi
@@ -440,7 +440,7 @@ task_index_arr=(${task_index///})
 num=${#task_index_arr[*]}
 
 for i in "${task_index_arr[@]}"; do echo "$i"; done | $parallel_exe -j %d --delay 0.2 $direc/produce.sh {} $direc
-''' %(model_dir, task_index, parallel_exe, core_num)
+''' %(model_dir, task_index, parallel_exe, core_num/2)
 
   return script
 
@@ -492,7 +492,7 @@ if [ $b -gt $end ]; then
 b=$end
 fi
 done
-''' %(model_dir, parallel_exe, start, end, core_num, math.ceil((end-start+1)/core_num), core_num)
+''' %(model_dir, parallel_exe, start, end, core_num/2, math.ceil((end-start+1)/(core_num/2)), core_num/2)
 
   return script
 
@@ -544,6 +544,14 @@ fi
 mpirun -np %d %s $new_direc/input.inp 1> $new_direc/cp2k.out 2> $new_direc/cp2k.err
 converge_info=`grep "SCF run NOT converged" cp2k.out`
 if [ $? -eq 0 ]; then
+wfn_line=`grep -n "WFN_RESTART_FILE_NAME" input.inp`
+if [ $? -eq 0 ]; then
+line=`grep -n "WFN_RESTART_FILE_NAME" input.inp | awk -F ":" '{print $1}'`
+sed -i ''$line's/.*/    WFN_RESTART_FILE_NAME .\/cp2k-RESTART.wfn/' input.inp
+else
+line=`grep -n "POTENTIAL_FILE_NAME" input.inp | awk -F ":" '{print $1}'`
+sed -i ''$line' s/^/    WFN_RESTART_FILE_NAME .\/cp2k-RESTART.wfn\\n/' input.inp
+fi
 if [ -f "cp2k-1_0.xyz" ]; then
 rm cp2k-1_0.xyz
 fi

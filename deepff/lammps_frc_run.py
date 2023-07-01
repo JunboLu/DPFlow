@@ -470,7 +470,7 @@ def submit_lmpfrc_discrete(work_dir, sys_id, task_id, model_id, iter_id, undo_ta
   if ( submit_system == 'pbs' ):
 
     submit_file_name_abs = ''.join((model_dir, '/lmp_frc.sub'))
-    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, job_label)
+    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, 0, job_label)
     script_2 = gen_shell_str.gen_cd_pbscwd()
     script_3 = gen_shell_str.gen_lmp_frc_dis(model_dir, task_index, parallel_exe, lmp_core_num)
     with open(submit_file_name_abs, 'w') as f:
@@ -548,7 +548,7 @@ def submit_lmpfrc_serial(work_dir, sys_id, task_id, model_id, cycle_id, iter_id,
 
   if ( submit_system == 'pbs' ):
 
-    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, lmp_gpu_num, job_label)
+    script_1 = gen_shell_str.gen_pbs_normal(lmp_queue, lmp_core_num, 0, job_label)
     script_2 = gen_shell_str.gen_cd_pbscwd()
     script_3 = gen_shell_str.gen_lmq_frc_ser(model_dir, parallel_exe, start, end, lmp_core_num)
     with open(submit_file_name_abs, 'w') as f:
@@ -682,7 +682,7 @@ echo 'success' > success.flag
               job_id = []
               failure_id = []
               job_id_part = submit_lmpfrc_discrete(work_dir, i, j, k, iter_id, undo_task, lmp_frc_queue_sub[0], \
-                                                   lmp_exe, lmp_frc_core_num/2, parallel_exe, submit_system, True)
+                                                   lmp_exe, lmp_frc_core_num, parallel_exe, submit_system, True)
               if ( job_id_part > 0 ):
                 job_id.append(job_id_part)
               else:
@@ -700,7 +700,7 @@ echo 'success' > success.flag
                 start = undo_task_l[0]
                 end = undo_task_l[len(undo_task_l)-1]
                 job_id_part = submit_lmpfrc_serial(work_dir, i, j, k, l, iter_id, start, end, lmp_frc_queue_sub[l], \
-                                                   lmp_exe, lmp_frc_core_num/2, parallel_exe, submit_system, True)
+                                                   lmp_exe, lmp_frc_core_num, parallel_exe, submit_system, True)
                 if ( job_id_part > 0 ):
                   job_id.append(job_id_part)
                 else:
@@ -725,7 +725,7 @@ echo 'success' > success.flag
 
   run_undo_lmpfrc(work_dir, iter_id, use_bias_tot, atoms_num_tot, active_type, \
                   'auto_submit', parallel_exe, lmp_path, lmp_exe, None, None, None, \
-                  lmp_frc_queue_sub[0], lmp_frc_core_num/2, submit_system)
+                  lmp_frc_queue_sub[0], lmp_frc_core_num, submit_system)
 
   print ('  Success: lammps force calculations for %d systems by lammps' %(sys_num), flush=True)
 
