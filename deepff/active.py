@@ -90,9 +90,9 @@ def model_devi_iter(work_dir, inp_file, deepmd_dic, lammps_dic, cp2k_dic, active
     iter_0_dir = ''.join((work_dir, '/iter_0'))
     dir_num = len(call.call_returns_shell(iter_0_dir, "ls -ll |awk '/^d/ {print $NF}'"))
     if ( dir_num > 1 ):
-      log_info.log_error('There are iteration directories in %s, please use DPFlow.restart file in %s as input.' \
+      log_info.log_error('There are iteration directories in %s. If you restart the deepmd train in iteration 0, \
+                          you could ignore this warning; if not, please use DPFlow.restart file in %s as input.' \
                           %(work_dir, work_dir), 'Warning')
-      exit()
 
   atom_mass_dic = deepmd_dic['model']['atom_mass']
   numb_test = deepmd_dic['training']['numb_test']

@@ -138,8 +138,8 @@ def find_undo_task(cp2k_sys_task_dir, atoms_num, job_mode):
         if ( not file_tools.is_binary(frc_file_name_abs) and \
              not file_tools.is_binary(log_file_name_abs) and \
              not file_tools.is_binary(coord_file_name_abs) and \
-             len(open(frc_file_name_abs, 'r').readlines()) == atoms_num+5 and \
-             len(open(coord_file_name_abs, 'r').readlines()) == atoms_num+8 ):
+             len(open(frc_file_name_abs, 'r').readlines()) > atoms_num and \
+             len(open(coord_file_name_abs, 'r').readlines()) > atoms_num ):
           pass
         else:
           undo_task.append(i)
