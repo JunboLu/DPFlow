@@ -66,6 +66,18 @@ def load_data_from_sepfile(file_dir, save_dir, file_prefix, proj_name, tot_atoms
 
   type_file.close()
 
+  coord_file_0 = ''.join((file_dir, '/', file_prefix, str(sorted(choosed_index)[0]), '/', proj_name, '-1.coordLog'))
+  whole_line_num = len(open(coord_file_0).readlines())
+  coord_start = 0
+  for i in range(whole_line_num):
+    line = linecache.getline(coord_file_0, i+1)
+    line_split = data_op.split_str(line, ' ', '\n')
+    if ( len(line_split) != 0 and data_op.eval_str(line_split[0]) == 1 ):
+      coord_start = i+1
+      break
+
+  linecache.clearcache()
+
   for i in sorted(choosed_index):
 
     task_dir_i = ''.join((file_dir, '/', file_prefix, str(i)))
@@ -113,7 +125,7 @@ def load_data_from_sepfile(file_dir, save_dir, file_prefix, proj_name, tot_atoms
 
         #Dump coord information
         for j in range(atoms_num):
-          line_ij = linecache.getline(coord_file_i, j+7)
+          line_ij = linecache.getline(coord_file_i, j+coord_start)
           line_ij_split = data_op.split_str(line_ij, ' ', '\n')
           if (j==0):
             frame_str = ' '.join((line_ij_split[4], line_ij_split[5], line_ij_split[6]))
