@@ -16,8 +16,9 @@ Email: lujunbo15@gmail.com
    - Numpy 1.8.0 or higher
 
    Suggestion: as we will use deepmd-kit software, we recommend users could  
-   install deepmd-kit at first. Then add the environmental variable of deepmd-kit.  
-   It will include python and numpy.  
+   install deepmd-kit at firsti: https://github.com/deepmodeling/deepmd-kit.   
+   Then add the environmental variable of deepmd-kit, it will include python   
+   and numpy.  
 
 * Install GNU parallel
 
