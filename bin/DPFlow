@@ -7,6 +7,7 @@ work_dir=`pwd`
 inp_file="$1"
 
 dos2unix ${inp_file} 1> /dev/null 2> /dev/null
+sed -i 's/[ \t]*$//g' ${inp_file}
 
 if [ "$inp_file" ]; then
 string=`grep 'run_type' ${inp_file}`
