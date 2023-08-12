@@ -361,14 +361,16 @@ def gen_lmpmd_task(lmp_dic, work_dir, iter_id, atom_mass_dic, tot_atoms_type_dic
         if 'plumed_file' in lmp_dic[sys]:
           plumed_file_name = lmp_dic[sys]['plumed_file']
           plumed_file_task_name = ''.join((lmp_sys_task_dir, '/plumed.dat'))
+          hills_file_name = ''.join((lmp_sys_task_dir, '/HILLS'))
           plumed_file_task = open(plumed_file_task_name, 'w')
           plumed_upper_file = file_tools.upper_file(plumed_file_name, work_dir)
           temp_line_num = file_tools.grep_line_num('TEMP', plumed_upper_file, work_dir)
-          restart_line_num = file_tools.grep_line_num('RESTART', plumed_upper_file, work_dir)
+          #restart_line_num = file_tools.grep_line_num('RESTART', plumed_upper_file, work_dir)
           cmd = "rm %s" %(plumed_upper_file)
           call.call_simple_shell(work_dir, cmd) 
           whole_line_num = len(open(plumed_file_name, 'r').readlines())
-          if ( restart_line_num == 0 ):
+          #if ( restart_line_num == 0 ):
+          if ( os.path.exists(hills_file_name) ):
             plumed_file_task.write('RESTART\n')
           for l in range(1, temp_line_num[0], 1):
             line = linecache.getline(plumed_file_name, l)

@@ -1,4 +1,4 @@
-f2py := /home/lujunbo/bin/deepmd-kit/bin/f2py3.9
+f2py := /home/lujunbo/bin/deepmd-kit-2.2.2-cpu/bin/f2py3.10
 
 all : dynamic_mod geometry_mod rmsd_mod statistic_mod
 
