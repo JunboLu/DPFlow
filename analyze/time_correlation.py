@@ -88,8 +88,9 @@ def time_corr_func(atoms_num, pre_base_block, end_base_block, pre_base, each, st
 
   return data_tcf, tcf_file
 
-def time_corr_mode_func(atoms_num, pre_base_block, end_base_block, pre_base, each, start_frame_id, time_step, init_step, end_step, \
-                        max_frame_corr, cluster_group_id, traj_coord_file, traj_vel_file, a_vec, b_vec, c_vec, work_dir, normalize=1):
+def time_corr_mode_func(atoms_num, pre_base_block, end_base_block, pre_base, each, start_frame_id, \
+                        time_step, init_step, end_step, max_frame_corr, cluster_group_id, traj_coord_file, \
+                        traj_vel_file, a_vec_tot, b_vec_tot, c_vec_tot, work_dir, normalize=1):
 
   '''
   time_corr_mode_func: calculate mode time correlation function.
@@ -121,15 +122,15 @@ def time_corr_mode_func(atoms_num, pre_base_block, end_base_block, pre_base, eac
       traj_coord_file is the coordination trajectory file.
     traj_vel_file: string
       traj_vel_file is the velocity trajectory file.
-    a_vec: 1-d float list, dim = 3
-      a_vec is the cell vector a.
-      Example: [12.42, 0.0, 0.0]
-    b_vec: 1-d float list, dim = 3
-      b_vec is the cell vector b.
-      Example: [0.0, 12.42, 0.0]
-    c_vec: 1-d float list, dim = 3
-      c_vec is the cell vector c.
-      Example: [0.0, 0.0, 12.42]
+    a_vec_tot: 2-d float list, dim = n*3
+      a_vec_tot is the cell vector a.
+      Example: [[12.42, 0.0, 0.0],...,[12.42, 0.0, 0.0]]
+    b_vec_tot: 2-d float list, dim = n*3
+      b_vec_tot is the cell vector b.
+      Example: [[0.0, 12.42, 0.0],...,[0.0, 12.42, 0.0]]
+    c_vec_tot: 2-d float list, dim = n*3
+      c_vec_tot is the cell vector c.
+      Example: [[0.0, 0.0, 12.42],...,[0.0, 0.0, 12.42]]
     work_dir: string
       work_dir is working directory of DPFlow.
     normalize: int
@@ -157,13 +158,17 @@ def time_corr_mode_func(atoms_num, pre_base_block, end_base_block, pre_base, eac
   Q3_data = np.asfortranarray(np.zeros((frame_num_stat,len(cluster_group_id[0]),3)),dtype='float32')
 
   for i in range(frame_num_stat):
+    id_label = int((init_step-start_frame_id)/each)+i
+    a_vec = a_vec_tot[id_label]
+    b_vec = b_vec_tot[id_label]
+    c_vec = c_vec_tot[id_label]
     for j in range(len(cluster_group_id[i])):
       pos_data = np.asfortranarray(np.zeros((len(cluster_group_id[i][j]),3)),dtype='float32')
       vel_data = np.asfortranarray(np.zeros((len(cluster_group_id[i][j]),3)),dtype='float32')
       element = []
       for k in range(len(cluster_group_id[i][j])):
         #Dump coordinate
-        line_k_num = (pre_base_block+atoms_num+end_base_block)*(int((init_step-start_frame_id)/each)+i)+cluster_group_id[i][j][k]+pre_base_block+pre_base
+        line_k_num = (pre_base_block+atoms_num+end_base_block)*id_label+cluster_group_id[i][j][k]+pre_base_block+pre_base
         line_k = linecache.getline(traj_coord_file, line_k_num)
         line_k_split = data_op.split_str(line_k, ' ', '\n')
         element.append(line_k_split[0])

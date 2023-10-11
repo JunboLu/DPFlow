@@ -11,8 +11,9 @@ from DPFlow.lib import geometry_mod
 from DPFlow.analyze import geometry
 from DPFlow.analyze import check_analyze
 
-def center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, a_vec, b_vec, c_vec, center_type, center_id, \
-           traj_coord_file, work_dir, file_name, trans_type=1, group_atom_1_id=[[]], group_atoms_mass=[[]]):
+def center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, a_vec_tot, b_vec_tot, \
+           c_vec_tot, center_type, center_id, traj_coord_file, work_dir, file_name, trans_type=1, \
+           group_atom_1_id=[[]], group_atoms_mass=[[]]):
 
   #Reference literature: Computer simulation of liquids, Oxford University press.
 
@@ -30,15 +31,15 @@ def center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, a_ve
       pre_base is the number of lines before block of trajectory.
     frames_num: int
       frames_num is the number of frames in trajectory file.
-    a_vec: 1-d float list, dim = 3
-      a_vec is the cell vector a.
-      Example: [12.42, 0.0, 0.0]
-    b_vec: 1-d float list, dim = 3
-      b_vec is the cell vector b.
-      Example: [0.0, 12.42, 0.0]
-    c_vec: 1-d float list, dim = 3
-      c_vec is the cell vector c.
-      Example: [0.0, 0.0, 12.42]
+    a_vec_tot: 2-d float list, dim = n*3
+      a_vec_tot is the cell vector a.
+      Example: [[12.42, 0.0, 0.0],...,[12.42, 0.0, 0.0]]
+    b_vec_tot: 2-d float list, dim = n*3
+      b_vec_tot is the cell vector b.
+      Example: [[0.0, 12.42, 0.0],...,[0.0, 12.42, 0.0]]
+    c_vec_tot: 2-d float list, dim = n*3
+      c_vec_tot is the cell vector c.
+      Example: [[0.0, 0.0, 12.42],...,[0.0, 0.0, 12.42]]
     center_type : string
       center_type is the type of center. Two choices : center_box, center_image.
     center_id: int
@@ -78,6 +79,9 @@ def center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, a_ve
   center_file = open(center_file_name, 'w')
 
   for i in range(frames_num):
+    a_vec = a_vec_tot[i]
+    b_vec = b_vec_tot[i]
+    c_vec = c_vec_tot[i]
     #Dump atoms, atoms_mass and coordinates from trajectory file.
     coord = np.asfortranarray(np.zeros((atoms_num, 3)),dtype='float32')
     line_1 = linecache.getline(traj_coord_file, i*(pre_base_block+atoms_num+end_base_block)+1)
@@ -166,9 +170,31 @@ def center_run(center_param, work_dir):
 
   log_info.log_traj_info(atoms_num, frames_num, each, start_frame_id, end_frame_id, time_step)
 
-  a_vec = center_param['box']['A']
-  b_vec = center_param['box']['B']
-  c_vec = center_param['box']['C']
+  md_type = center_param['md_type']
+  if ( md_type == 'nvt' or md_type == 'nve' ):
+    a_vec = center_param['box']['A']
+    b_vec = center_param['box']['B']
+    c_vec = center_param['box']['C']
+    a_vec_tot = []
+    b_vec_tot = []
+    c_vec_tot = []
+    for i in range(frames_num):
+      a_vec_tot.append(a_vec)
+      b_vec_tot.append(b_vec)
+      c_vec_tot.append(c_vec)
+  elif ( md_type == 'npt' ):
+    traj_cell_file = center_param['traj_cell_file']
+    a_vec_tot = []
+    b_vec_tot = []
+    c_vec_tot = []
+    for i in range(frames_num):
+      line_i = linecache.getline(traj_cell_file, i+1)
+      line_i_split = data_op.split_str(line_i, ' ', '\n')
+      a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
+      b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
+      c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]])
+
+    linecache.clearcache()
 
   print ('CENTER'.center(80,'*'), flush=True)
 
@@ -180,11 +206,12 @@ def center_run(center_param, work_dir):
     start_frame_id, end_frame_id, time_step, group_atom_1_id, group_atoms_mass = \
     traj_info.get_traj_info(traj_coord_file, 'coord_xyz', group_atom, atom_id, True)
 
-    center_file = center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, a_vec, b_vec, c_vec, center_type, \
-                         center_id, traj_coord_file, work_dir, 'center.xyz', 0, group_atom_1_id, group_atoms_mass)
+    center_file = center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, \
+                         a_vec_tot, b_vec_tot, c_vec_tot, center_type, center_id, traj_coord_file, \
+                         work_dir, 'center.xyz', 0, group_atom_1_id, group_atoms_mass)
   else:
-    center_file = center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, a_vec, b_vec, \
-                         center_type, center_id, traj_coord_file, work_dir, 'center.xyz')
+    center_file = center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, a_vec_tot, \
+                         b_vec_tot, center_type, center_id, traj_coord_file, work_dir, 'center.xyz')
 
   print (data_op.str_wrap('The centered trajectory is written in %s' %(center_file), 80), flush=True)
 

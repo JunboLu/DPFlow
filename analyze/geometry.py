@@ -141,7 +141,8 @@ def get_neighbor(atoms, coord, a_vec, b_vec, c_vec, r_cut):
 
   return atoms_type, neighbor_max
 
-def expand_cell(atoms_num, pre_base_block, end_base_block, pre_base, file_name, a_vec, b_vec, c_vec, a_exp, b_exp, c_exp, work_dir):
+def expand_cell(atoms_num, pre_base_block, end_base_block, pre_base, file_name, \
+                a_vec, b_vec, c_vec, a_exp, b_exp, c_exp, work_dir):
 
   '''
   expand_cell : expand the cell as super cell
@@ -203,8 +204,9 @@ def expand_cell(atoms_num, pre_base_block, end_base_block, pre_base, file_name, 
     coord_atom_exp[i], coord_atom_exp[i], coord_atom_exp[i]))
 
 
-def bond_length_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, frames_num, each, init_step, \
-                     end_step, time_step, traj_coord_file, a_vec, b_vec, c_vec, atom_1_id, atom_2_id, work_dir):
+def bond_length_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, \
+                     frames_num, each, init_step, end_step, time_step, traj_coord_file, \
+                     a_vec_tot, b_vec_tot, c_vec_tot, atom_1_id, atom_2_id, work_dir):
 
   '''
   bond_length_stat: get the bond length between two atoms over different frames.
@@ -232,15 +234,15 @@ def bond_length_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_
       time_step is the time step of md. Its unit is fs in DPFlow.
     traj_coord_file: string
       traj_coord_file is the name of coordination trajectory file.
-    a_vec: 1-d float list, dim = 3
-      a_vec is the cell vector a.
-      Example : [12.42, 0.0, 0.0]
-    b_vec: 1-d float list, dim = 3
-      b_vec is the cell vector b.
-      Example : [0.0, 12.42, 0.0]
-    c_vec: 1-d float list, dim = 3
-      c_vec is the cell vector c.
-      Example : [0.0, 0.0, 12.42]
+    a_vec_tot: 2-d float list, dim = n*3
+      a_vec_tot is the cell vector a.
+      Example: [[12.42, 0.0, 0.0],...,[12.42, 0.0, 0.0]]
+    b_vec_tot: 2-d float list, dim = n*3
+      b_vec_tot is the cell vector b.
+      Example: [[0.0, 12.42, 0.0],...,[0.0, 12.42, 0.0]]
+    c_vec_tot: 2-d float list, dim = n*3
+      c_vec_tot is the cell vector c.
+      Example: [[0.0, 0.0, 12.42],...,[0.0, 0.0, 12.42]]
     atom_1_id: int
       atom_1_id is the id for atom 1.
     atom_2_id: int
@@ -256,10 +258,6 @@ def bond_length_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_
       ditance_avg is the averaged distance between atom 1 and atom 2.
   '''
 
-  a_vec = np.asfortranarray(a_vec, dtype='float32')
-  b_vec = np.asfortranarray(b_vec, dtype='float32')
-  c_vec = np.asfortranarray(c_vec, dtype='float32')
-
   center_file = center.center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, \
                 a_vec, b_vec, c_vec, 'center_box', 0, traj_coord_file, work_dir, 'center.xyz')
 
@@ -270,14 +268,21 @@ def bond_length_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_
 
   for i in range(frame_stat_num):
     time.append(time_step*each*i)
-    line_i_1_num = (int((init_step-start_frame_id)/each)+i)*(pre_base_block+atoms_num+end_base_block)+atom_1_id+pre_base+pre_base_block
+    id_label = int((init_step-start_frame_id)/each)+i
+    a_vec = a_vec_tot[id_label]
+    b_vec = b_vec_tot[id_label]
+    c_vec = c_vec_tot[id_label]
+    a_vec = np.asfortranarray(a_vec, dtype='float32')
+    b_vec = np.asfortranarray(b_vec, dtype='float32')
+    c_vec = np.asfortranarray(c_vec, dtype='float32')
+    line_i_1_num = (id_label*(pre_base_block+atoms_num+end_base_block)+atom_1_id+pre_base+pre_base_block
     line_i_1 = linecache.getline(center_file, line_i_1_num)
     line_i_1_split = data_op.split_str(line_i_1, ' ', '\n')
     coord_atom_1[i,0] = float(line_i_1_split[1])
     coord_atom_1[i,1] = float(line_i_1_split[2])
     coord_atom_1[i,2] = float(line_i_1_split[3])
 
-    line_i_2_num = (int((init_step-start_frame_id)/each)+i)*(pre_base_block+atoms_num+end_base_block)+atom_2_id+pre_base+pre_base_block
+    line_i_2_num = (id_label*(pre_base_block+atoms_num+end_base_block)+atom_2_id+pre_base+pre_base_block
     line_i_2 = linecache.getline(center_file, line_i_2_num)
     line_i_2_split = data_op.split_str(line_i_2, ' ', '\n')
     coord_atom_2[i,0] = float(line_i_2_split[1])
@@ -508,8 +513,9 @@ def order_struct(atoms_num, frames_num, pre_base_block, end_base_block, pre_base
 
   return new_file_name, order_list
 
-def first_shell(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, frames_num, each, init_step, end_step, \
-                atom_type_1, atom_type_2, a_vec, b_vec, c_vec, traj_coord_file, dist_first_shell, dist_conv, work_dir):
+def first_shell(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, frames_num, \
+                each, init_step, end_step, atom_type_1, atom_type_2, a_vec_tot, b_vec_tot, c_vec_tot, \
+                traj_coord_file, dist_first_shell, dist_conv, work_dir):
 
   #Before you run this function, please do a rdf, then you will know the distance of first shell.
 
@@ -539,15 +545,15 @@ def first_shell(atoms_num, pre_base_block, end_base_block, pre_base, start_frame
       atom_type_1 is the name of atom 1.
     atom_type_2: int
       atom_type_2 is the name of atom 2.
-    a_vec: 1-d float list, dim = 3
-      a_vec is the cell vector a.
-      Example: [12.42, 0.0, 0.0]
-    b_vec: 1-d float list, dim = 3
-      b_vec is the cell vector b.
-      Example: [0.0, 12.42, 0.0]
-    c_vec: 1-d float list, dim = 3
-      c_vec is the cell vector c.
-      Example: [0.0, 0.0, 12.42]
+    a_vec_tot: 2-d float list, dim = n*3
+      a_vec_tot is the cell vector a.
+      Example: [[12.42, 0.0, 0.0],...,[12.42, 0.0, 0.0]]
+    b_vec_tot: 2-d float list, dim = n*3
+      b_vec_tot is the cell vector b.
+      Example: [[0.0, 12.42, 0.0],...,[0.0, 12.42, 0.0]]
+    c_vec_tot: 2-d float list, dim = n*3
+      c_vec_tot is the cell vector c.
+      Example: [[0.0, 0.0, 12.42],...,[0.0, 0.0, 12.42]]
     traj_coord_file: string
       traj_coord_file is the name of coordination trajectory file.
     dist_first_shell: float
@@ -564,8 +570,9 @@ def first_shell(atoms_num, pre_base_block, end_base_block, pre_base, start_frame
   '''
 
   #distance is 3-d float list (frames_num*(number of atom_1)*(number of atom_2)).
-  distance, atom_1, atom_2 = rdf.distance(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, frames_num, each, \
-                                          init_step, end_step, atom_type_1, atom_type_2, a_vec, b_vec, c_vec, traj_coord_file, work_dir)
+  distance, atom_1, atom_2 = rdf.distance(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, \
+                                          frames_num, each, init_step, end_step, atom_type_1, atom_type_2, \
+                                          a_vec_tot, b_vec_tot, c_vec_tot, traj_coord_file, work_dir)
 
   dim1, dim2, dim3 = np.array(distance).shape
 
@@ -689,22 +696,44 @@ def geometry_run(geometry_param, work_dir):
 
   if ( 'coord_num' in geometry_param ):
     coord_num_param = geometry_param['coord_num']
-
+    md_type = coord_num_param['md_type']
     traj_coord_file = coord_num_param['traj_coord_file']
+    atoms_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_frame_id, end_frame_id, time_step = \
+    traj_info.get_traj_info(traj_coord_file, 'coord_xyz')
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      a_vec = coord_num_param['box']['A']
+      b_vec = coord_num_param['box']['B']
+      c_vec = coord_num_param['box']['C']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num):
+        a_vec_tot.append(a_vec)
+        b_vec_tot.append(b_vec)
+        c_vec_tot.append(c_vec)
+    elif ( md_type == 'npt' ):
+      traj_cell_file = coord_num_param['traj_cell_file']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num):
+        line_i = linecache.getline(traj_cell_file, i+1)
+        line_i_split = data_op.split_str(line_i, ' ', '\n')
+        a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
+        b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
+        c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]]) 
+
+      linecache.clearcache()
+
     r_cut = coord_num_param['r_cut']
     init_step = coord_num_param['init_step']
     end_step = coord_num_param['end_step']
-    a_vec = coord_num_param['box']['A']
-    b_vec = coord_num_param['box']['B']
-    c_vec = coord_num_param['box']['C']
-
-    atoms_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_frame_id, end_frame_id, time_step = \
-    traj_info.get_traj_info(traj_coord_file, 'coord_xyz')
 
     log_info.log_traj_info(atoms_num, frames_num, each, start_frame_id, end_frame_id, time_step)
 
     center_file = center.center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, \
-                                a_vec, b_vec, c_vec, 'center_box', 0, traj_coord_file, work_dir, 'center.xyz')
+                                a_vec_tot, b_vec_tot, c_vec_tot, 'center_box', 0, traj_coord_file, \
+                                work_dir, 'center.xyz')
 
     print ('GEOMETRY'.center(80, '*'), flush=True)
     print ('Analyze coordination number of each atom type', flush=True)
@@ -723,8 +752,12 @@ def geometry_run(geometry_param, work_dir):
     for i in range(frames_num_stat):
       atoms = []
       coord = []
+      id_label = int((init_step-start_frame_id)/each)+i
+      a_vec = a_vec_tot[id_label]
+      b_vec = b_vec_tot[id_label]
+      c_vec = c_vec_tot[id_label]
       for j in range(atoms_num):
-        line_ij_num = (pre_base_block+atoms_num+end_base_block)*(int((init_step-start_frame_id)/each)+i)+pre_base+pre_base_block+j+1
+        line_ij_num = (pre_base_block+atoms_num+end_base_block)*id_label+pre_base+pre_base_block+j+1
         line_ij = linecache.getline(center_file, line_ij_num)
         line_ij_split = data_op.split_str(line_ij, ' ', '\n')
         atoms.append(line_ij_split[0])
@@ -744,21 +777,43 @@ def geometry_run(geometry_param, work_dir):
   if ( 'neighbor' in geometry_param ):
     neighbor_param = geometry_param['neighbor']
 
+    md_type = neighbor_param['md_type']
     traj_coord_file = neighbor_param['traj_coord_file']
     r_cut = neighbor_param['r_cut']
     init_step = neighbor_param['init_step']
     end_step = neighbor_param['end_step']
-    a_vec = neighbor_param['box']['A']
-    b_vec = neighbor_param['box']['B']
-    c_vec = neighbor_param['box']['C']
-
     atoms_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_frame_id, end_frame_id, time_step = \
     traj_info.get_traj_info(traj_coord_file, 'coord_xyz')
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      a_vec = neighbor_param['box']['A']
+      b_vec = neighbor_param['box']['B']
+      c_vec = neighbor_param['box']['C']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num):
+        a_vec_tot.append(a_vec)
+        b_vec_tot.append(b_vec)
+        c_vec_tot.append(c_vec)
+    elif ( md_type == 'npt' ):
+      traj_cell_file = neighbor_param['traj_cell_file']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num):
+        line_i = linecache.getline(traj_cell_file, i+1)
+        line_i_split = data_op.split_str(line_i, ' ', '\n')
+        a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
+        b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
+        c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]])
+
+      linecache.clearcache()
 
     log_info.log_traj_info(atoms_num, frames_num, each, start_frame_id, end_frame_id, time_step)
 
     center_file = center.center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, \
-                                a_vec, b_vec, c_vec, 'center_box', 0, traj_coord_file, work_dir, 'center.xyz')
+                                a_vec_tot, b_vec_tot, c_vec_tot, 'center_box', 0, traj_coord_file, \
+                                work_dir, 'center.xyz')
 
     print ('GEOMETRY'.center(80, '*'), flush=True)
     print ('Analyze neighbor list of each atom type', flush=True)
@@ -777,8 +832,12 @@ def geometry_run(geometry_param, work_dir):
     for i in range(frames_num_stat):
       atoms = []
       coord = []
+      id_label = int((init_step-start_frame_id)/each)+i
+      a_vec = a_vec_tot[id_label]
+      b_vec = b_vec_tot[id_label]
+      c_vec = c_vec_tot[id_label]      
       for j in range(atoms_num):
-        line_ij_num = (pre_base_block+atoms_num+end_base_block)*(int((init_step-start_frame_id)/each)+i)+pre_base+pre_base_block+j+1
+        line_ij_num = (pre_base_block+atoms_num+end_base_block)*id_label+pre_base+pre_base_block+j+1
         line_ij = linecache.getline(center_file, line_ij_num)
         line_ij_split = data_op.split_str(line_ij, ' ', '\n')
         atoms.append(line_ij_split[0])
@@ -805,6 +864,7 @@ def geometry_run(geometry_param, work_dir):
   elif ( 'bond_length' in geometry_param ):
     bond_length_param = geometry_param['bond_length']
 
+    md_type = bond_length_param['md_type']
     traj_coord_file = bond_length_param['traj_coord_file']
     atoms_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_frame_id, end_frame_id, time_step = \
     traj_info.get_traj_info(traj_coord_file, 'coord_xyz')
@@ -819,9 +879,30 @@ def geometry_run(geometry_param, work_dir):
     init_step = bond_length_param['init_step']
     end_step = bond_length_param['end_step']
 
-    a_vec = geometry_param['bond_length']['box']['A']
-    b_vec = geometry_param['bond_length']['box']['B']
-    c_vec = geometry_param['bond_length']['box']['C']
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      a_vec = geometry_param['bond_length']['box']['A']
+      b_vec = geometry_param['bond_length']['box']['B']
+      c_vec = geometry_param['bond_length']['box']['C']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num):
+        a_vec_tot.append(a_vec)
+        b_vec_tot.append(b_vec)
+        c_vec_tot.append(c_vec)
+    elif ( md_type == 'npt' ):
+      traj_cell_file = geometry_param['bond_length']['traj_cell_file']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num):
+        line_i = linecache.getline(traj_cell_file, i+1)
+        line_i_split = data_op.split_str(line_i, ' ', '\n')
+        a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
+        b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
+        c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]])
+
+      linecache.clearcache()
 
     print ('GEOMETRY'.center(80, '*'), flush=True)
     for i in range(atom_pair_num):
@@ -834,8 +915,9 @@ def geometry_run(geometry_param, work_dir):
       print ('Analyze bond length between %d and %d' %(atom_1, atom_2), flush=True)
 
       time, distance, distance_avg, sigma = \
-      bond_length_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, frames_num, each, init_step, \
-                     end_step, time_step, traj_coord_file, a_vec, b_vec, c_vec, atom_1, atom_2, work_dir)
+      bond_length_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, \
+                       frames_num, each, init_step, end_step, time_step, traj_coord_file, \
+                       a_vec_tot, b_vec_tot, c_vec_tot, atom_1, atom_2, work_dir)
 
       if ( atom_pair_num > 1 ):
         dist_file = ''.join((work_dir, '/distance', str(i), '.csv'))
@@ -903,6 +985,7 @@ def geometry_run(geometry_param, work_dir):
   elif (  'first_shell' in geometry_param ):
     first_shell_param = geometry_param['first_shell']
 
+    md_type = first_shell_param['md_type']
     traj_coord_file = first_shell_param['traj_coord_file']
 
     atoms_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_frame_id, end_frame_id, time_step = \
@@ -919,15 +1002,38 @@ def geometry_run(geometry_param, work_dir):
     init_step = first_shell_param['init_step']
     end_step = first_shell_param['end_step']
 
-    a_vec = first_shell_param['box']['A']
-    b_vec = first_shell_param['box']['B']
-    c_vec = first_shell_param['box']['C']
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      a_vec = first_shell_param['box']['A']
+      b_vec = first_shell_param['box']['B']
+      c_vec = first_shell_param['box']['C']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num):
+        a_vec_tot.append(a_vec)
+        b_vec_tot.append(b_vec)
+        c_vec_tot.append(c_vec)
+    elif ( md_type == 'npt' ):
+      traj_cell_file = first_shell_param['traj_cell_file']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num):
+        line_i = linecache.getline(traj_cell_file, i+1)
+        line_i_split = data_op.split_str(line_i, ' ', '\n')
+        a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
+        b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
+        c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]])
+
+      linecache.clearcache()
 
     print ('GEOMETRY'.center(80, '*'), flush=True)
     print ('Analyze first shell between %s and %s' %(atom_1, atom_2), flush=True)
 
-    first_shell_id, dist = first_shell(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, frames_num, each, init_step, \
-                                       end_step, atom_1, atom_2, a_vec, b_vec, c_vec, traj_coord_file, first_shell_dist, dist_conv, work_dir)
+    first_shell_id, dist = first_shell(atoms_num, pre_base_block, end_base_block, pre_base, \
+                                       start_frame_id, frames_num, each, init_step, end_step, \
+                                       atom_1, atom_2, a_vec_tot, b_vec_tot, c_vec_tot, \
+                                       traj_coord_file, first_shell_dist, dist_conv, work_dir)
 
     #Write coordination number file
     coord_num_file_name = ''.join((work_dir, '/coord_num.csv'))
@@ -991,8 +1097,9 @@ def geometry_run(geometry_param, work_dir):
     print ('GEOMETRY'.center(80, '*'), flush=True)
     print ('Choose structure for user defined atom id', flush=True)
 
-    choose_str_file = traj_tools.choose_str(atoms_num, pre_base, pre_base_block, end_base_block, each, init_step, end_step, \
-                                            start_frame_id, traj_coord_file, [atom_id], work_dir, 'choose.xyz')
+    choose_str_file = traj_tools.choose_str(atoms_num, pre_base, pre_base_block, end_base_block, \
+                                            each, init_step, end_step, start_frame_id, traj_coord_file, \
+                                            [atom_id], work_dir, 'choose.xyz')
 
     str_print = 'The choosed structure file is written in %s' %(choose_str_file)
     print (data_op.str_wrap(str_print, 80), flush=True)
@@ -1012,8 +1119,9 @@ def geometry_run(geometry_param, work_dir):
     b_vec = order_str_param['box']['B']
     c_vec = order_str_param['box']['C']
 
-    traj_choose_file = traj_tools.choose_str(atoms_num, pre_base, pre_base_block, end_base_block, each, start_frame_id, end_frame_id, \
-                                             start_frame_id, traj_coord_file, atom_id, work_dir, 'traj_choose.xyz')
+    traj_choose_file = traj_tools.choose_str(atoms_num, pre_base, pre_base_block, end_base_block, \
+                                             each, start_frame_id, end_frame_id, start_frame_id, \
+                                             traj_coord_file, atom_id, work_dir, 'traj_choose.xyz')
 
     atom_id_new = []
     atom_id_len = []
@@ -1030,8 +1138,9 @@ def geometry_run(geometry_param, work_dir):
 
     print ('GEOMETRY'.center(80, '*'), flush=True)
     print ('Order structure for the trajectory with the connectivity')
-    traj_order_file, order_list = order_struct(atoms_num, frames_num, pre_base_block, end_base_block, pre_base, group_atom, \
-                                               atom_id_new, traj_choose_file, a_vec, b_vec, c_vec, work_dir, 'traj_order.xyz')
+    traj_order_file, order_list = order_struct(atoms_num, frames_num, pre_base_block, end_base_block, \
+                                               pre_base, group_atom, atom_id_new, traj_choose_file, \
+                                               a_vec, b_vec, c_vec, work_dir, 'traj_order.xyz')
     str_print = 'The ordered structure is written in %s' %(traj_order_file)
     print (data_op.str_wrap(str_print, 80), flush=True)
 

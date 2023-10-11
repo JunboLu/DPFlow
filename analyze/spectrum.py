@@ -92,8 +92,10 @@ def power_spectrum(atoms_num, pre_base_block, end_base_block, pre_base, each, st
 
   return wave_num, intensity, intensity_fit
 
-def power_spectrum_mode(atoms_num, pre_base_block, end_base_block, pre_base, each, start_frame_id, time_step, init_step, end_step, max_frame_corr, \
-                        cluster_group_id, lower_wave, upper_wave, increment_wave, traj_coord_file, traj_vel_file, a_vec, b_vec, c_vec, normalize, work_dir):
+def power_spectrum_mode(atoms_num, pre_base_block, end_base_block, pre_base, each, start_frame_id, \
+                        time_step, init_step, end_step, max_frame_corr, cluster_group_id, lower_wave, \
+                        upper_wave, increment_wave, traj_coord_file, traj_vel_file, a_vec_tot, \
+                        b_vec_tot, c_vec_tot, normalize, work_dir):
 
   #Reference literature: Chem. Phys. 1986, 106, 205-212.
 
@@ -133,15 +135,15 @@ def power_spectrum_mode(atoms_num, pre_base_block, end_base_block, pre_base, eac
       traj_coord_file is the name of coordination trajectory file.
     traj_vel_file: string
       traj_vel_file is the name of velocity trajectory file.
-    a_vec: 1-d float list, dim = 3
-      a_vec is the cell vector a.
-      Example : [12.42, 0.0, 0.0]
-    b_vec: 1-d float list, dim = 3
-      b_vec is the cell vector b.
-      Example : [0.0, 12.42, 0.0]
-    c_vec: 1-d float list, dim = 3
-      c_vec is the cell vector c.
-      Example: [0.0, 0.0, 12.42]
+    a_vec_tot: 2-d float list, dim = n*3
+      a_vec_tot is the cell vector a.
+      Example: [[12.42, 0.0, 0.0],...,[12.42, 0.0, 0.0]]
+    b_vec_tot: 2-d float list, dim = n*3
+      b_vec_tot is the cell vector b.
+      Example: [[0.0, 12.42, 0.0],...,[0.0, 12.42, 0.0]]
+    c_vec_tot: 2-d float list, dim = n*3
+      c_vec_tot is the cell vector c.
+      Example: [[0.0, 0.0, 12.42],...,[0.0, 0.0, 12.42]]
     normalize: int
       normalize is whether to use normalize. There are two choices: 0 and 1.
       0 means not using normalize, 1 means using normalize.
@@ -166,8 +168,10 @@ def power_spectrum_mode(atoms_num, pre_base_block, end_base_block, pre_base, eac
 
   print ('Calculate velocity-velocity auto correlation function at first', flush=True)
   Q1_vel_tcf, Q2_vel_tcf, Q3_vel_tcf, tcf_q1_file, tcf_q2_file, tcf_q3_file = \
-  time_correlation.time_corr_mode_func(atoms_num, pre_base_block, end_base_block, pre_base, each, start_frame_id, time_step, init_step, end_step, \
-                                       max_frame_corr, cluster_group_id, traj_coord_file, traj_vel_file, a_vec, b_vec, c_vec, work_dir, normalize)
+  time_correlation.time_corr_mode_func(atoms_num, pre_base_block, end_base_block, pre_base, each, \
+                                       start_frame_id, time_step, init_step, end_step, max_frame_corr, \
+                                       cluster_group_id, traj_coord_file, traj_vel_file, a_vec_tot, \
+                                       b_vec_tot, c_vec_tot, work_dir, normalize)
 
   str_print = 'The velocity-velocity auto correlation function of mode 1 (symmetric strech) is written in %s' %(tcf_q1_file)
   print (data_op.str_wrap(str_print, 80), flush=True)
@@ -264,9 +268,30 @@ def power_spectrum_run(spectrum_param, work_dir):
     atoms_num_v, pre_base_block_v, end_base_block_v, pre_base_v, frames_num_v, each_v, start_frame_id_v, end_frame_id_v, time_step_v = \
     traj_info.get_traj_info(traj_vel_file, 'vel')
 
+  if ( md_type == 'nvt' or md_type == 'nve' ):
     a_vec = spectrum_param['box']['A']
     b_vec = spectrum_param['box']['B']
     c_vec = spectrum_param['box']['C']
+    a_vec_tot = []
+    b_vec_tot = []
+    c_vec_tot = []
+    for i in range(frames_num):
+      a_vec_tot.append(a_vec)
+      b_vec_tot.append(b_vec)
+      c_vec_tot.append(c_vec)
+  elif ( md_type == 'npt' ):
+    traj_cell_file = spectrum_param['traj_cell_file']
+    a_vec_tot = []
+    b_vec_tot = []
+    c_vec_tot = []
+    for i in range(frames_num):
+      line_i = linecache.getline(traj_cell_file, i+1)
+      line_i_split = data_op.split_str(line_i, ' ', '\n')
+      a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
+      b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
+      c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]])
+
+    linecache.clearcache()
 
     if ( spec_type == 'water_mode' ):
       atom_id = spectrum_param['atom_id']
@@ -290,7 +315,8 @@ def power_spectrum_run(spectrum_param, work_dir):
         atom_id = list(range(1,atoms_num+1,1))
         coord_order_file, order_list = \
         geometry.order_struct(atoms_num, frames_num, pre_base_block, end_base_block, pre_base, [['O','H','H']], \
-                              [atom_id], choose_coord_file, a_vec, b_vec, c_vec, work_dir, 'coord_order.xyz')
+                              [atom_id], choose_coord_file, a_vec[len(a_vec)-1], b_vec[len(b_vec)-1], \
+                              c_vec[len(c_vec)-1], work_dir, 'coord_order.xyz')
         vel_order_file = traj_tools.order_traj_file(atoms_num, frames_num, each, start_frame_id, \
                          choose_vel_file, 'vel', order_list, work_dir, 'vel_order.xyz')
       else:

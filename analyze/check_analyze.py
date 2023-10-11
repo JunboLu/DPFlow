@@ -87,39 +87,62 @@ def check_center_inp(center_dic):
     log_info.log_error('Input error: no coordination trajectory file, please set analyze/center/traj_coord_file')
     exit()
 
-  if ( 'box' in new_center_dic.keys() ):
-    A_exist = 'A' in new_center_dic['box'].keys()
-    B_exist = 'B' in new_center_dic['box'].keys()
-    C_exist = 'C' in new_center_dic['box'].keys()
+  if ( 'md_type' in new_center_dic.keys() ):
+    md_type = new_center_dic['md_type']
+    if ( md_type == 'npt' or md_type == 'nvt' or  md_type == 'nve' ):
+      pass
+    else:
+      log_info.log_error('md_type is not valid, please change it to npt, nvt or nve')
+      exit()
   else:
-    log_info.log_error('Input error: no box, please set analyze/center/box')
-    exit()
+    new_center_dic['md_type'] = 'nvt'
 
-  if ( A_exist and B_exist and C_exist ):
-    box_A = new_center_dic['box']['A']
-    box_B = new_center_dic['box']['B']
-    box_C = new_center_dic['box']['C']
-  else:
-    log_info.log_error('Input error: box setting error, please check analyze/center/box')
-    exit()
+  md_type = new_center_dic['md_type']
+  if ( md_type == 'nvt' or md_type == 'nve' ):
+    if ( 'box' in new_center_dic.keys() ):
+      A_exist = 'A' in new_center_dic['box'].keys()
+      B_exist = 'B' in new_center_dic['box'].keys()
+      C_exist = 'C' in new_center_dic['box'].keys()
+    else:
+      log_info.log_error('Input error: no box, please set analyze/center/box')
+      exit()
 
-  if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
-    new_center_dic['box']['A'] = [float(x) for x in box_A]
-  else:
-    log_info.log_error('Input error: A vector of box wrong, please check analyze/center/box/A')
-    exit()
+    if ( A_exist and B_exist and C_exist ):
+      box_A = new_center_dic['box']['A']
+      box_B = new_center_dic['box']['B']
+      box_C = new_center_dic['box']['C']
+    else:
+      log_info.log_error('Input error: box setting error, please check analyze/center/box')
+      exit()
 
-  if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
-    new_center_dic['box']['B'] = [float(x) for x in box_B]
-  else:
-    log_info.log_error('Input error: B vector of box wrong, please check analyze/center/box/B')
-    exit()
+    if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
+      new_center_dic['box']['A'] = [float(x) for x in box_A]
+    else:
+      log_info.log_error('Input error: A vector of box wrong, please check analyze/center/box/A')
+      exit()
 
-  if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
-    new_center_dic['box']['C'] = [float(x) for x in box_C]
-  else:
-    log_info.log_error('Input error: C vector of box wrong, please check analyze/center/box/C')
-    exit()
+    if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
+      new_center_dic['box']['B'] = [float(x) for x in box_B]
+    else:
+      log_info.log_error('Input error: B vector of box wrong, please check analyze/center/box/B')
+      exit()
+
+    if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
+      new_center_dic['box']['C'] = [float(x) for x in box_C]
+    else:
+      log_info.log_error('Input error: C vector of box wrong, please check analyze/center/box/C')
+      exit()
+  elif ( md_type == 'npt' ):
+    if ( 'traj_cell_file' in new_center_dic.keys() ):
+      traj_cell_file = new_center_dic['traj_cell_file']
+      if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_cell_file))) ):
+        new_center_dic['traj_cell_file'] = os.path.abspath(os.path.expanduser(traj_cell_file))
+      else:
+        log_info.log_error('%s file does not exist' %(traj_cell_file))
+        exit()
+    else:
+      log_info.log_error('Input error: no box trajectory file, please set analyze/center/traj_cell_file')
+      exit()
 
   if ( 'connect0' in new_center_dic.keys() ):
     group_atom = []
@@ -393,6 +416,16 @@ def check_geometry_inp(geometry_dic):
   if ( 'coord_num' in geometry_dic ):
     coord_num_dic = geometry_dic['coord_num']
 
+    if ( 'md_type' in coord_num_dic.keys() ):
+      md_type = coord_num_dic['md_type']
+      if ( md_type == 'npt' or md_type == 'nvt' or  md_type == 'nve' ):
+        pass
+      else:
+        log_info.log_error('md_type is not valid, please change it to npt, nvt or nve')
+        exit()
+    else:
+      geometry_dic['coord_num']['md_type'] = 'nvt'
+
     if ( 'traj_coord_file' in coord_num_dic.keys() ):
       traj_coord_file = coord_num_dic['traj_coord_file']
       if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_coord_file))) ):
@@ -439,39 +472,52 @@ def check_geometry_inp(geometry_dic):
     else:
       geometry_dic['coord_num']['r_cut'] = 6.0
 
-    if ( 'box' in coord_num_dic.keys() ):
-      A_exist = 'A' in coord_num_dic['box'].keys()
-      B_exist = 'B' in coord_num_dic['box'].keys()
-      C_exist = 'C' in coord_num_dic['box'].keys()
-    else:
-      log_info.log_error('Input error: no box, please set analyze/geometry/coord_num/box')
-      exit()
+    md_type = geometry_dic['coord_num']['md_type']
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      if ( 'box' in coord_num_dic.keys() ):
+        A_exist = 'A' in coord_num_dic['box'].keys()
+        B_exist = 'B' in coord_num_dic['box'].keys()
+        C_exist = 'C' in coord_num_dic['box'].keys()
+      else:
+        log_info.log_error('Input error: no box, please set analyze/geometry/coord_num/box')
+        exit()
 
-    if ( A_exist and B_exist and C_exist ):
-      box_A = coord_num_dic['box']['A']
-      box_B = coord_num_dic['box']['B']
-      box_C = coord_num_dic['box']['C']
-    else:
-      log_info.log_error('Input error: box setting error, please check analyze/geometry/coord_num/box')
-      exit()
+      if ( A_exist and B_exist and C_exist ):
+        box_A = coord_num_dic['box']['A']
+        box_B = coord_num_dic['box']['B']
+        box_C = coord_num_dic['box']['C']
+      else:
+        log_info.log_error('Input error: box setting error, please check analyze/geometry/coord_num/box')
+        exit()
 
-    if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
-      geometry_dic['coord_num']['box']['A'] = [float(x) for x in box_A]
-    else:
-      log_info.log_error('Input error: A vector of box wrong, please check analyze/geometry/coord_num//box/A')
-      exit()
+      if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
+        geometry_dic['coord_num']['box']['A'] = [float(x) for x in box_A]
+      else:
+        log_info.log_error('Input error: A vector of box wrong, please check analyze/geometry/coord_num//box/A')
+        exit()
 
-    if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
-      geometry_dic['coord_num']['box']['B'] = [float(x) for x in box_B]
-    else:
-      log_info.log_error('Input error: B vector of box wrong, please check analyze/geometry/coord_num/box/B')
-      exit()
+      if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
+        geometry_dic['coord_num']['box']['B'] = [float(x) for x in box_B]
+      else:
+        log_info.log_error('Input error: B vector of box wrong, please check analyze/geometry/coord_num/box/B')
+        exit()
 
-    if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
-      geometry_dic['coord_num']['box']['C'] = [float(x) for x in box_C]
-    else:
-      log_info.log_error('Input error: C vector of box wrong, please check analyze/geometry/coord_num/box/C')
-      exit()
+      if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
+        geometry_dic['coord_num']['box']['C'] = [float(x) for x in box_C]
+      else:
+        log_info.log_error('Input error: C vector of box wrong, please check analyze/geometry/coord_num/box/C')
+        exit()
+    elif ( md_type == 'npt' ):
+      if ( 'traj_cell_file' in coord_num_dic.keys() ):
+        traj_cell_file = coord_num_dic['traj_cell_file']
+        if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_cell_file))) ):
+          coord_num_dic['traj_cell_file'] = os.path.abspath(os.path.expanduser(traj_cell_file))
+        else:
+          log_info.log_error('%s file does not exist' %(traj_cell_file))
+          exit()
+      else:
+        log_info.log_error('Input error: no box trajectory file, please set analyze/geometry/coord_num/traj_cell_file')
+        exit()
 
     return geometry_dic
 
@@ -524,39 +570,62 @@ def check_geometry_inp(geometry_dic):
     else:
       geometry_dic['neighbor']['r_cut'] = 6.0
 
-    if ( 'box' in neighbor_dic.keys() ):
-      A_exist = 'A' in neighbor_dic['box'].keys()
-      B_exist = 'B' in neighbor_dic['box'].keys()
-      C_exist = 'C' in neighbor_dic['box'].keys()
+    if ( 'md_type' in neighbor_dic.keys() ):
+      md_type = neighbor_dic['md_type']
+      if ( md_type == 'npt' or md_type == 'nvt' or  md_type == 'nve' ):
+        pass
+      else:
+        log_info.log_error('md_type is not valid, please change it to npt, nvt or nve')
+        exit()
     else:
-      log_info.log_error('Input error: no box, please set analyze/geometry/neighbor/box')
-      exit()
+      geometry_dic['neighbor']['md_type'] = 'nvt'
 
-    if ( A_exist and B_exist and C_exist ):
-      box_A = neighbor_dic['box']['A']
-      box_B = neighbor_dic['box']['B']
-      box_C = neighbor_dic['box']['C']
-    else:
-      log_info.log_error('Input error: box setting error, please check analyze/geometry/neighbor/box')
-      exit()
+    md_type = neighbor_dic['md_type']
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      if ( 'box' in neighbor_dic.keys() ):
+        A_exist = 'A' in neighbor_dic['box'].keys()
+        B_exist = 'B' in neighbor_dic['box'].keys()
+        C_exist = 'C' in neighbor_dic['box'].keys()
+      else:
+        log_info.log_error('Input error: no box, please set analyze/geometry/neighbor/box')
+        exit()
 
-    if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
-      geometry_dic['neighbor']['box']['A'] = [float(x) for x in box_A]
-    else:
-      log_info.log_error('Input error: A vector of box wrong, please check analyze/geometry/neighbor//box/A')
-      exit()
+      if ( A_exist and B_exist and C_exist ):
+        box_A = neighbor_dic['box']['A']
+        box_B = neighbor_dic['box']['B']
+        box_C = neighbor_dic['box']['C']
+      else:
+        log_info.log_error('Input error: box setting error, please check analyze/geometry/neighbor/box')
+        exit()
 
-    if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
-      geometry_dic['neighbor']['box']['B'] = [float(x) for x in box_B]
-    else:
-      log_info.log_error('Input error: B vector of box wrong, please check analyze/geometry/neighbor/box/B')
-      exit()
+      if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
+        geometry_dic['neighbor']['box']['A'] = [float(x) for x in box_A]
+      else:
+        log_info.log_error('Input error: A vector of box wrong, please check analyze/geometry/neighbor//box/A')
+        exit()
 
-    if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
-      geometry_dic['neighbor']['box']['C'] = [float(x) for x in box_C]
-    else:
-      log_info.log_error('Input error: C vector of box wrong, please check analyze/geometry/neighbor/box/C')
-      exit()
+      if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
+        geometry_dic['neighbor']['box']['B'] = [float(x) for x in box_B]
+      else:
+        log_info.log_error('Input error: B vector of box wrong, please check analyze/geometry/neighbor/box/B')
+        exit()
+
+      if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
+        geometry_dic['neighbor']['box']['C'] = [float(x) for x in box_C]
+      else:
+        log_info.log_error('Input error: C vector of box wrong, please check analyze/geometry/neighbor/box/C')
+        exit()
+    elif ( md_type == 'npt' ):
+      if ( 'traj_cell_file' in neighbor_dic.keys() ):
+        traj_cell_file = neighbor_dic['traj_cell_file']
+        if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_cell_file))) ):
+          neighbor_dic['traj_cell_file'] = os.path.abspath(os.path.expanduser(traj_cell_file))
+        else:
+          log_info.log_error('%s file does not exist' %(traj_cell_file))
+          exit()
+      else:
+        log_info.log_error('Input error: no box trajectory file, please set analyze/geometry/neighbor/traj_cell_file')
+        exit()
 
     return geometry_dic
 
@@ -624,39 +693,62 @@ def check_geometry_inp(geometry_dic):
     end_step = geometry_dic['bond_length']['end_step']
     check_step(init_step, end_step, start_frame_id, end_frame_id)
 
-    if ( 'box' in bond_length_dic.keys() ):
-      A_exist = 'A' in bond_length_dic['box'].keys()
-      B_exist = 'B' in bond_length_dic['box'].keys()
-      C_exist = 'C' in bond_length_dic['box'].keys()
+    if ( 'md_type' in bond_length_dic.keys() ):
+      md_type = bond_length_dic['md_type']
+      if ( md_type == 'npt' or md_type == 'nvt' or  md_type == 'nve' ):
+        pass
+      else:
+        log_info.log_error('md_type is not valid, please change it to npt, nvt or nve')
+        exit()
     else:
-      log_info.log_error('Input error: no box, please set analyze/geometry/bond_length/box')
-      exit()
+      geometry_dic['bond_length']['md_type'] = 'nvt'
 
-    if ( A_exist and B_exist and C_exist ):
-      box_A = bond_length_dic['box']['A']
-      box_B = bond_length_dic['box']['B']
-      box_C = bond_length_dic['box']['C']
-    else:
-      log_info.log_error('Input error: box setting error, please check analyze/geometry/bond_length/box')
-      exit()
+    md_type = geometry_dic['bond_length']['md_type']
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      if ( 'box' in bond_length_dic.keys() ):
+        A_exist = 'A' in bond_length_dic['box'].keys()
+        B_exist = 'B' in bond_length_dic['box'].keys()
+        C_exist = 'C' in bond_length_dic['box'].keys()
+      else:
+        log_info.log_error('Input error: no box, please set analyze/geometry/bond_length/box')
+        exit()
 
-    if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
-      geometry_dic['bond_length']['box']['A'] = [float(x) for x in box_A]
-    else:
-      log_info.log_error('Input error: A vector of box wrong, please check analyze/geometry/bond_length//box/A')
-      exit()
+      if ( A_exist and B_exist and C_exist ):
+        box_A = bond_length_dic['box']['A']
+        box_B = bond_length_dic['box']['B']
+        box_C = bond_length_dic['box']['C']
+      else:
+        log_info.log_error('Input error: box setting error, please check analyze/geometry/bond_length/box')
+        exit()
 
-    if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
-      geometry_dic['bond_length']['box']['B'] = [float(x) for x in box_B]
-    else:
-      log_info.log_error('Input error: B vector of box wrong, please check analyze/geometry/bond_length/box/B')
-      exit()
+      if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
+        geometry_dic['bond_length']['box']['A'] = [float(x) for x in box_A]
+      else:
+        log_info.log_error('Input error: A vector of box wrong, please check analyze/geometry/bond_length//box/A')
+        exit()
 
-    if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
-      geometry_dic['bond_length']['box']['C'] = [float(x) for x in box_C]
-    else:
-      log_info.log_error('Input error: C vector of box wrong, please check analyze/geometry/bond_length/box/C')
-      exit()
+      if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
+        geometry_dic['bond_length']['box']['B'] = [float(x) for x in box_B]
+      else:
+        log_info.log_error('Input error: B vector of box wrong, please check analyze/geometry/bond_length/box/B')
+        exit()
+
+      if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
+        geometry_dic['bond_length']['box']['C'] = [float(x) for x in box_C]
+      else:
+        log_info.log_error('Input error: C vector of box wrong, please check analyze/geometry/bond_length/box/C')
+        exit()
+    elif ( md_type == 'npt' ):
+      if ( 'traj_cell_file' in bond_length_dic.keys() ):
+        traj_cell_file = bond_length_dic['traj_cell_file']
+        if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_cell_file))) ):
+          bond_length_dic['traj_cell_file'] = os.path.abspath(os.path.expanduser(traj_cell_file))
+        else:
+          log_info.log_error('%s file does not exist' %(traj_cell_file))
+          exit()
+      else:
+        log_info.log_error('Input error: no box trajectory file, please set analyze/geometry/bond_length/traj_cell_file')
+        exit()
 
     return geometry_dic
 
@@ -792,39 +884,62 @@ def check_geometry_inp(geometry_dic):
     end_step = geometry_dic['first_shell']['end_step']
     check_step(init_step, end_step, start_frame_id, end_frame_id)
 
-    if ( 'box' in first_shell_dic.keys() ):
-      A_exist = 'A' in first_shell_dic['box'].keys()
-      B_exist = 'B' in first_shell_dic['box'].keys()
-      C_exist = 'C' in first_shell_dic['box'].keys()
+    if ( 'md_type' in first_shell_dic.keys() ):
+      md_type = first_shell_dic['md_type']
+      if ( md_type == 'npt' or md_type == 'nvt' or  md_type == 'nve' ):
+        pass
+      else:
+        log_info.log_error('md_type is not valid, please change it to npt, nvt or nve')
+        exit()
     else:
-      log_info.log_error('Input error: no box, please set analyze/geometry/first_shell/box')
-      exit()
+      geometry_dic['first_shell']['md_type'] = 'nvt'
 
-    if ( A_exist and B_exist and C_exist ):
-      box_A = first_shell_dic['box']['A']
-      box_B = first_shell_dic['box']['B']
-      box_C = first_shell_dic['box']['C']
-    else:
-      log_info.log_error('Input error: box setting error, please check analyze/geometry/first_shell/box')
-      exit()
+    md_type = geometry_dic['first_shell']['md_type']
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      if ( 'box' in first_shell_dic.keys() ):
+        A_exist = 'A' in first_shell_dic['box'].keys()
+        B_exist = 'B' in first_shell_dic['box'].keys()
+        C_exist = 'C' in first_shell_dic['box'].keys()
+      else:
+        log_info.log_error('Input error: no box, please set analyze/geometry/first_shell/box')
+        exit()
 
-    if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
-      geometry_dic['first_shell']['box']['A'] = [float(x) for x in box_A]
-    else:
-      log_info.log_error('Input error: A vector of box wrong, please check analyze/geometry/first_shell//box/A')
-      exit()
+      if ( A_exist and B_exist and C_exist ):
+        box_A = first_shell_dic['box']['A']
+        box_B = first_shell_dic['box']['B']
+        box_C = first_shell_dic['box']['C']
+      else:
+        log_info.log_error('Input error: box setting error, please check analyze/geometry/first_shell/box')
+        exit()
 
-    if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
-      geometry_dic['first_shell']['box']['B'] = [float(x) for x in box_B]
-    else:
-      log_info.log_error('Input error: B vector of box wrong, please check analyze/geometry/first_shell/box/B')
-      exit()
+      if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
+        geometry_dic['first_shell']['box']['A'] = [float(x) for x in box_A]
+      else:
+        log_info.log_error('Input error: A vector of box wrong, please check analyze/geometry/first_shell//box/A')
+        exit()
 
-    if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
-      geometry_dic['first_shell']['box']['C'] = [float(x) for x in box_C]
-    else:
-      log_info.log_error('Input error: C vector of box wrong, please check analyze/geometry/first_shell/box/C')
-      exit()
+      if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
+        geometry_dic['first_shell']['box']['B'] = [float(x) for x in box_B]
+      else:
+        log_info.log_error('Input error: B vector of box wrong, please check analyze/geometry/first_shell/box/B')
+        exit()
+
+      if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
+        geometry_dic['first_shell']['box']['C'] = [float(x) for x in box_C]
+      else:
+        log_info.log_error('Input error: C vector of box wrong, please check analyze/geometry/first_shell/box/C')
+        exit()
+    elif ( md_type == 'npt' ):
+      if ( 'traj_cell_file' in first_shell_dic.keys() ):
+        traj_cell_file = first_shell_dic['traj_cell_file']
+        if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_cell_file))) ):
+          new_center_dic['traj_cell_file'] = os.path.abspath(os.path.expanduser(traj_cell_file))
+        else:
+          log_info.log_error('%s file does not exist' %(traj_cell_file))
+          exit()
+      else:
+        log_info.log_error('Input error: no box trajectory file, please set analyze/geometry/first_shell/traj_cell_file')
+        exit()
 
     return geometry_dic
 
@@ -1163,39 +1278,62 @@ def check_rdf_inp(rdf_dic):
   else:
     rdf_dic['r_increment'] = 0.1
 
-  if ( 'box' in rdf_dic.keys() ):
-    A_exist = 'A' in rdf_dic['box'].keys()
-    B_exist = 'B' in rdf_dic['box'].keys()
-    C_exist = 'C' in rdf_dic['box'].keys()
+  if ( 'md_type' in rdf_dic.keys() ):
+    md_type = rdf_dic['md_type']
+    if ( md_type == 'npt' or md_type == 'nvt' or  md_type == 'nve' ):
+      pass
+    else:
+      log_info.log_error('md_type is not valid, please change it to npt, nvt or nve')
+      exit()
   else:
-    log_info.log_error('Input error: no box, please set analyze/rdf/box')
-    exit()
+    rdf_dic['md_type'] = 'nvt'
 
-  if ( A_exist and B_exist and C_exist ):
-    box_A = rdf_dic['box']['A']
-    box_B = rdf_dic['box']['B']
-    box_C = rdf_dic['box']['C']
-  else:
-    log_info.log_error('Input error: box setting error, please check analyze/rdf/box')
-    exit()
+  md_type = rdf_dic['md_type']
+  if ( md_type == 'nvt' or md_type == 'nve' ):
+    if ( 'box' in rdf_dic.keys() ):
+      A_exist = 'A' in rdf_dic['box'].keys()
+      B_exist = 'B' in rdf_dic['box'].keys()
+      C_exist = 'C' in rdf_dic['box'].keys()
+    else:
+      log_info.log_error('Input error: no box, please set analyze/rdf/box')
+      exit()
 
-  if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
-    rdf_dic['box']['A'] = [float(x) for x in box_A]
-  else:
-    log_info.log_error('Input error: A vector of box wrong, please check analyze/rdf/box/A')
-    exit()
+    if ( A_exist and B_exist and C_exist ):
+      box_A = rdf_dic['box']['A']
+      box_B = rdf_dic['box']['B']
+      box_C = rdf_dic['box']['C']
+    else:
+      log_info.log_error('Input error: box setting error, please check analyze/rdf/box')
+      exit()
 
-  if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
-    rdf_dic['box']['B'] = [float(x) for x in box_B]
-  else:
-    log_info.log_error('Input error: B vector of box wrong, please check analyze/rdf/box/B')
-    exit()
+    if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
+      rdf_dic['box']['A'] = [float(x) for x in box_A]
+    else:
+      log_info.log_error('Input error: A vector of box wrong, please check analyze/rdf/box/A')
+      exit()
 
-  if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
-    rdf_dic['box']['C'] = [float(x) for x in box_C]
-  else:
-    log_info.log_error('Input error: C vector of box wrong, please check analyze/rdf/box/C')
-    exit()
+    if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
+      rdf_dic['box']['B'] = [float(x) for x in box_B]
+    else:
+      log_info.log_error('Input error: B vector of box wrong, please check analyze/rdf/box/B')
+      exit()
+
+    if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
+      rdf_dic['box']['C'] = [float(x) for x in box_C]
+    else:
+      log_info.log_error('Input error: C vector of box wrong, please check analyze/rdf/box/C')
+      exit()
+  elif ( md_type == 'npt' ):
+    if ( 'traj_cell_file' in rdf_dic.keys() ):
+      traj_cell_file = rdf_dic['traj_cell_file']
+      if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_cell_file))) ):
+        rdf_dic['traj_cell_file'] = os.path.abspath(os.path.expanduser(traj_cell_file))
+      else:
+        log_info.log_error('%s file does not exist' %(traj_cell_file))
+        exit()
+    else:
+      log_info.log_error('Input error: no box trajectory file, please set analye/rdf/traj_cell_file')
+      exit()
 
   return rdf_dic
 
@@ -1398,39 +1536,62 @@ def check_spectrum_inp(spectrum_dic):
       log_info.log_error('Input error: no atom_id, please set analyze/power_spectrum/atom_id')
       exit()
   else:
-    if ( 'box' in spectrum_dic.keys() ):
-      A_exist = 'A' in spectrum_dic['box'].keys()
-      B_exist = 'B' in spectrum_dic['box'].keys()
-      C_exist = 'C' in spectrum_dic['box'].keys()
+    if ( 'md_type' in spectrum_dic.keys() ):
+      md_type = spectrum_dic['md_type']
+      if ( md_type == 'npt' or md_type == 'nvt' or  md_type == 'nve' ):
+        pass
+      else:
+        log_info.log_error('md_type is not valid, please change it to npt, nvt or nve')
+        exit()
     else:
-      log_info.log_error('Input error: no box, please set analyze/power_spectrum/box')
-      exit()
+      spectrum_dic['md_type'] = 'nvt'
 
-    if ( A_exist and B_exist and C_exist ):
-      box_A = spectrum_dic['box']['A']
-      box_B = spectrum_dic['box']['B']
-      box_C = spectrum_dic['box']['C']
-    else:
-      log_info.log_error('Input error: box setting error, please check analyze/power_sepctrum/box')
-      exit()
+    md_type = spectrum_dic['md_type']
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      if ( 'box' in spectrum_dic.keys() ):
+        A_exist = 'A' in spectrum_dic['box'].keys()
+        B_exist = 'B' in spectrum_dic['box'].keys()
+        C_exist = 'C' in spectrum_dic['box'].keys()
+      else:
+        log_info.log_error('Input error: no box, please set analyze/power_spectrum/box')
+        exit()
 
-    if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
-      spectrum_dic['box']['A'] = [float(x) for x in box_A]
-    else:
-      log_info.log_error('Input error: A vector of box wrong, please check analyze/power_spectrum/box/A')
-      exit()
+      if ( A_exist and B_exist and C_exist ):
+        box_A = spectrum_dic['box']['A']
+        box_B = spectrum_dic['box']['B']
+        box_C = spectrum_dic['box']['C']
+      else:
+        log_info.log_error('Input error: box setting error, please check analyze/power_sepctrum/box')
+        exit()
 
-    if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
-      spectrum_dic['box']['B'] = [float(x) for x in box_B]
-    else:
-      log_info.log_error('Input error: B vector of box wrong, please check analyze/power_spectrum/box/B')
-      exit()
+      if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
+        spectrum_dic['box']['A'] = [float(x) for x in box_A]
+      else:
+        log_info.log_error('Input error: A vector of box wrong, please check analyze/power_spectrum/box/A')
+        exit()
 
-    if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
-      spectrum_dic['box']['C'] = [float(x) for x in box_C]
-    else:
-      log_info.log_error('Input error: C vector of box wrong, please check analyze/power_spectrum/box/C')
-      exit()
+      if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
+        spectrum_dic['box']['B'] = [float(x) for x in box_B]
+      else:
+        log_info.log_error('Input error: B vector of box wrong, please check analyze/power_spectrum/box/B')
+        exit()
+
+      if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
+        spectrum_dic['box']['C'] = [float(x) for x in box_C]
+      else:
+        log_info.log_error('Input error: C vector of box wrong, please check analyze/power_spectrum/box/C')
+        exit()
+    elif ( md_type == 'npt' ):
+      if ( 'traj_cell_file' in spectrum_dic.keys() ):
+        traj_cell_file = spectrum_dic['traj_cell_file']
+        if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_cell_file))) ):
+          spectrum_dic['traj_cell_file'] = os.path.abspath(os.path.expanduser(traj_cell_file))
+        else:
+          log_info.log_error('%s file does not exist' %(traj_cell_file))
+          exit()
+      else:
+        log_info.log_error('Input error: no box trajectory file, please set analyze/power_spectrum/traj_cell_file')
+        exit()
 
     if ( spec_type == 'hydration_mode' ):
       if ( 'hyd_shell_dist' in spectrum_dic.keys() ):

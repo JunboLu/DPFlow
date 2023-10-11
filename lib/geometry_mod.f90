@@ -701,12 +701,11 @@ contains
     integer::u, v, w
     integer::i, j, k, l
     integer::num_2_r
-    real(kind=4)::density
     real(kind=4)::increment
     real(kind=4)::sum_value_1, sum_value_2
     real(kind=4)::pi
-    real(kind=4)::vol
     real(kind=4)::r_value
+    real(kind=4)::dimension(u)::vol
     real(kind=4),dimension(data_num)::rdf_value_final
     real(kind=4),dimension(data_num)::integral_value_final
     real(kind=4),dimension(u,v,w)::distance
@@ -727,8 +726,6 @@ contains
     sum_value_2 = 0.0
     pi=3.1415926
 
-    density = w/vol
-
     do i=1,u
       do j=1,v
         do k=1,data_num-1
@@ -739,7 +736,7 @@ contains
               num_2_r = num_2_r+1
             end if
           end do
-          rdf_value(i,j,k) = num_2_r/(4*pi*density*r_value**2*increment)
+          rdf_value(i,j,k) = num_2_r/(4*pi*(w/vol(i))*r_value**2*increment)
         end do
       end do
     end do
@@ -749,7 +746,7 @@ contains
         do k=1,data_num-1
           sum_value_1 = 0.0
           do l=1,k
-            sum_value_1 = sum_value_1+4*pi*density*(increment*l)**2*rdf_value(i,j,l)*increment
+            sum_value_1 = sum_value_1+4*pi*(w/vol(i))*(increment*l)**2*rdf_value(i,j,l)*increment
           end do
           integral_value(i,j,k) = sum_value_1
         end do
