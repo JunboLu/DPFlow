@@ -203,6 +203,7 @@ def rdf_run(rdf_param, work_dir):
     log_info.log_error('Input error: %s atom type is not in the system' %(atom_2))
     exit()
 
+  md_type = rdf_param['md_type']
   if ( md_type == 'nvt' or md_type == 'nve' ):
     a_vec = rdf_param['box']['A']
     b_vec = rdf_param['box']['B']
@@ -220,7 +221,7 @@ def rdf_run(rdf_param, work_dir):
     b_vec_tot = []
     c_vec_tot = []
     for i in range(frames_num):
-      line_i = linecache.getline(traj_cell_file, i+1)
+      line_i = linecache.getline(traj_cell_file, i+2)
       line_i_split = data_op.split_str(line_i, ' ', '\n')
       a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
       b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])

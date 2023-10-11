@@ -705,7 +705,7 @@ contains
     real(kind=4)::sum_value_1, sum_value_2
     real(kind=4)::pi
     real(kind=4)::r_value
-    real(kind=4)::dimension(u)::vol
+    real(kind=4),dimension(u)::vol
     real(kind=4),dimension(data_num)::rdf_value_final
     real(kind=4),dimension(data_num)::integral_value_final
     real(kind=4),dimension(u,v,w)::distance

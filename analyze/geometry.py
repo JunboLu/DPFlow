@@ -275,14 +275,14 @@ def bond_length_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_
     a_vec = np.asfortranarray(a_vec, dtype='float32')
     b_vec = np.asfortranarray(b_vec, dtype='float32')
     c_vec = np.asfortranarray(c_vec, dtype='float32')
-    line_i_1_num = (id_label*(pre_base_block+atoms_num+end_base_block)+atom_1_id+pre_base+pre_base_block
+    line_i_1_num = id_label*(pre_base_block+atoms_num+end_base_block)+atom_1_id+pre_base+pre_base_block
     line_i_1 = linecache.getline(center_file, line_i_1_num)
     line_i_1_split = data_op.split_str(line_i_1, ' ', '\n')
     coord_atom_1[i,0] = float(line_i_1_split[1])
     coord_atom_1[i,1] = float(line_i_1_split[2])
     coord_atom_1[i,2] = float(line_i_1_split[3])
 
-    line_i_2_num = (id_label*(pre_base_block+atoms_num+end_base_block)+atom_2_id+pre_base+pre_base_block
+    line_i_2_num = id_label*(pre_base_block+atoms_num+end_base_block)+atom_2_id+pre_base+pre_base_block
     line_i_2 = linecache.getline(center_file, line_i_2_num)
     line_i_2_split = data_op.split_str(line_i_2, ' ', '\n')
     coord_atom_2[i,0] = float(line_i_2_split[1])
@@ -717,7 +717,7 @@ def geometry_run(geometry_param, work_dir):
       b_vec_tot = []
       c_vec_tot = []
       for i in range(frames_num):
-        line_i = linecache.getline(traj_cell_file, i+1)
+        line_i = linecache.getline(traj_cell_file, i+2)
         line_i_split = data_op.split_str(line_i, ' ', '\n')
         a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
         b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
@@ -801,7 +801,7 @@ def geometry_run(geometry_param, work_dir):
       b_vec_tot = []
       c_vec_tot = []
       for i in range(frames_num):
-        line_i = linecache.getline(traj_cell_file, i+1)
+        line_i = linecache.getline(traj_cell_file, i+2)
         line_i_split = data_op.split_str(line_i, ' ', '\n')
         a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
         b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
@@ -896,7 +896,7 @@ def geometry_run(geometry_param, work_dir):
       b_vec_tot = []
       c_vec_tot = []
       for i in range(frames_num):
-        line_i = linecache.getline(traj_cell_file, i+1)
+        line_i = linecache.getline(traj_cell_file, i+2)
         line_i_split = data_op.split_str(line_i, ' ', '\n')
         a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
         b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
@@ -1019,7 +1019,7 @@ def geometry_run(geometry_param, work_dir):
       b_vec_tot = []
       c_vec_tot = []
       for i in range(frames_num):
-        line_i = linecache.getline(traj_cell_file, i+1)
+        line_i = linecache.getline(traj_cell_file, i+2)
         line_i_split = data_op.split_str(line_i, ' ', '\n')
         a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
         b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])

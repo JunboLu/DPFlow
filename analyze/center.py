@@ -188,7 +188,7 @@ def center_run(center_param, work_dir):
     b_vec_tot = []
     c_vec_tot = []
     for i in range(frames_num):
-      line_i = linecache.getline(traj_cell_file, i+1)
+      line_i = linecache.getline(traj_cell_file, i+2)
       line_i_split = data_op.split_str(line_i, ' ', '\n')
       a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
       b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
