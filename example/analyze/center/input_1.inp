@@ -8,6 +8,7 @@
     center_type center_image
     center_atom_id 1
     traj_coord_file ./UO22+_aimd-pos-1.xyz
+    md_type nvt
     &box
       A 12.42 0.0 0.0
       B 0.0 12.42 0.0

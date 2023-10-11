@@ -10,6 +10,7 @@
     r_increment 0.01
     init_step 0
     end_step 69792
+    md_type nvt
     &box
       A 12.42 0.0 0.0
       B 0.0 12.42 0.0

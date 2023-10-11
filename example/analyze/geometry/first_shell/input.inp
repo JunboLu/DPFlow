@@ -12,6 +12,7 @@
       dist_conv 0.3
       init_step 12713
       end_step 12713
+      md_type nvt
       &box
         A 12.42 0.0 0.0
         B 0.0 12.42 0.0
