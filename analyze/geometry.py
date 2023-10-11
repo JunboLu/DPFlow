@@ -719,9 +719,9 @@ def geometry_run(geometry_param, work_dir):
       for i in range(frames_num):
         line_i = linecache.getline(traj_cell_file, i+2)
         line_i_split = data_op.split_str(line_i, ' ', '\n')
-        a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
-        b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
-        c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]]) 
+        a_vec_tot.append([float(line_i_split[2]), float(line_i_split[3]), float(line_i_split[4])])
+        b_vec_tot.append([float(line_i_split[5]), float(line_i_split[6]), float(line_i_split[7])])
+        c_vec_tot.append([float(line_i_split[8]), float(line_i_split[9]), float(line_i_split[10])])
 
       linecache.clearcache()
 
@@ -803,9 +803,9 @@ def geometry_run(geometry_param, work_dir):
       for i in range(frames_num):
         line_i = linecache.getline(traj_cell_file, i+2)
         line_i_split = data_op.split_str(line_i, ' ', '\n')
-        a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
-        b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
-        c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]])
+        a_vec_tot.append([float(line_i_split[2]), float(line_i_split[3]), float(line_i_split[4])])
+        b_vec_tot.append([float(line_i_split[5]), float(line_i_split[6]), float(line_i_split[7])])
+        c_vec_tot.append([float(line_i_split[8]), float(line_i_split[9]), float(line_i_split[10])])
 
       linecache.clearcache()
 
@@ -898,9 +898,9 @@ def geometry_run(geometry_param, work_dir):
       for i in range(frames_num):
         line_i = linecache.getline(traj_cell_file, i+2)
         line_i_split = data_op.split_str(line_i, ' ', '\n')
-        a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
-        b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
-        c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]])
+        a_vec_tot.append([float(line_i_split[2]), float(line_i_split[3]), float(line_i_split[4])])
+        b_vec_tot.append([float(line_i_split[5]), float(line_i_split[6]), float(line_i_split[7])])
+        c_vec_tot.append([float(line_i_split[8]), float(line_i_split[9]), float(line_i_split[10])])
 
       linecache.clearcache()
 
@@ -1021,9 +1021,9 @@ def geometry_run(geometry_param, work_dir):
       for i in range(frames_num):
         line_i = linecache.getline(traj_cell_file, i+2)
         line_i_split = data_op.split_str(line_i, ' ', '\n')
-        a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
-        b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
-        c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]])
+        a_vec_tot.append([float(line_i_split[2]), float(line_i_split[3]), float(line_i_split[4])])
+        b_vec_tot.append([float(line_i_split[5]), float(line_i_split[6]), float(line_i_split[7])])
+        c_vec_tot.append([float(line_i_split[8]), float(line_i_split[9]), float(line_i_split[10])])
 
       linecache.clearcache()
 

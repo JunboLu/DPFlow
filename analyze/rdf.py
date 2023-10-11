@@ -151,7 +151,7 @@ def rdf(distance, a_vec_tot, b_vec_tot, c_vec_tot, r_increment, work_dir):
   data_num = int(r_max/r_increment)
 
   rdf_value, integral_value = \
-  geometry_mod.geometry.rdf(distance, r_increment, vol, data_num)
+  geometry_mod.geometry.rdf(distance, np.asfortranarray(vol, dtype='float32'), r_increment, data_num)
 
   rdf_file = ''.join((work_dir, '/rdf_integral.csv'))
   with open(rdf_file ,'w') as csvfile:
@@ -177,6 +177,9 @@ def rdf_run(rdf_param, work_dir):
   '''
 
   rdf_param = check_analyze.check_rdf_inp(rdf_param)
+  init_step = rdf_param['init_step']
+  end_step = rdf_param['end_step']
+  r_increment = rdf_param['r_increment']
 
   traj_coord_file = rdf_param['traj_coord_file']
   atoms_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_frame_id, end_frame_id, time_step = \
@@ -221,17 +224,14 @@ def rdf_run(rdf_param, work_dir):
     b_vec_tot = []
     c_vec_tot = []
     for i in range(frames_num):
+      id_label = int((init_step-start_frame_id)/each)+i
       line_i = linecache.getline(traj_cell_file, i+2)
       line_i_split = data_op.split_str(line_i, ' ', '\n')
-      a_vec_tot.append([line_i_split[2], line_i_split[3], line_i_split[4]])
-      b_vec_tot.append([line_i_split[5], line_i_split[6], line_i_split[7]])
-      c_vec_tot.append([line_i_split[8], line_i_split[9], line_i_split[10]])
+      a_vec_tot.append([float(line_i_split[2]), float(line_i_split[3]), float(line_i_split[4])])
+      b_vec_tot.append([float(line_i_split[5]), float(line_i_split[6]), float(line_i_split[7])])
+      c_vec_tot.append([float(line_i_split[8]), float(line_i_split[9]), float(line_i_split[10])])
 
     linecache.clearcache()
-
-  init_step = rdf_param['init_step']
-  end_step = rdf_param['end_step']
-  r_increment = rdf_param['r_increment']
 
   print ('RDF'.center(80, '*'), flush=True)
   print ('Analyze radial distribution function between %s and %s' %(atom_1, atom_2), flush=True)
@@ -239,6 +239,9 @@ def rdf_run(rdf_param, work_dir):
                                         frames_num, each, init_step, end_step, atom_1, atom_2, a_vec_tot, \
                                         b_vec_tot, c_vec_tot, traj_coord_file, work_dir)
 
-  rdf_file = rdf(dist, a_vec_tot, b_vec_tot, c_vec_tot, r_increment, work_dir)
+  rdf_file = rdf(dist, a_vec_tot[int(init_step/each):int(end_step/each)+1], \
+                 b_vec_tot[int(init_step/each):int(end_step/each)+1], \
+                 c_vec_tot[int(init_step/each):int(end_step/each)+1], r_increment, work_dir)
+
   str_print = 'The rdf file is written in %s' %(rdf_file)
   print (data_op.str_wrap(str_print, 80), flush=True)

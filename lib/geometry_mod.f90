@@ -695,7 +695,7 @@ contains
 
   end subroutine unwrap_coord
 
-  subroutine rdf(distance, increment, vol, data_num, rdf_value_final, integral_value_final, u, v, w)
+  subroutine rdf(distance, vol, increment, data_num, rdf_value_final, integral_value_final, u, v, w)
 
     integer::data_num
     integer::u, v, w
@@ -705,10 +705,10 @@ contains
     real(kind=4)::sum_value_1, sum_value_2
     real(kind=4)::pi
     real(kind=4)::r_value
-    real(kind=4),dimension(u)::vol
     real(kind=4),dimension(data_num)::rdf_value_final
     real(kind=4),dimension(data_num)::integral_value_final
     real(kind=4),dimension(u,v,w)::distance
+    real(kind=4),dimension(u)::vol
     real(kind=4),dimension(u,v,data_num)::rdf_value
     real(kind=4),dimension(u,v,data_num)::integral_value
 
