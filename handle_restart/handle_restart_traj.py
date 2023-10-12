@@ -74,6 +74,21 @@ def restart_history(restart_id, proj_name, QMMM, QM_num, data_dir):
     str_print = data_op.str_wrap(str_print, 80, '')
     print (str_print, flush=True)
 
+  cell_file = ''.join((data_dir, '/', proj_name, '-1.cell'))
+  if os.path.exists(cell_file):
+    blocks_num, pre_base_block, cell_base_block, pre_base, frames_num, each, start_id, end_id, time_step = \
+    traj_info.get_traj_info(cell_file, 'cell')
+    cell_store_line_num = (int((restart_id-start_id)/each)+1)+pre_base+1
+    cell_whole_line_num = len(open(cell_file).readlines())
+    os.environ["var_1"] = str(cell_store_line_num)
+    os.environ["var_2"] = str(cell_whole_line_num)
+    os.environ["var_3"] = cell_file
+    os.system("sed -ie ''$var_1','$var_2'd' $var_3")
+
+    str_print = "Success: delete lines from No.%d to No.%d for %s file" %(cell_store_line_num, cell_whole_line_num, cell_file)
+    str_print = data_op.str_wrap(str_print, 80, '')
+    print (str_print, flush=True)
+
   mix_ene_file = ''.join((data_dir,'/',  proj_name, '-mix-1.ener'))
   if os.path.exists(mix_ene_file):
     blocks_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_id, end_id, time_step = \

@@ -102,7 +102,7 @@ def get_traj_info(file_name, file_type, group=[[]], atom_id=[[]], return_group=F
       start_frame_id = int(b[2].strip(','))
       end_frame_id = int(b[2].strip(','))
 
-  if ( file_type == 'ener' or file_type == 'mix_ener' ):
+  if ( file_type == 'ener' or file_type == 'mix_ener' or file_type == 'cell' ):
 
     a = linecache.getline(file_name, pre_base+1)
     b = data_op.split_str(a, ' ')
