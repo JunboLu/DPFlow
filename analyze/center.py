@@ -211,7 +211,7 @@ def center_run(center_param, work_dir):
                          work_dir, 'center.xyz', 0, group_atom_1_id, group_atoms_mass)
   else:
     center_file = center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, a_vec_tot, \
-                         b_vec_tot, center_type, center_id, traj_coord_file, work_dir, 'center.xyz')
+                         b_vec_tot, c_vec_tot, center_type, center_id, traj_coord_file, work_dir, 'center.xyz')
 
   print (data_op.str_wrap('The centered trajectory is written in %s' %(center_file), 80), flush=True)
 

@@ -259,7 +259,7 @@ def bond_length_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_
   '''
 
   center_file = center.center(atoms_num, pre_base_block, end_base_block, pre_base, frames_num, \
-                a_vec, b_vec, c_vec, 'center_box', 0, traj_coord_file, work_dir, 'center.xyz')
+                a_vec_tot, b_vec_tot, c_vec_tot, 'center_box', 0, traj_coord_file, work_dir, 'center.xyz')
 
   frame_stat_num = int((end_step-init_step)/each+1)
   coord_atom_1 = np.asfortranarray(np.zeros((frame_stat_num,3)),dtype='float32')

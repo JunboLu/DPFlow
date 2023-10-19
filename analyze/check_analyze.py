@@ -174,8 +174,8 @@ def check_center_inp(center_dic):
     for i in center_dic['connect0'].keys():
       new_center_dic['connect0'].pop(i)
 
-  new_center_dic['connect0']['atom_id'] = atom_id
-  new_center_dic['connect0']['group_atom'] = group_atom
+    new_center_dic['connect0']['atom_id'] = atom_id
+    new_center_dic['connect0']['group_atom'] = group_atom
 
   return new_center_dic
 
