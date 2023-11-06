@@ -1,3 +1,7 @@
+<div align="left">
+  <img src="https://github.com/JunboLu/DPFlow/doc/logo.png" height="80px"/>
+</div>
+
 # DPFlow - A workflow to generate deep potential force field
 ---------
 
