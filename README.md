@@ -1,4 +1,4 @@
-<div align="left">
+<div align="center">
   <img src="https://github.com/JunboLu/DPFlow/blob/main/doc/logo.png" height="80px"/>
 </div>
 
