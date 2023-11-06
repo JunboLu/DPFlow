@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/JunboLu/DPFlow/blob/main/doc/logo.png" height="80px"/>
+  <img src="https://github.com/JunboLu/DPFlow/blob/main/doc/logo.png" height="160px"/>
 </div>
 
 # DPFlow - A workflow to generate deep potential force field
