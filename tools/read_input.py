@@ -16,12 +16,21 @@ def get_keyword(part_range, inp):
   keyword = []
   keyword_index = []
   for i in range(part_range[0],part_range[1]+1,1):
-    line_i = linecache.getline(inp,i)
-    if ('&' in line_i):
-      index_1 = line_i.index('&')
-      index_2 = line_i.index('\n')
-      keyword_index.append(i)
-      keyword.append(line_i[index_1+1:index_2])
+    line_i = linecache.getline(inp, i)
+    if ( '#' in line_i ):      
+      line_i_split = data_op.split_str(line_i, '#', '\n')
+      if ( len(line_i_split) > 1 ):
+        if ( '&' in line_i_split[0] ):
+          index_1 = line_i_split[0].index('&')
+          index_2 = line_i_split[0].index('\n')
+          keyword_index.append(i)
+          keyword.append(line_i_split[0][index_1+1:index_2])
+    else:
+      if ( '&' in line_i ):
+        index_1 = line_i.index('&')
+        index_2 = line_i.index('\n')
+        keyword_index.append(i)
+        keyword.append(line_i[index_1+1:index_2])
 
   linecache.clearcache()
 
@@ -77,7 +86,12 @@ def get_dump(keyword_block, keyword_block_index, inp):
   if ( len(keyword_block) == 1 ):
     for i in range(keyword_block_index[0][0],keyword_block_index[0][1]+1,1):
       line_i = linecache.getline(inp, i)
-      line_i_split = data_op.split_str(line_i, ' ', '\n')
+      if ( '#' in line_i ):
+        line_i_split = data_op.split_str(line_i, '#', '\n')
+        if ( len(line_i_split) > 1 ):
+          line_i_split = data_op.split_str(line_i_split[0], ' ')
+      else:
+        line_i_split = data_op.split_str(line_i, ' ', '\n')
       if ( len(line_i_split) == 2 ):
         dump_dic[line_i_split[0]] = line_i_split[1]
       elif ( len(line_i_split) > 2 ):
@@ -110,7 +124,12 @@ def get_dump(keyword_block, keyword_block_index, inp):
           j_dic = OrderedDict()
           for k in sub_key_index[j]:
             line_k = linecache.getline(inp, k)
-            line_k_split = data_op.split_str(line_k, ' ', '\n')
+            if ( '#' in line_k ):
+              line_k_split = data_op.split_str(line_k, '#', '\n')
+              if ( len(line_k_split) > 1 ):
+                line_k_split = data_op.split_str(line_k_split[0], ' ')
+            else:
+              line_k_split = data_op.split_str(line_k, ' ', '\n')
             if ( len(line_k_split) == 2 ):
               j_dic[line_k_split[0]] = line_k_split[1]
             elif ( len(line_k_split) > 2 ):
@@ -122,7 +141,12 @@ def get_dump(keyword_block, keyword_block_index, inp):
       elif ( i_list != [] and sub_key != [] and i != 0 ):
         for j in i_list:
           line_j = linecache.getline(inp, j)
-          line_j_split = data_op.split_str(line_j, ' ', '\n')
+          if ( '#' in line_j ):
+            line_j_split = data_op.split_str(line_j, '#', '\n')
+            if ( len(line_j_split) > 1 ):
+              line_j_split = data_op.split_str(line_j_split[0], ' ')
+          else:
+            line_j_split = data_op.split_str(line_j, ' ', '\n')
           if ( len(line_j_split) == 2 ):
             i_dic[line_j_split[0]] = line_j_split[1]
           elif ( len(line_j_split) > 2 ):
@@ -134,7 +158,12 @@ def get_dump(keyword_block, keyword_block_index, inp):
           j_dic = OrderedDict()
           for k in sub_key_index[j]:
             line_k = linecache.getline(inp, k)
-            line_k_split = data_op.split_str(line_k, ' ', '\n')
+            if ( '#' in line_k ):
+              line_k_split = data_op.split_str(line_k, '#', '\n')
+              if ( len(line_k_split) > 1 ):
+                line_k_split = data_op.split_str(line_k_split[0], ' ')
+            else:
+              line_k_split = data_op.split_str(line_k, ' ', '\n')
             if ( len(line_k_split) == 2 ):
               j_dic[line_k_split[0]] = line_k_split[1]
             elif ( len(line_k_split) > 2 ):
@@ -146,7 +175,12 @@ def get_dump(keyword_block, keyword_block_index, inp):
       elif ( i_list != [] and sub_key == []):
         for j in i_list:
           line_j = linecache.getline(inp, j)
-          line_j_split = data_op.split_str(line_j, ' ', '\n')
+          if ( '#' in line_j ):
+            line_j_split = data_op.split_str(line_j, '#', '\n')
+            if ( len(line_j_split) > 1 ):
+              line_j_split = data_op.split_str(line_j_split[0], ' ')
+          else:
+            line_j_split = data_op.split_str(line_j, ' ', '\n')
           if ( len(line_j_split) == 2 ):
             i_dic[line_j_split[0]] = line_j_split[1]
           elif ( len(line_j_split) > 2 ):
@@ -157,7 +191,12 @@ def get_dump(keyword_block, keyword_block_index, inp):
       elif ( i_list != [] and sub_key != [] and i == 0):
         for j in i_list:
           line_j = linecache.getline(inp, j)
-          line_j_split = data_op.split_str(line_j, ' ', '\n')
+          if ( '#' in line_j ):
+            line_j_split = data_op.split_str(line_j, '#', '\n')
+            if ( len(line_j_split) > 1 ):
+              line_j_split = data_op.split_str(line_j_split[0], ' ')
+          else:
+            line_j_split = data_op.split_str(line_j, ' ', '\n')
           if ( len(line_j_split) == 2 ):
             dump_dic[line_j_split[0]] = line_j_split[1]
           elif ( len(line_j_split) > 2 ):
@@ -167,7 +206,12 @@ def get_dump(keyword_block, keyword_block_index, inp):
           j_dic = OrderedDict()
           for k in sub_key_index[j]:
             line_k = linecache.getline(inp, k)
-            line_k_split = data_op.split_str(line_k, ' ', '\n')
+            if ( '#' in line_k ):
+              line_k_split = data_op.split_str(line_k, '#', '\n')
+              if ( len(line_k_split) > 1 ):
+                line_k_split = data_op.split_str(line_k_split[0], ' ')
+            else:
+              line_k_split = data_op.split_str(line_k, ' ', '\n')
             if ( len(line_k_split) == 2 ):
               j_dic[line_k_split[0]] = line_k_split[1]
             elif ( len(line_k_split) > 2 ):
@@ -192,8 +236,16 @@ def dump_info(work_dir, inp_file, f_key):
     keyword_range = []
     for i in range(whole_line_num):
       line_i = linecache.getline(input_file, i+1)
-      if ( keyword in line_i and '&' in line_i ):
-        keyword_range.append(i+1)
+      if ( '#' in line_i ):
+        line_i_split = data_op.split_str(line_i, '#', '\n')
+        if ( len(line_i_split) > 1 ):
+          line_i = line_i_split[0]
+        if ( keyword in line_i and '&' in line_i ):
+          keyword_range.append(i+1)
+      else:
+        if ( keyword in line_i and '&' in line_i ):
+          keyword_range.append(i+1)
+
     f_key_range.append(keyword_range)
 
   linecache.clearcache()

@@ -6,7 +6,8 @@
 &deepff
   &deepmd_model
     &model
-      type_map C H
+      #llllllllllllllll
+      type_map C H  #lllllllllllllllllllllllllllll
       &descriptor
         type se_a
         sel 6 18
