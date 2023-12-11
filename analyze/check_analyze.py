@@ -1208,6 +1208,144 @@ def check_lmp2cp2k_inp(lmp2cp2k_dic):
 
   return lmp2cp2k_dic
 
+def check_res_time_inp(res_time_dic):
+
+  '''
+  check_res_time_inp: check the input of residence time.
+
+  Args:
+    res_time_dic: dictionary
+      res_time_dic contains parameters for residence time.
+  Returns:
+    res_time_dic: dictionary
+      res_time_dic is the revised res_time_dic.
+  '''
+
+  res_time_dic = copy.deepcopy(res_time_dic)
+
+  if ( 'traj_coord_file' in res_time_dic.keys() ):
+    traj_coord_file = res_time_dic['traj_coord_file']
+    if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_coord_file))) ):
+      res_time_dic['traj_coord_file'] = os.path.abspath(os.path.expanduser(traj_coord_file))
+      atoms_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_frame_id, end_frame_id, time_step = \
+      traj_info.get_traj_info(os.path.abspath(os.path.expanduser(traj_coord_file)), 'coord_xyz')
+    else:
+      log_info.log_error('Input error: %s does not exist' %(traj_coord_file))
+      exit()
+
+  if ( 'atom_type_pair' in res_time_dic.keys() ):
+    atom_type_pair = res_time_dic['atom_type_pair']
+    if ( len(atom_type_pair) == 2 and all(data_op.eval_str(x) == 0 for x in atom_type_pair) ):
+      pass
+    else:
+      log_info.log_error('Input error: atom_type_pair should be 2 string, please check or reset analyze/res_time/atom_type_pair')
+      exit()
+  else:
+    log_info.log_error('Input error: no atom_type_pair, please set analyze/res_time/atom_type_pair')
+    exit()
+
+  if ( 'first_shell_dist' in res_time_dic.keys() ):
+    first_shell_dist = res_time_dic['first_shell_dist']
+    if ( data_op.eval_str(first_shell_dist) == 2 ):
+      res_time_dic['first_shell_dist'] = float(first_shell_dist)
+    else:
+      log_info.log_error('Input error: first_shell_dist should be float, please check or reset analyze/res_time/first_shell_dist')
+      exit()
+  else:
+    log_info.log_error('Input error: no first_shell_dist, please set analyze/res_time/first_shell_dist')
+    exit()
+
+  if ( 'dist_conv' in res_time_dic.keys() ):
+    dist_conv = res_time_dic['dist_conv']
+    if ( data_op.eval_str(dist_conv) == 2 ):
+      res_time_dic['dist_conv'] = float(dist_conv)
+    else:
+      log_info.log_error('Input error: dist_conv should be float, please check or reset analyze/res_time/dist_conv')
+      exit()
+  else:
+    res_time_dic['dist_conv'] = 0.1
+
+  if ( 'init_step' in res_time_dic.keys() ):
+    init_step = res_time_dic['init_step']
+    if ( data_op.eval_str(init_step) == 1 ):
+      res_time_dic['init_step'] = int(init_step)
+    else:
+      log_info.log_error('Input error: init_step should be integer, please check or reset analyze/res_time/init_step')
+  else:
+    res_time_dic['init_step'] = start_frame_id
+
+  if ( 'end_step' in res_time_dic.keys() ):
+    end_step = res_time_dic['end_step']
+    if ( data_op.eval_str(end_step) == 1 ):
+      res_time_dic['end_step'] = int(end_step)
+    else:
+      log_info.log_error('Input error: end_step should be integer, please check or reset analyze/res_time/end_step')
+  else:
+    res_time_dic['end_step'] = end_frame_id
+
+  init_step = res_time_dic['init_step']
+  end_step = res_time_dic['end_step']
+  check_step(init_step, end_step, start_frame_id, end_frame_id)
+
+  if ( 'md_type' in res_time_dic.keys() ):
+    md_type = res_time_dic['md_type']
+    if ( md_type == 'npt' or md_type == 'nvt' or  md_type == 'nve' ):
+      pass
+    else:
+      log_info.log_error('md_type is not valid, please change it to npt, nvt or nve')
+      exit()
+  else:
+    res_time_dic['md_type'] = 'nvt'
+
+  md_type = res_time_dic['md_type']
+  if ( md_type == 'nvt' or md_type == 'nve' ):
+    if ( 'box' in res_time_dic.keys() ):
+      A_exist = 'A' in res_time_dic['box'].keys()
+      B_exist = 'B' in res_time_dic['box'].keys()
+      C_exist = 'C' in res_time_dic['box'].keys()
+    else:
+      log_info.log_error('Input error: no box, please set analyze/res_time/box')
+      exit()
+
+    if ( A_exist and B_exist and C_exist ):
+      box_A = res_time_dic['box']['A']
+      box_B = res_time_dic['box']['B']
+      box_C = res_time_dic['box']['C']
+    else:
+      log_info.log_error('Input error: box setting error, please check analyze/res_time/box')
+      exit()
+
+    if ( len(box_A) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_A) ):
+      res_time_dic['box']['A'] = [float(x) for x in box_A]
+    else:
+      log_info.log_error('Input error: A vector of box wrong, please check analyze/res_time/box/A')
+      exit()
+
+    if ( len(box_B) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_B) ):
+      res_time_dic['box']['B'] = [float(x) for x in box_B]
+    else:
+      log_info.log_error('Input error: B vector of box wrong, please check analyze/res_time/box/B')
+      exit()
+
+    if ( len(box_C) == 3 and all(data_op.eval_str(i) == 1 or data_op.eval_str(i) == 2 for i in box_C) ):
+      res_time_dic['box']['C'] = [float(x) for x in box_C]
+    else:
+      log_info.log_error('Input error: C vector of box wrong, please check analyze/res_time/box/C')
+      exit()
+  elif ( md_type == 'npt' ):
+    if ( 'traj_cell_file' in res_time_dic.keys() ):
+      traj_cell_file = res_time_dic['traj_cell_file']
+      if ( os.path.exists(os.path.abspath(os.path.expanduser(traj_cell_file))) ):
+        new_center_dic['traj_cell_file'] = os.path.abspath(os.path.expanduser(traj_cell_file))
+      else:
+        log_info.log_error('%s file does not exist' %(traj_cell_file))
+        exit()
+    else:
+      log_info.log_error('Input error: no box trajectory file, please set analyze/res_time/traj_cell_file')
+      exit()
+
+  return res_time_dic
+
 def check_rdf_inp(rdf_dic):
 
   '''

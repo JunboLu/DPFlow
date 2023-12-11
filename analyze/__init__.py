@@ -10,3 +10,4 @@ from DPFlow.analyze import free_energy
 from DPFlow.analyze import arrange_data
 from DPFlow.analyze import time_correlation
 from DPFlow.analyze import check_analyze
+from DPFlow.analyze import res_time

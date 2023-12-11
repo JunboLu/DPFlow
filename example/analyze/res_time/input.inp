@@ -1,0 +1,21 @@
+&global
+  run_type analyze
+  analyze_job res_time
+&end global
+
+&analyze
+  &res_time
+    traj_coord_file ./9_plumed_iter0_cp2k-pos-1.xyz
+    atom_type_pair Th O
+    first_shell_dist 2.6
+    dist_conv 0.4
+    init_step 0
+    end_step 4000000
+    md_type nvt
+    &box
+      A 12.42 0.0 0.0
+      B 0.0 12.42 0.0
+      C 0.0 0.0 12.42
+    &end box
+  &end res_time
+&end analyze

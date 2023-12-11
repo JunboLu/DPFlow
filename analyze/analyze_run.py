@@ -18,6 +18,7 @@ from DPFlow.analyze import v_hartree
 from DPFlow.analyze import free_energy
 from DPFlow.analyze import arrange_data
 from DPFlow.analyze import time_correlation
+from DPFlow.analyze import res_time
 
 #We add a new keyword: analyze_job. We will use this keyword to assign job. 
 work_dir = str(sys.argv[1])
@@ -84,3 +85,5 @@ elif ( analyze_job == 'file_trans' ):
 elif ( analyze_job == 'free_energy' ):
   free_energy.free_energy_run(job_type_param[0], work_dir)
 
+elif ( analyze_job == 'res_time' ):
+  res_time.res_time_run(job_type_param[0], work_dir)
