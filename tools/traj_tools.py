@@ -102,6 +102,17 @@ def get_block_base(file_name, file_type):
 
     linecache.clearcache()
 
+  if ( file_type == 'cell' ):
+    block_num = 1
+    pre_base = 1
+    pre_base_block = 0
+    end_base_block = 0
+    line = linecache.getline(file_name, 2)
+    line_split = data_op.split_str(line, ' ')
+    file_start = int(line_split[0])
+
+    linecache.clearcache()
+
   if ( file_type == 'lagrange' ):
     block_num = 2
     pre_base = 0

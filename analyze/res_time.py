@@ -141,6 +141,7 @@ def res_time_run(res_time_param, work_dir):
         if ( mask_mat[j+1,i] != mask_mat[j,i] ):
           Tnum[i] = Tnum[i]+0.5
       if ( Tnum[i] > 0 ):
+        print (Ttot[i]*each*time_step, Tnum[i])
         T_stat.append(Ttot[i]/math.ceil(Tnum[i]))
 
   residence_time = sum(T_stat)*each*time_step/len(T_stat)

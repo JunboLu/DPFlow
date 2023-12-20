@@ -258,6 +258,12 @@ def load_data_from_dir(traj_coord_file_name, traj_frc_file_name, traj_cell_file_
   #vol is volume, it will be used in virial. The unit of vol is A^3.
   vol = []
   if ( coord_file_type == 'coord_xyz' ):
+    blocks_num, pre_base_block_cell, end_base_block_cell, pre_base_cell, \
+    frames_num_cell, each_cell, start_id_cell, end_id_cell, time_step_cell = \
+    traj_info.get_traj_info(traj_cell_file_name, 'cell')
+    if ( frames_num != frames_num_cell ):
+      log_info.log_error('Input error: the number of frames (%d) in the cell file %s is not equal to that (%d) in the coordination file %s, please check!' %(frames_num_cell, traj_coord_file_name, frames_num, traj_cell_file_name))
+      exit()
     for i in range(len(choosed_index)):
       line_i = linecache.getline(traj_cell_file_name, int((choosed_index[i]-start_id)/each)+2)
       line_i_split = data_op.split_str(line_i, ' ', '\n')

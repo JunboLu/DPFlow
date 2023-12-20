@@ -5,12 +5,12 @@
 
 &analyze
   &res_time
-    traj_coord_file ./9_plumed_iter0_cp2k-pos-1.xyz
+    traj_coord_file ./9_Iter4_20ns_cp2k-pos-1.xyz
     atom_type_pair Th O
     first_shell_dist 2.6
     dist_conv 0.4
     init_step 0
-    end_step 4000000
+    end_step 1116800
     md_type nvt
     &box
       A 12.42 0.0 0.0

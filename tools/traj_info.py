@@ -171,7 +171,7 @@ def get_traj_info(file_name, file_type, group=[[]], atom_id=[[]], return_group=F
              end_frame_id, time_step, group_atom_1_id, group_atoms_mass
     else:
       return blocks_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_frame_id, end_frame_id, time_step
-  if ( file_type == 'ener' or file_type == 'mix_ener' ):
+  if ( file_type == 'ener' or file_type == 'mix_ener' or file_type == 'cell' ):
     return blocks_num, pre_base_block, end_base_block, pre_base, frames_num, each, start_frame_id, end_frame_id, time_step
   if ( file_type == 'lagrange' ):
     return blocks_num, pre_base_block, end_base_block, pre_base, frames_num
