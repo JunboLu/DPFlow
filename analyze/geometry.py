@@ -394,7 +394,7 @@ def bond_angle_stat(atoms_num, pre_base_block, end_base_block, pre_base, start_f
   return time, angle, angle_avg, sigma
 
 def order_struct(atoms_num, frames_num, pre_base_block, end_base_block, pre_base, group_atom, \
-                 atom_id, traj_coord_file, a_vec, b_vec, c_vec, work_dir, file_name):
+                 atom_id, traj_coord_file, a_vec_tot, b_vec_tot, c_vec_tot, work_dir, file_name):
 
   #This function works for small molecule where there is a center atom, and other atoms are ligands.
 
@@ -443,6 +443,9 @@ def order_struct(atoms_num, frames_num, pre_base_block, end_base_block, pre_base
   order_list = []
 
   #Get the order list from the first frame
+  a_vec = a_vec_tot[0]
+  b_vec = b_vec_tot[0]
+  c_vec = c_vec_tot[0]
   for i in range(len(group_atom)):
     order_list_i = []
     atom_id_i = atom_id[i]
@@ -511,6 +514,7 @@ def order_struct(atoms_num, frames_num, pre_base_block, end_base_block, pre_base
 
   linecache.clearcache()
 
+  print (order_list)
   return new_file_name, order_list
 
 def first_shell(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, frames_num, \

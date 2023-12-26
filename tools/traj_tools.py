@@ -265,6 +265,8 @@ def choose_str(atoms_num, pre_base, pre_base_block, end_base_block, each, init_s
 
   linecache.clearcache()
 
+  file_md.close()
+
   return choose_file
 
 def order_traj_file(atoms_num, frames_num, each, init_step, traj_file, file_type, order_list, work_dir, file_name):

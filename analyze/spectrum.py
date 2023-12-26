@@ -268,30 +268,35 @@ def power_spectrum_run(spectrum_param, work_dir):
     atoms_num_v, pre_base_block_v, end_base_block_v, pre_base_v, frames_num_v, each_v, start_frame_id_v, end_frame_id_v, time_step_v = \
     traj_info.get_traj_info(traj_vel_file, 'vel')
 
-  if ( md_type == 'nvt' or md_type == 'nve' ):
-    a_vec = spectrum_param['box']['A']
-    b_vec = spectrum_param['box']['B']
-    c_vec = spectrum_param['box']['C']
-    a_vec_tot = []
-    b_vec_tot = []
-    c_vec_tot = []
-    for i in range(frames_num):
-      a_vec_tot.append(a_vec)
-      b_vec_tot.append(b_vec)
-      c_vec_tot.append(c_vec)
-  elif ( md_type == 'npt' ):
-    traj_cell_file = spectrum_param['traj_cell_file']
-    a_vec_tot = []
-    b_vec_tot = []
-    c_vec_tot = []
-    for i in range(frames_num):
-      line_i = linecache.getline(traj_cell_file, i+2)
-      line_i_split = data_op.split_str(line_i, ' ', '\n')
-      a_vec_tot.append([float(line_i_split[2]), float(line_i_split[3]), float(line_i_split[4])])
-      b_vec_tot.append([float(line_i_split[5]), float(line_i_split[6]), float(line_i_split[7])])
-      c_vec_tot.append([float(line_i_split[8]), float(line_i_split[9]), float(line_i_split[10])])
+    if ( frames_num_p != frames_num_v ):
+      log_info.log_error('Trajectory error: the number of frames in %f is not equal to that in %f file' %(traj_coord_file, traj_vel_file))
+      exit()
 
-    linecache.clearcache()
+    md_type = spectrum_param['md_type']
+    if ( md_type == 'nvt' or md_type == 'nve' ):
+      a_vec = spectrum_param['box']['A']
+      b_vec = spectrum_param['box']['B']
+      c_vec = spectrum_param['box']['C']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num_v):
+        a_vec_tot.append(a_vec)
+        b_vec_tot.append(b_vec)
+        c_vec_tot.append(c_vec)
+    elif ( md_type == 'npt' ):
+      traj_cell_file = spectrum_param['traj_cell_file']
+      a_vec_tot = []
+      b_vec_tot = []
+      c_vec_tot = []
+      for i in range(frames_num):
+        line_i = linecache.getline(traj_cell_file, i+2)
+        line_i_split = data_op.split_str(line_i, ' ', '\n')
+        a_vec_tot.append([float(line_i_split[2]), float(line_i_split[3]), float(line_i_split[4])])
+        b_vec_tot.append([float(line_i_split[5]), float(line_i_split[6]), float(line_i_split[7])])
+        c_vec_tot.append([float(line_i_split[8]), float(line_i_split[9]), float(line_i_split[10])])
+
+      linecache.clearcache()
 
     if ( spec_type == 'water_mode' ):
       atom_id = spectrum_param['atom_id']
@@ -310,19 +315,19 @@ def power_spectrum_run(spectrum_param, work_dir):
         choose_coord_file = traj_tools.choose_str(atoms_num, pre_base, pre_base_block, end_base_block, each, start_frame_id, \
                             end_frame_id, start_frame_id, traj_coord_file, [atom_id], work_dir, 'choose_coord.xyz')
         choose_vel_file = traj_tools.choose_str(atoms_num, pre_base, pre_base_block, end_base_block, each, start_frame_id, \
-                            end_frame_id, start_frame_id, traj_vel_file, [atom_id], work_dir, 'choose_coord.xyz')
+                            end_frame_id, start_frame_id, traj_vel_file, [atom_id], work_dir, 'choose_vel.xyz')
         atoms_num = len(atom_id)
         atom_id = list(range(1,atoms_num+1,1))
         coord_order_file, order_list = \
         geometry.order_struct(atoms_num, frames_num, pre_base_block, end_base_block, pre_base, [['O','H','H']], \
-                              [atom_id], choose_coord_file, a_vec[len(a_vec)-1], b_vec[len(b_vec)-1], \
-                              c_vec[len(c_vec)-1], work_dir, 'coord_order.xyz')
+                              [atom_id], choose_coord_file, a_vec_tot, b_vec_tot, c_vec_tot, \
+                              work_dir, 'coord_order.xyz')
         vel_order_file = traj_tools.order_traj_file(atoms_num, frames_num, each, start_frame_id, \
                          choose_vel_file, 'vel', order_list, work_dir, 'vel_order.xyz')
       else:
         coord_order_file, order_list = \
         geometry.order_struct(atoms_num, frames_num, pre_base_block, end_base_block, pre_base, [['O','H','H']], \
-                              [atom_id], traj_coord_file, a_vec, b_vec, c_vec, work_dir, 'coord_order.xyz')
+                              [atom_id], traj_coord_file, a_vec_tot, b_vec_tot, c_vec_tot, work_dir, 'coord_order.xyz')
         vel_order_file = traj_tools.order_traj_file(atoms_num, frames_num, each, start_frame_id, \
                          traj_vel_file, 'vel',  order_list, work_dir, 'vel_order.xyz')
 
@@ -348,8 +353,10 @@ def power_spectrum_run(spectrum_param, work_dir):
       print ('POWER_SPECTRUM'.center(80, '*'), flush=True)
       print ('Analyze power spectrum of water with three modes of water', flush=True)
       wave_num, q1_int, q1_int_fit, q2_int, q2_int_fit, q3_int, q3_int_fit = \
-      power_spectrum_mode(atoms_num, pre_base_block, end_base_block, pre_base, each, start_frame_id, time_step, init_step, end_step, max_frame_corr, \
-                          cluster_id, start_wave, end_wave, increment_wave, traj_coord_file, traj_vel_file, a_vec, b_vec, c_vec, normalize, work_dir)
+      power_spectrum_mode(atoms_num, pre_base_block, end_base_block, pre_base, each, \
+      start_frame_id, time_step, init_step, end_step, max_frame_corr, cluster_id, \
+      start_wave, end_wave, increment_wave, traj_coord_file, traj_vel_file, a_vec_tot, \
+      b_vec_tot, c_vec_tot, normalize, work_dir)
 
     elif ( spec_type == 'hydration_mode' ):
       if (start_frame_id_v > start_frame_id_p):
@@ -367,8 +374,10 @@ def power_spectrum_run(spectrum_param, work_dir):
       atom_1 = atom_type_pair[0]
       atom_2 = atom_type_pair[1]
 
-      first_shell_id, dist = geometry.first_shell(atoms_num, pre_base_block, end_base_block, pre_base, start_frame_id, frames_num, each, \
-                             init_step, end_step, atom_1, atom_2, a_vec, b_vec, c_vec, traj_coord_file, hyd_shell_dist, dist_conv, work_dir)
+      first_shell_id, dist = geometry.first_shell(atoms_num, pre_base_block, end_base_block, \
+                             pre_base, start_frame_id, frames_num, each, init_step, end_step, \
+                             atom_1, atom_2, a_vec_tot, b_vec_tot, c_vec_tot, traj_coord_file, \
+                             hyd_shell_dist, dist_conv, work_dir)
 
       cluster_id = []
       frame_num_stat = int((end_step-init_step)/each+1)
@@ -390,8 +399,10 @@ def power_spectrum_run(spectrum_param, work_dir):
       print ('Analyze power spectrum for metal ion and its first shell water', flush=True)
 
       wave_num, q1_int, q1_int_fit, q2_int, q2_int_fit, q3_int, q3_int_fit = \
-      power_spectrum_mode(atoms_num, pre_base_block, end_base_block, pre_base, each, start_frame_id, time_step, init_step, end_step, max_frame_corr, \
-                          cluster_id, start_wave, end_wave, increment_wave, traj_coord_file, traj_vel_file, a_vec, b_vec, c_vec, normalize, work_dir)
+      power_spectrum_mode(atoms_num, pre_base_block, end_base_block, pre_base, each, \
+      start_frame_id, time_step, init_step, end_step, max_frame_corr, cluster_id, \
+      start_wave, end_wave, increment_wave, traj_coord_file, traj_vel_file, \
+      a_vec_tot, b_vec_tot, c_vec_tot, normalize, work_dir)
 
     freq_int_q1_file = ''.join((work_dir, '/freq_intensity_q1.csv'))
     with open(freq_int_q1_file, 'w') as csvfile:

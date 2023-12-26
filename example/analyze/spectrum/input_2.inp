@@ -6,8 +6,8 @@
 &analyze
   &power_spectrum
     type water_mode
-    traj_vel_file ./WATER-vel-1.xyz
-    traj_coord_file ./WATER-pos-1.xyz
+    traj_vel_file ./Ln_H2O-vel-1.xyz
+    traj_coord_file ./Ln_H2O-pos-1.xyz
     init_step 30000
     end_step 50000
     md_type nvt
@@ -16,7 +16,7 @@
       B  0.0 12.42 0.0
       C  0.0 0.0 12.42
     &end box
-    atom_id 1-192
+    atom_id 2-4 5-7 8-10 11-13 17-19 26-28 29-31 14-16
     max_frame_corr 5000
     normalize 1
     start_wave 0
