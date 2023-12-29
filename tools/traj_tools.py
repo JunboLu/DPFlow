@@ -192,7 +192,7 @@ def delete_duplicate(file_name, file_type):
   for i in range(frames_num):
     if ( file_type == 'coord_xyz' or file_type == 'vel' or file_type == 'frc' ):
       line = linecache.getline(file_name, i*(pre_base_block+blocks_num+end_base_block)+2+pre_base)
-    if ( file_type == 'mix_ener' or file_type == 'ener' ):
+    if ( file_type == 'mix_ener' or file_type == 'ener' or file_type == 'cell' ):
       line = linecache.getline(file_name, i*(pre_base_block+blocks_num+end_base_block)+pre_base+1)
     total_line.append(line)
 
