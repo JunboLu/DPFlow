@@ -1,0 +1,175 @@
+WARNING:tensorflow:From /home/lujunbo/bin/deepmd-kit-2.2.2-cpu/lib/python3.10/site-packages/tensorflow/python/compat/v2_compat.py:107: disable_resource_variables (from tensorflow.python.ops.variable_scope) is deprecated and will be removed in a future version.
+Instructions for updating:
+non-resource variables are not supported in the long term
+WARNING:root:To get the best performance, it is recommended to adjust the number of threads by setting the environment variables OMP_NUM_THREADS, TF_INTRA_OP_PARALLELISM_THREADS, and TF_INTER_OP_PARALLELISM_THREADS. See https://deepmd.rtfd.io/parallelism/ for more information.
+WARNING:root:Environment variable KMP_BLOCKTIME is empty. Use the default value 0
+WARNING:root:Environment variable KMP_AFFINITY is empty. Use the default value granularity=fine,verbose,compact,1,0
+/home/lujunbo/bin/deepmd-kit-2.2.2-cpu/lib/python3.10/importlib/__init__.py:169: UserWarning: The NumPy module was reloaded (imported a second time). This can in some cases result in small but subtle issues and is discouraged.
+  _bootstrap._exec(spec, module)
+/home/lujunbo/bin/deepmd-kit-2.2.2-cpu/lib/python3.10/site-packages/deepmd/utils/compat.py:327: UserWarning: It seems that you are using a deepmd-kit input of version 1.x.x, which is deprecated. we have converted the input to >2.0.0 compatible
+  warnings.warn(msg)
+DEEPMD INFO    Calculate neighbor statistics... (add --skip-neighbor-stat to skip this step)
+OMP: Info #155: KMP_AFFINITY: Initial OS proc set respected: 0-11
+OMP: Info #216: KMP_AFFINITY: decoding x2APIC ids.
+OMP: Info #157: KMP_AFFINITY: 12 available OS procs
+OMP: Info #158: KMP_AFFINITY: Uniform topology
+OMP: Info #287: KMP_AFFINITY: topology layer "LL cache" is equivalent to "socket".
+OMP: Info #287: KMP_AFFINITY: topology layer "L3 cache" is equivalent to "socket".
+OMP: Info #287: KMP_AFFINITY: topology layer "L2 cache" is equivalent to "core".
+OMP: Info #287: KMP_AFFINITY: topology layer "L1 cache" is equivalent to "core".
+OMP: Info #192: KMP_AFFINITY: 1 socket x 6 cores/socket x 2 threads/core (6 total cores)
+OMP: Info #218: KMP_AFFINITY: OS proc to physical thread map:
+OMP: Info #172: KMP_AFFINITY: OS proc 0 maps to socket 0 core 0 thread 0 
+OMP: Info #172: KMP_AFFINITY: OS proc 6 maps to socket 0 core 0 thread 1 
+OMP: Info #172: KMP_AFFINITY: OS proc 1 maps to socket 0 core 1 thread 0 
+OMP: Info #172: KMP_AFFINITY: OS proc 7 maps to socket 0 core 1 thread 1 
+OMP: Info #172: KMP_AFFINITY: OS proc 2 maps to socket 0 core 2 thread 0 
+OMP: Info #172: KMP_AFFINITY: OS proc 8 maps to socket 0 core 2 thread 1 
+OMP: Info #172: KMP_AFFINITY: OS proc 3 maps to socket 0 core 3 thread 0 
+OMP: Info #172: KMP_AFFINITY: OS proc 9 maps to socket 0 core 3 thread 1 
+OMP: Info #172: KMP_AFFINITY: OS proc 4 maps to socket 0 core 4 thread 0 
+OMP: Info #172: KMP_AFFINITY: OS proc 10 maps to socket 0 core 4 thread 1 
+OMP: Info #172: KMP_AFFINITY: OS proc 5 maps to socket 0 core 5 thread 0 
+OMP: Info #172: KMP_AFFINITY: OS proc 11 maps to socket 0 core 5 thread 1 
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14918 thread 0 bound to OS proc set 0
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14922 thread 1 bound to OS proc set 1
+DEEPMD INFO    training data with min nbor dist: 1.068537102978643
+DEEPMD INFO    training data with max nbor size: [2 6]
+DEEPMD INFO     _____               _____   __  __  _____           _     _  _   
+DEEPMD INFO    |  __ \             |  __ \ |  \/  ||  __ \         | |   (_)| |  
+DEEPMD INFO    | |  | |  ___   ___ | |__) || \  / || |  | | ______ | | __ _ | |_ 
+DEEPMD INFO    | |  | | / _ \ / _ \|  ___/ | |\/| || |  | ||______|| |/ /| || __|
+DEEPMD INFO    | |__| ||  __/|  __/| |     | |  | || |__| |        |   < | || |_ 
+DEEPMD INFO    |_____/  \___| \___||_|     |_|  |_||_____/         |_|\_\|_| \__|
+DEEPMD INFO    Please read and cite:
+DEEPMD INFO    Wang, Zhang, Han and E, Comput.Phys.Comm. 228, 178-184 (2018)
+DEEPMD INFO    Zeng et al, arXiv:2304.09409
+DEEPMD INFO    See https://deepmd.rtfd.io/credits/ for details.
+DEEPMD INFO    installed to:         /home/conda/feedstock_root/build_artifacts/deepmd-kit_1684939962544/work/_skbuild/linux-x86_64-3.10/cmake-install
+DEEPMD INFO    source :              v2.2.2
+DEEPMD INFO    source brach:         HEAD
+DEEPMD INFO    source commit:        92ca097b
+DEEPMD INFO    source commit at:     2023-05-24 13:45:03 +0800
+DEEPMD INFO    build float prec:     double
+DEEPMD INFO    build variant:        cpu
+DEEPMD INFO    build with tf inc:    /home/lujunbo/bin/deepmd-kit-2.2.2-cpu/lib/python3.10/site-packages/tensorflow/include;/home/lujunbo/bin/deepmd-kit-2.2.2-cpu/lib/python3.10/site-packages/tensorflow/../../../../include
+DEEPMD INFO    build with tf lib:    
+DEEPMD INFO    ---Summary of the training---------------------------------------
+DEEPMD INFO    running on:           localhost.localdomain
+DEEPMD INFO    computing device:     cpu:0
+DEEPMD INFO    Count of visible GPU: 0
+DEEPMD INFO    num_intra_threads:    0
+DEEPMD INFO    num_inter_threads:    0
+DEEPMD INFO    -----------------------------------------------------------------
+DEEPMD INFO    ---Summary of DataSystem: training     -----------------------------------------------
+DEEPMD INFO    found 4 system(s):
+DEEPMD INFO                                        system  natoms  bch_sz   n_bch   prob  pbc
+DEEPMD INFO    -- /c2h6/model_devi/init_train_data/data_0       8       2     500  0.167    T
+DEEPMD INFO    -- /c2h6/model_devi/init_train_data/data_1       8       2     500  0.167    T
+DEEPMD INFO    -- /c2h6/model_devi/init_train_data/data_2       8       2     500  0.167    T
+DEEPMD INFO    -- /c2h6/model_devi/init_train_data/data_3       8       2    1500  0.500    T
+DEEPMD INFO    --------------------------------------------------------------------------------------
+DEEPMD INFO    training without frame parameter
+DEEPMD INFO    data stating... (this step may take long time)
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14895 thread 2 bound to OS proc set 2
+DEEPMD INFO    built lr
+DEEPMD INFO    built network
+DEEPMD INFO    built training
+DEEPMD INFO    initialize model from scratch
+DEEPMD INFO    start training at lr 1.00e-03 (== 1.00e-03), decay_step 3000, decay_rate 0.949261, final lr will be 3.00e-08
+WARNING:tensorflow:From /home/lujunbo/bin/deepmd-kit-2.2.2-cpu/lib/python3.10/site-packages/deepmd/train/trainer.py:1477: py_func (from tensorflow.python.ops.script_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+tf.py_func is deprecated in TF V2. Instead, there are two
+    options available in V2.
+    - tf.py_function takes a python function which manipulates tf eager
+    tensors instead of numpy arrays. It's easy to convert a tf eager tensor to
+    an ndarray (just call tensor.numpy()) but having access to eager tensors
+    means `tf.py_function`s can use accelerators such as GPUs as well as
+    being differentiable using a gradient tape.
+    - tf.numpy_function maintains the semantics of the deprecated tf.py_func
+    (it is not differentiable, and manipulates numpy arrays). It drops the
+    stateful argument making all functions stateful.
+    
+WARNING:tensorflow:From /home/lujunbo/bin/deepmd-kit-2.2.2-cpu/lib/python3.10/site-packages/deepmd/train/trainer.py:1477: py_func (from tensorflow.python.ops.script_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+tf.py_func is deprecated in TF V2. Instead, there are two
+    options available in V2.
+    - tf.py_function takes a python function which manipulates tf eager
+    tensors instead of numpy arrays. It's easy to convert a tf eager tensor to
+    an ndarray (just call tensor.numpy()) but having access to eager tensors
+    means `tf.py_function`s can use accelerators such as GPUs as well as
+    being differentiable using a gradient tape.
+    - tf.numpy_function maintains the semantics of the deprecated tf.py_func
+    (it is not differentiable, and manipulates numpy arrays). It drops the
+    stateful argument making all functions stateful.
+    
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14912 thread 3 bound to OS proc set 3
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14920 thread 4 bound to OS proc set 4
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14914 thread 5 bound to OS proc set 5
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14923 thread 6 bound to OS proc set 6
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14916 thread 7 bound to OS proc set 7
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14913 thread 8 bound to OS proc set 8
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14919 thread 9 bound to OS proc set 9
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14915 thread 10 bound to OS proc set 10
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14921 thread 11 bound to OS proc set 11
+OMP: Info #254: KMP_AFFINITY: pid 14895 tid 14917 thread 12 bound to OS proc set 0
+DEEPMD INFO    batch     100 training time 4.08 s, testing time 0.01 s, total wall time 4.89 s
+DEEPMD INFO    batch     200 training time 2.07 s, testing time 0.01 s, total wall time 2.21 s
+DEEPMD INFO    batch     300 training time 2.03 s, testing time 0.01 s, total wall time 2.18 s
+DEEPMD INFO    batch     400 training time 2.07 s, testing time 0.01 s, total wall time 2.21 s
+DEEPMD INFO    batch     500 training time 2.08 s, testing time 0.01 s, total wall time 2.21 s
+DEEPMD INFO    batch     600 training time 2.10 s, testing time 0.01 s, total wall time 2.22 s
+DEEPMD INFO    batch     700 training time 1.99 s, testing time 0.01 s, total wall time 2.13 s
+DEEPMD INFO    batch     800 training time 2.08 s, testing time 0.01 s, total wall time 2.22 s
+DEEPMD INFO    batch     900 training time 2.10 s, testing time 0.01 s, total wall time 2.27 s
+DEEPMD INFO    batch    1000 training time 2.07 s, testing time 0.01 s, total wall time 2.19 s
+DEEPMD INFO    saved checkpoint model.ckpt
+DEEPMD INFO    batch    1100 training time 1.43 s, testing time 0.01 s, total wall time 2.83 s
+DEEPMD INFO    batch    1200 training time 2.10 s, testing time 0.01 s, total wall time 2.24 s
+DEEPMD INFO    batch    1300 training time 2.06 s, testing time 0.01 s, total wall time 2.20 s
+DEEPMD INFO    batch    1400 training time 2.08 s, testing time 0.01 s, total wall time 2.24 s
+DEEPMD INFO    batch    1500 training time 2.08 s, testing time 0.01 s, total wall time 2.21 s
+DEEPMD INFO    batch    1600 training time 2.10 s, testing time 0.01 s, total wall time 2.23 s
+DEEPMD INFO    batch    1700 training time 2.02 s, testing time 0.01 s, total wall time 2.19 s
+DEEPMD INFO    batch    1800 training time 2.14 s, testing time 0.01 s, total wall time 2.27 s
+DEEPMD INFO    batch    1900 training time 2.08 s, testing time 0.01 s, total wall time 2.22 s
+DEEPMD INFO    batch    2000 training time 2.12 s, testing time 0.01 s, total wall time 2.27 s
+DEEPMD INFO    saved checkpoint model.ckpt
+DEEPMD INFO    batch    2100 training time 2.07 s, testing time 0.00 s, total wall time 2.84 s
+DEEPMD INFO    batch    2200 training time 1.32 s, testing time 0.01 s, total wall time 1.40 s
+DEEPMD INFO    batch    2300 training time 2.14 s, testing time 0.01 s, total wall time 2.27 s
+DEEPMD INFO    batch    2400 training time 2.08 s, testing time 0.01 s, total wall time 2.22 s
+DEEPMD INFO    batch    2500 training time 2.10 s, testing time 0.01 s, total wall time 2.25 s
+DEEPMD INFO    batch    2600 training time 2.09 s, testing time 0.01 s, total wall time 2.24 s
+DEEPMD INFO    batch    2700 training time 2.10 s, testing time 0.01 s, total wall time 2.25 s
+DEEPMD INFO    batch    2800 training time 2.09 s, testing time 0.01 s, total wall time 2.24 s
+DEEPMD INFO    batch    2900 training time 2.10 s, testing time 0.01 s, total wall time 2.25 s
+DEEPMD INFO    batch    3000 training time 2.03 s, testing time 0.01 s, total wall time 2.18 s
+DEEPMD INFO    saved checkpoint model.ckpt
+DEEPMD INFO    batch    3100 training time 2.09 s, testing time 0.01 s, total wall time 2.81 s
+DEEPMD INFO    batch    3200 training time 2.16 s, testing time 0.01 s, total wall time 2.30 s
+DEEPMD INFO    batch    3300 training time 1.30 s, testing time 0.01 s, total wall time 1.38 s
+DEEPMD INFO    batch    3400 training time 2.12 s, testing time 0.01 s, total wall time 2.26 s
+DEEPMD INFO    batch    3500 training time 2.12 s, testing time 0.01 s, total wall time 2.25 s
+DEEPMD INFO    batch    3600 training time 2.14 s, testing time 0.01 s, total wall time 2.28 s
+DEEPMD INFO    batch    3700 training time 2.12 s, testing time 0.01 s, total wall time 2.26 s
+DEEPMD INFO    batch    3800 training time 2.03 s, testing time 0.01 s, total wall time 2.16 s
+DEEPMD INFO    batch    3900 training time 2.06 s, testing time 0.01 s, total wall time 2.21 s
+DEEPMD INFO    batch    4000 training time 2.08 s, testing time 0.01 s, total wall time 2.21 s
+DEEPMD INFO    saved checkpoint model.ckpt
+DEEPMD INFO    batch    4100 training time 2.08 s, testing time 0.01 s, total wall time 2.82 s
+DEEPMD INFO    batch    4200 training time 2.06 s, testing time 0.02 s, total wall time 2.20 s
+DEEPMD INFO    batch    4300 training time 2.12 s, testing time 0.00 s, total wall time 2.27 s
+DEEPMD INFO    batch    4400 training time 1.40 s, testing time 0.01 s, total wall time 1.50 s
+DEEPMD INFO    batch    4500 training time 2.07 s, testing time 0.00 s, total wall time 2.20 s
+DEEPMD INFO    batch    4600 training time 2.04 s, testing time 0.01 s, total wall time 2.20 s
+DEEPMD INFO    batch    4700 training time 2.11 s, testing time 0.01 s, total wall time 2.25 s
+DEEPMD INFO    batch    4800 training time 2.09 s, testing time 0.01 s, total wall time 2.23 s
+DEEPMD INFO    batch    4900 training time 2.04 s, testing time 0.01 s, total wall time 2.18 s
+DEEPMD INFO    batch    5000 training time 2.14 s, testing time 0.01 s, total wall time 2.28 s
+DEEPMD INFO    saved checkpoint model.ckpt
+DEEPMD INFO    batch    5100 training time 2.09 s, testing time 0.01 s, total wall time 2.81 s
+DEEPMD INFO    batch    5200 training time 2.10 s, testing time 0.01 s, total wall time 2.23 s
+DEEPMD INFO    batch    5300 training time 2.10 s, testing time 0.01 s, total wall time 2.25 s
+DEEPMD INFO    batch    5400 training time 2.09 s, testing time 0.01 s, total wall time 2.25 s
+DEEPMD INFO    batch    5500 training time 1.34 s, testing time 0.01 s, total wall time 1.43 s

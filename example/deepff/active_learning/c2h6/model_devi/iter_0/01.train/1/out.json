@@ -1,0 +1,107 @@
+{
+    "model": {
+        "type_map": [
+            "C",
+            "H"
+        ],
+        "descriptor": {
+            "type": "se_e2_a",
+            "sel": [
+                6,
+                18
+            ],
+            "rcut_smth": 0.5,
+            "rcut": 6.0,
+            "neuron": [
+                10,
+                20,
+                40
+            ],
+            "axis_neuron": 16,
+            "resnet_dt": false,
+            "seed": 3548138888,
+            "activation_function": "tanh",
+            "type_one_side": false,
+            "precision": "default",
+            "trainable": true,
+            "exclude_types": [],
+            "set_davg_zero": false
+        },
+        "fitting_net": {
+            "resnet_dt": true,
+            "seed": 328341747,
+            "neuron": [
+                120,
+                120,
+                120
+            ],
+            "type": "ener",
+            "numb_fparam": 0,
+            "numb_aparam": 0,
+            "activation_function": "tanh",
+            "precision": "default",
+            "trainable": true,
+            "rcond": 0.001,
+            "atom_ener": [],
+            "use_aparam_as_mask": false
+        },
+        "data_stat_nbatch": 10,
+        "data_stat_protect": 0.01,
+        "data_bias_nsample": 10
+    },
+    "learning_rate": {
+        "type": "exp",
+        "start_lr": 0.001,
+        "decay_steps": 3000,
+        "stop_lr": 3e-08,
+        "scale_by_worker": "linear"
+    },
+    "loss": {
+        "start_pref_e": 0.02,
+        "limit_pref_e": 1.0,
+        "start_pref_f": 1000.0,
+        "limit_pref_f": 1.0,
+        "start_pref_v": 0.0,
+        "limit_pref_v": 0.0,
+        "type": "ener",
+        "start_pref_ae": 0.0,
+        "limit_pref_ae": 0.0,
+        "start_pref_pf": 0.0,
+        "limit_pref_pf": 0.0,
+        "enable_atom_ener_coeff": false
+    },
+    "training": {
+        "disp_freq": 100,
+        "save_freq": 1000,
+        "disp_training": true,
+        "disp_file": "lcurve.out",
+        "save_ckpt": "model.ckpt",
+        "time_training": true,
+        "profiling": false,
+        "profiling_file": "timeline.json",
+        "seed": 5100382315,
+        "training_data": {
+            "batch_size": [
+                2,
+                2,
+                2,
+                2
+            ],
+            "set_prefix": "set",
+            "systems": [
+                "/home/lujunbo/code/DPFlow/example/deepff/active_learning/c2h6/model_devi/init_train_data/data_0",
+                "/home/lujunbo/code/DPFlow/example/deepff/active_learning/c2h6/model_devi/init_train_data/data_1",
+                "/home/lujunbo/code/DPFlow/example/deepff/active_learning/c2h6/model_devi/init_train_data/data_2",
+                "/home/lujunbo/code/DPFlow/example/deepff/active_learning/c2h6/model_devi/init_train_data/data_3"
+            ],
+            "auto_prob": "prob_sys_size",
+            "sys_probs": null
+        },
+        "numb_steps": 600000,
+        "validation_data": null,
+        "enable_profiler": false,
+        "tensorboard": false,
+        "tensorboard_log_dir": "log",
+        "tensorboard_freq": 1
+    }
+}

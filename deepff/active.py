@@ -196,8 +196,6 @@ def model_devi_iter(work_dir, inp_file, deepmd_dic, lammps_dic, cp2k_dic, active
         deepmd_run.run_deepmd_as(work_dir, i, dp_queue, dp_core_num, dp_gpu_num, max_dp_job, submit_system, \
                                  use_prev_model, dp_path, cuda_dir, dp_version, analyze_gpu, 0)
 
-      write_data.write_restart_inp(inp_file, i, 1, data_num, work_dir)
-
       failure_model = process.check_deepff_run(work_dir, i, dp_version)
       if ( len(failure_model) == 0 ):
         pass
@@ -208,6 +206,8 @@ def model_devi_iter(work_dir, inp_file, deepmd_dic, lammps_dic, cp2k_dic, active
           str_print = data_op.str_wrap(str_print, 80, '')
           print (str_print, flush=True)
         exit()
+
+       write_data.write_restart_inp(inp_file, i, 1, data_num, work_dir)
 
     if ( restart_stage == 0 or restart_stage == 1 ):
       #Perform lammps calculations
@@ -500,7 +500,7 @@ def dp_test_iter(work_dir, inp_file, deepmd_dic, lammps_dic, active_learn_dic, c
                     %(''.join((work_dir, '/iter_0/01.train/0')))
         str_print = data_op.str_wrap(str_print, 80, '  ')
         print (str_print, flush=True)
-      write_data.write_restart_inp(inp_file, i, 1, data_num, work_dir)
+
       if ( i>0 ):
         failure_model = process.check_deepff_run(work_dir, i, dp_version)
         if ( len(failure_model) == 0 ):
@@ -512,6 +512,8 @@ def dp_test_iter(work_dir, inp_file, deepmd_dic, lammps_dic, active_learn_dic, c
             str_print = data_op.str_wrap(str_print, 80, '  ')
             print (str_print, flush=True)
           exit()
+
+      write_data.write_restart_inp(inp_file, i, 1, data_num, work_dir)
 
     if ( restart_stage == 0 or restart_stage == 1 ):
       #Perform lammps calculations
