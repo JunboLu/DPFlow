@@ -204,11 +204,11 @@ def model_devi_iter(work_dir, inp_file, deepmd_dic, lammps_dic, cp2k_dic, active
       else:
         print ('Warning'.center(80,'*'), flush=True)
         for model_id in failure_model:
-          str_print = '''  The training is failed as force is fluctuated in No.%d model in No.%d
-  iteration. Two suggestion for the following calculations:
-  (1) If you accept this situation, just run DPFlow DPFlow.restart
-  (2) If you do not accept this situation, you may need to change hyperparameters
-      in the original input file, delete iter_0 directory, run DPFlow input.inp. ''' %(model_id, i)
+          str_print = '''The training is failed as force is fluctuated in No.1 model in No.2 iteration.
+Two suggestion for the following calculations:
+(1) If you accept this situation, just run DPFlow DPFlow.restart
+(2) If you do not accept this situation, you may need to change hyperparameters
+    in the original input file, delete iter_0 directory, run DPFlow input.inp.''' %(model_id, i)
           print ('Warning'.center(80,'*'), flush=True)
           print (str_print, flush=True)
         exit()
@@ -514,11 +514,11 @@ def dp_test_iter(work_dir, inp_file, deepmd_dic, lammps_dic, active_learn_dic, c
         else:
           print ('Warning'.center(80,'*'), flush=True)
           for model_id in failure_model:
-            str_print = '''  The training is failed as force is fluctuated in No.%d model in No.%d
-  iteration. Two suggestion for the following calculations:
-  (1) If you accept this situation, just run DPFlow DPFlow.restart
-  (2) If you do not accept this situation, you may need to change hyperparameters
-      in the original input file, delete iter_0 directory, run DPFlow input.inp. ''' %(model_id, i)
+            str_print = '''The training is failed as force is fluctuated in No.1 model in No.2 iteration.
+Two suggestion for the following calculations:
+(1) If you accept this situation, just run DPFlow DPFlow.restart
+(2) If you do not accept this situation, you may need to change hyperparameters
+    in the original input file, delete iter_0 directory, run DPFlow input.inp.''' %(model_id, i)
             print ('Warning'.center(80,'*'), flush=True)
             print (str_print, flush=True)
           exit()
