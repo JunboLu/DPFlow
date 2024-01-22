@@ -88,17 +88,149 @@ def check_deepmd_model(deepmd_dic, dp_verion):
           log_info.log_error('Input error: %s is invalid key, please check or reset deepff/deepmd_model/model/descriptor' %(key))
           exit()
       if ( dp_verion == '1.3.3' ):
-        valid_type = ['se_a', 'se_r', 'se_ar']
-      else:
-        valid_type = ['se_a', 'se_r', 'se_e2_a', 'se_e2_r', 'se_e3', 'se_at', \
-                      'se_a_3be', 'se_a_ef', 'se_a_ebd', 'se_atten']
+        valid_type = ['local_frame', 'se_a', 'se_r', 'se_ar', 'se_a_3be']
+      elif ( dp_verion == '2.0.0' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be', 'se_a']
+      elif ( dp_verion == '2.0.1' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be', 'se_a']
+      elif ( dp_verion == '2.0.2' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.0.3' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.1.0' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.1.1' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.1.2' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.1.3' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.1.4' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.1.5' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_atten', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.2.0' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_a_mask', 'se_atten', 'se_e2_r', 'se_r', 'se_e3', \
+                      'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.2.1' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_a_mask', 'se_atten', 'se_e2_r', 'se_r', 'se_e3', \
+                      'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.2.2' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_a_mask', 'se_atten', 'se_e2_r', 'se_r', 'se_e3', \
+                      'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.2.3' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_a_mask', 'se_atten', 'se_e2_r', 'se_r', 'se_e3', \
+                      'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.2.4' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_a_mask', 'se_atten', 'se_e2_r', 'se_r', 'se_e3', \
+                      'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.2.5' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_ef', 'se_a_mask', 'se_atten', 'se_atten_v2', 'se_e2_r', 'se_r', \
+                      'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.2.6' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_tpe_v2', 'se_a_ebd_v2', 'se_a_ef', 'se_a_mask', 'se_atten', \
+                      'se_atten_v2', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+      elif ( dp_verion == '2.2.7' ):
+        valid_type = ['hybrid', 'local_frame', 'se_e2_a', 'se_a', 'se_a_tpe', 'se_a_ebd', \
+                      'se_a_tpe_v2', 'se_a_ebd_v2', 'se_a_ef', 'se_a_mask', 'se_atten', \
+                      'se_atten_v2', 'se_e2_r', 'se_r', 'se_e3', 'se_at', 'se_a_3be']
+
       if ( 'type' in deepmd_dic['model']['descriptor'].keys() ):
         descr_type = deepmd_dic['model']['descriptor']['type']
         if ( descr_type in valid_type ):
           pass
         else:
-          log_info.log_error('Input error: %s is not supported for deepff/deepmd_model/model/descriptor/type' %(descr_type))
+          log_info.log_error('Input error: %s is not supported in %f deepff/deepmd_model/model/descriptor/type' %(descr_type, dp_version))
           exit()
+        if ( descr_type == 'se_atten' or descr_type == 'se_atten_v2' ):
+          if ( 'attn' in deepmd_dic['model']['descriptor'].keys() ):
+            attn = deepmd_dic['model']['descriptor']['attn']
+            if ( data_op.eval_str(attn) == 1 ):
+              deepmd_dic['model']['descriptor']['attn'] = int(attn)
+            else:
+              log_info.log_error('Input error: attn shoule be integer, please check or reset deepff/deepmd_model/model/descriptor/attn')
+              exit()
+          else:
+            log_info.log_error('Input error: no attn, please set deepff/deepmd_model/model/descriptor/attn')
+            exit()
+          if ( 'attn_layer' in deepmd_dic['model']['descriptor'].keys() ):
+            attn_layer = deepmd_dic['model']['descriptor']['attn_layer']
+            if ( data_op.eval_str(attn_layer) == 1 ):
+              deepmd_dic['model']['descriptor']['attn_layer'] = int(attn_layer)
+            else:
+              log_info.log_error('Input error: attn_layer shoule be integer, please check or reset deepff/deepmd_model/model/descriptor/attn_layer')
+              exit()
+          else:
+            log_info.log_error('Input error: no attn_layer, please set deepff/deepmd_model/model/descriptor/attn_layer')
+            exit()
+          if ( 'attn_mask' in deepmd_dic['model']['descriptor'].keys() ):
+            attn_mask = deepmd_dic['model']['descriptor']['attn_mask']
+            attn_mask_bool = data_op.str_to_bool(attn_mask)
+            if ( isinstance(attn_mask_bool, bool) ):
+              deepmd_dic['model']['descriptor']['attn_mask'] = attn_mask_bool
+            else:
+              log_info.log_error('Input error: attn_mask shoule be bool, please check or reset deepff/deepmd_model/model/descriptor/attn_mask')
+              exit()
+          else:
+            deepmd_dic['model']['descriptor']['attn_mask'] = False
+          if ( 'attn_dotr' in deepmd_dic['model']['descriptor'].keys() ):
+            attn_dotr = deepmd_dic['model']['descriptor']['attn_dotr']
+            attn_dotr_bool = data_op.str_to_bool(attn_dotr)
+            if ( isinstance(attn_dotr_bool, bool) ):
+              deepmd_dic['model']['descriptor']['attn_dotr'] = attn_dotr_bool
+            else:
+              log_info.log_error('Input error: attn_dotr shoule be bool, please check or reset deepff/deepmd_model/model/descriptor/attn_dotr')
+              exit()
+          else:
+            deepmd_dic['model']['descriptor']['attn_dotr'] = True
+        if ( descr_type == 'se_atten_v2' ):
+          if ( 'stripped_type_embedding' in deepmd_dic['model']['descriptor'].keys() ):
+            stripped_type_embedding = deepmd_dic['model']['descriptor']['stripped_type_embedding']
+            stripped_type_embedding_bool = data_op.str_to_bool(stripped_type_embedding)
+            if ( isinstance(stripped_type_embedding_bool, bool) ):
+              deepmd_dic['model']['descriptor']['stripped_type_embedding'] = stripped_type_embedding_bool
+            else:
+              log_info.log_error('Input error: stripped_type_embedding shoule be bool, please check or reset deepff/deepmd_model/model/descriptor/stripped_type_embedding')
+              exit()
+          else:
+            deepmd_dic['model']['descriptor']['stripped_type_embedding'] = True
+          if ( 'smooth_type_embdding' in deepmd_dic['model']['descriptor'].keys() ):
+            smooth_type_embdding = deepmd_dic['model']['descriptor']['smooth_type_embdding']
+            smooth_type_embdding_bool = data_op.str_to_bool(smooth_type_embdding)
+            if ( isinstance(smooth_type_embdding_bool, bool) ):
+              deepmd_dic['model']['descriptor']['smooth_type_embdding'] = smooth_type_embdding_bool
+            else:
+              log_info.log_error('Input error: smooth_type_embdding shoule be bool, please check or reset deepff/deepmd_model/model/descriptor/smooth_type_embdding')
+              exit()
+          else:
+            deepmd_dic['model']['descriptor']['smooth_type_embdding'] = True
+          if ( 'set_davg_zero' in deepmd_dic['model']['descriptor'].keys() ):
+            set_davg_zero = deepmd_dic['model']['descriptor']['set_davg_zero']
+            set_davg_zero_bool = data_op.str_to_bool(set_davg_zero)
+            if ( isinstance(set_davg_zero_bool, bool) ):
+              deepmd_dic['model']['descriptor']['set_davg_zero'] = set_davg_zero_bool
+            else:
+              log_info.log_error('Input error: set_davg_zero shoule be bool, please check or reset deepff/deepmd_model/model/descriptor/set_davg_zero')
+              exit()
+          else:
+            deepmd_dic['model']['descriptor']['set_davg_zero'] = False
 
       if ( 'sel' in deepmd_dic['model']['descriptor'].keys() ):
         sel = deepmd_dic['model']['descriptor']['sel']
