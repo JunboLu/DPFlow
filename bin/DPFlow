@@ -33,6 +33,11 @@ deepff_type=${string_split[1]}
 fi
 
 if [[ ${run_type} == deepff ]]; then
+if [[ -f "DPFlow.restart" ]]; then
+echo "**********************************Warning**************************************"
+echo "There exist DPFlow.restart file, you may need to use DPFlow.restart as input"
+exit
+fi
 ${python_exe} ${DPFlow_path}/deepff/deepff_run.py ${work_dir} ${inp_file} ${deepff_type}
 elif [[ ${run_type} == analyze ]]; then
 ${python_exe} ${DPFlow_path}/analyze/analyze_run.py ${work_dir} ${inp_file} ${analyze_job}

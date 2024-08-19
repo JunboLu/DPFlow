@@ -80,8 +80,8 @@ def check_cp2k_job(cp2k_calc_dir, sys_num, atoms_num_tot):
           if ( not file_tools.is_binary(frc_file_name_abs) and \
                not file_tools.is_binary(log_file_name_abs) and \
                not file_tools.is_binary(coord_file_name_abs) and \
-               len(open(frc_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+5 and \
-               len(open(coord_file_name_abs, 'r').readlines()) == atoms_num_tot[i]+8 and \
+               len(open(frc_file_name_abs, 'r').readlines()) > atoms_num_tot[i] and \
+               len(open(coord_file_name_abs, 'r').readlines()) > atoms_num_tot[i] and \
                file_tools.grep_line_num('Total energy:', log_file_name_abs, cp2k_sys_task_traj_dir) != 0 ):
             check_cp2k_run_ij.append(0)
           else:

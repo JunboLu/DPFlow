@@ -104,7 +104,11 @@ def pdb2xyz(transd_file, pre_base, end_base, block_pre_base, block_end_base, tim
     else:
       break
 
-  frames_num = int((line_num-pre_base-end_base)/(block_pre_base+block_end_base+atoms_num))
+  #print(ter_num)
+  #frames_num = int((line_num-pre_base-end_base)/(block_pre_base+block_end_base+atoms_num))
+  frames_num = int((line_num-pre_base-end_base)/(block_pre_base+block_end_base+atoms_num+ter_num))
+  #print(line_num, frames_num)
+
   xyz_file_name = ''.join((work_dir, '/', file_name))
   xyz_file = open(xyz_file_name, 'w')
 
@@ -112,7 +116,8 @@ def pdb2xyz(transd_file, pre_base, end_base, block_pre_base, block_end_base, tim
     xyz_file.write('%d\n'%(atoms_num))
     xyz_file.write('%s%9d%s%13.3f%s%21.10f\n' %(' i =', i*print_freq, ', time =', i*time_step*print_freq, ', E =', 0.0))
     for j in range(atoms_num+ter_num):
-      line = linecache.getline(transd_file, i*(block_pre_base+block_end_base+atoms_num)+j+1+pre_base+block_pre_base)
+      #line = linecache.getline(transd_file, i*(block_pre_base+block_end_base+atoms_num)+j+1+pre_base+block_pre_base)
+      line = linecache.getline(transd_file, i*(block_pre_base+block_end_base+atoms_num+ter_num)+j+1+pre_base+block_pre_base)
       line_split = data_op.split_str(line, ' ', '\n')
       if ( len(line_split) == 11 ):
         xyz_file.write('%3s%21.10s%20.10s%20.10s\n' %(line_split[10].strip('\n'), line_split[5], line_split[6], line_split[7]))
