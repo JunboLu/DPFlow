@@ -178,8 +178,8 @@ def gen_deepmd_model_task(deepmd_dic, work_dir, iter_id, init_train_data, numb_t
     if ( 'new_data_dir' in key ):
       deepmd_param['training'].pop(key)
 
-  if ( 'seed_num' in deepmd_param['training'].keys() ):
-    deepmd_param['training'].pop('seed_num')
+  if ( 'model_num' in deepmd_param['training'].keys() ):
+    deepmd_param['training'].pop('model_num')
   if ( 'epoch_num' in deepmd_param['training'].keys() ):
     deepmd_param['training'].pop('epoch_num')
   if ( 'lr_scale' in deepmd_param['training'].keys() ):
@@ -210,8 +210,10 @@ def gen_deepmd_model_task(deepmd_dic, work_dir, iter_id, init_train_data, numb_t
 
   if ( model_type == 'use_seed' ):
     for i in range(len(descr_seed)):
-      cmd = "mkdir %s" % (str(i))
-      call.call_simple_shell(train_dir, cmd)
+      model_dir = ''.join((train_dir, '/', str(i)))
+      if ( not os.path.exists(model_dir) ):
+        cmd = "mkdir %s" % (str(i))
+        call.call_simple_shell(train_dir, cmd)
       deepmd_param_i = copy.deepcopy(deepmd_param)
       deepmd_param_i['model']['descriptor']['seed'] = descr_seed[i]
       deepmd_param_i['model']['fitting_net']['seed'] = fit_seed[i]

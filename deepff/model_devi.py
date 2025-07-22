@@ -107,26 +107,34 @@ def choose_lmp_str(work_dir, iter_id, atoms_type_multi_sys, use_bias_tot, succes
           frc_model.append(frc_model_l_asc)
 
         ene_devi = []
-        frc_devi = []
+        #frc_devi = []
         for l in range(len(frc_model)):
           for m in range(len(frc_model)):
             if ( l < m ):
               ene_devi.append(abs(ene_model[l]-ene_model[m]))
-              frc_devi.append(calc_force_devi(frc_model[l], frc_model[m]))
+              #frc_devi.append(calc_force_devi(frc_model[l], frc_model[m]))
 
-        frc_devi_avg = []
-        for l in range(atoms_num):
-          sum_value = 0.0
-          for m in range(len(frc_devi)):
-            sum_value = sum_value + frc_devi[m][l]
-          frc_devi_avg.append(sum_value/len(frc_devi))
+        mean_frc = np.mean(np.array(frc_model), axis=0) #(N, 3)
+        deviations = frc_model - mean_frc               #(M, N, 3)
+        squared_norms = np.sum(deviations**2, axis=2)   #(M, N)
+        sigma = np.sqrt(np.mean(squared_norms, axis=0)) #(N)
+
+        #frc_devi_avg = []
+        #for l in range(atoms_num):
+        #  sum_value = 0.0
+        #  for m in range(len(frc_devi)):
+        #    sum_value = sum_value + frc_devi[m][l]
+        #  frc_devi_avg.append(sum_value/len(frc_devi))
 
         max_ene = max(ene_devi)
         min_ene = min(ene_devi)
         avg_ene = sum(ene_devi)/len(ene_devi)
-        max_frc = max(frc_devi_avg)
-        min_frc = min(frc_devi_avg)
-        avg_frc = sum(frc_devi_avg)/len(frc_devi_avg)
+        max_frc = np.max(sigma)
+        min_frc = np.min(sigma)
+        avg_frc = np.mean(sigma)
+        #max_frc = max(frc_devi_avg)
+        #min_frc = min(frc_devi_avg)
+        #avg_frc = sum(frc_devi_avg)/len(frc_devi_avg)
         model_devi_file.write('%-10d%-14.6f%-14.6f%-14.6f%-16.6f%-16.6f%-16.6f\n' \
                                     %(k*each, max_ene, min_ene, avg_ene, max_frc, min_frc, avg_frc))
 
@@ -243,7 +251,11 @@ def calc_force_devi(force_a, force_b):
   for i in range(len(force_a)):
     vec_1 = np.array(force_a[i])
     vec_2 = np.array(force_b[i])
-    deviation.append(np.sqrt(np.sum(np.square(vec_1 - vec_2))/3.0))
+    deviation.append(np.sqrt(np.sum(np.square(vec_1 - vec_2))))
+
+  #force_a_norm = np.linalg.norm(force_a, axis=1)
+  #force_b_norm = np.linalg.norm(force_b, axis=1)
+  #deviation = np.abs(force_a_norm - force_b_norm)
 
   return deviation
 

@@ -33,7 +33,7 @@ def check_deepmd_model(deepmd_dic, dp_verion):
   lr_valid_key = ['type', 'start_lr', 'decay_steps', 'stop_lr']
   loss_valid_key = ['start_pref_e', 'limit_pref_e', 'start_pref_f', 'limit_pref_f', 'start_pref_v', 'limit_pref_v']
   training_valid_key = ['train_stress', 'shuffle_data', 'use_prev_model', 'fix_stop_batch', \
-                        'lr_scale', 'epoch_num', 'model_type', 'neuron', \
+                        'lr_scale', 'epoch_num', 'model_type', 'neuron', 'model_num', \
                         'stop_batch', 'batch_size', 'disp_freq', 'numb_test', 'save_freq']
 
   for key in deepmd_dic.keys():
@@ -586,18 +586,18 @@ def check_deepmd_model(deepmd_dic, dp_verion):
       deepmd_dic['training']['model_type'] = 'use_seed'
 
     if ( deepmd_dic['training']['model_type'] == 'use_seed' ):
-      if ( 'seed_num' in deepmd_dic['training'].keys() ):
-        seed_num = deepmd_dic['training']['seed_num']
-        if ( data_op.eval_str(seed_num) == 1 ):
-          deepmd_dic['training']['seed_num'] = int(seed_num)
-          if ( int(seed_num) > 4 ):
+      if ( 'model_num' in deepmd_dic['training'].keys() ):
+        model_num = deepmd_dic['training']['model_num']
+        if ( data_op.eval_str(model_num) == 1 ):
+          deepmd_dic['training']['model_num'] = int(model_num)
+          if ( int(model_num) > 4 ):
             log_info.log_error('Input error: we should train 4 models at most')
             exit()
         else:
-          log_info.log_error('Input error: seed_num should be integer, please check or reset deepff/deepmd_model/training/seed_num')
+          log_info.log_error('Input error: model_num should be integer, please check or reset deepff/deepmd_model/training/model_num')
           exit()
       else:
-        deepmd_dic['training']['seed_num'] = 2
+        deepmd_dic['training']['model_num'] = 2
 
     if ( 'neuron' in deepmd_dic['training'].keys() ):
       neuron_list = deepmd_dic['training']['neuron']

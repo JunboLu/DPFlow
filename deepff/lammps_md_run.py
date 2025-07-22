@@ -192,6 +192,7 @@ lmp_path=%s
 
 export PATH=$lmp_path/bin:$PATH
 export LD_LIBRARY_PATH=$lmp_path/lib:$LD_LIBRARY_PATH
+export LAMMPS_PLUGIN_PATH=$lmp_path/lib/deepmd_lmp
 
 %s < ./md_in.lammps 1> %s 2> lammps.err
 ''' %(lmp_path, lmp_exe, log_file_name)
@@ -207,6 +208,7 @@ mpi_path=%s
 export PATH=$lmp_path/bin:$PATH
 export PATH=$mpi_path/bin:$PATH
 export LD_LIBRARY_PATH=$mpi_path/lib:$LD_LIBRARY_PATH
+export LAMMPS_PLUGIN_PATH=$lmp_path/lib/deepmd_lmp
 
 export CUDA_VISIBLE_DEVICES=%s
 export OMP_NUM_THREADS=%d
@@ -328,6 +330,7 @@ ulimit -u 204800
 export PATH=$lmp_path/bin:$PATH
 export PATH=$mpi_path/bin:$PATH
 export LD_LIBRARY_PATH=$mpi_path/lib:$LD_LIBRARY_PATH
+export LAMMPS_PLUGIN_PATH=$lmp_path/lib/deepmd_lmp
 ''' %(lmp_path, mpi_path)
 
   produce_2 = '''

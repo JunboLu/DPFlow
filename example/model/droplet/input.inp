@@ -5,14 +5,14 @@
 
 &model
   &droplet
-    traj_file ./supercell.xyz
-    center_id 2536-2538
+    traj_file ./ll.xyz
+    center_id 1-3
     group_atom O H H
-    len_conv 8.0
+    len_conv 8.2
     &box
-      A 37.26 0.0 0.0
-      B 0.0 37.26 0.0
-      C 0.0 0.0 37.26
+      A 28.0 0.0 0.0
+      B 0.0 28.0 0.0
+      C 0.0 0.0 28.0
     &end box
   &end droplet
 &end model

@@ -160,14 +160,14 @@ def model_devi_iter(work_dir, inp_file, deepmd_dic, lammps_dic, cp2k_dic, active
 
       #For different model_type, seed and neuron are different.
       if ( model_type == 'use_seed' ):
-        if ( 'seed_num' in deepmd_dic['training'].keys() ):
-          seed_num = int(deepmd_dic['training']['seed_num'])
+        if ( 'model_num' in deepmd_dic['training'].keys() ):
+          model_num = int(deepmd_dic['training']['model_num'])
         else:
-          seed_num = 4
+          model_num = 4
         descr_seed = []
         fit_seed = []
         tra_seed = []
-        for j in range(seed_num):
+        for j in range(model_num):
           descr_seed.append(np.random.randint(10000000000))
           fit_seed.append(np.random.randint(10000000000))
           tra_seed.append(np.random.randint(10000000000))

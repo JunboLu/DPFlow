@@ -63,7 +63,7 @@ def build_droplet(work_dir, file_name, center_id, group_atom, len_conv, a_vec, b
   coord_1 = []
   coord_2 = []
 
-  atoms_num, pre_base, pre_base_block, end_base_block, frame_start = traj_tools.get_block_base(file_name)
+  atoms_num, pre_base, pre_base_block, end_base_block, frame_start = traj_tools.get_block_base(file_name, 'coord_xyz')
 
   #Get the center of mass of center part
   center_atom_coord = []
@@ -103,8 +103,7 @@ def build_droplet(work_dir, file_name, center_id, group_atom, len_conv, a_vec, b
   a_vec_array = np.asfortranarray(a_vec, dtype='float32')
   b_vec_array = np.asfortranarray(b_vec, dtype='float32')
   c_vec_array = np.asfortranarray(c_vec, dtype='float32')
-  distance = geometry_mod.geometry.calculate_distance(coord_1_array, coord_2_array, \
-                                                      a_vec_array, b_vec_array, c_vec_array)
+  distance = geometry_mod.geometry.calculate_distance(coord_1_array, coord_2_array, a_vec_array, b_vec_array, c_vec_array)
 
   new_file_name = ''.join((work_dir, '/', 'droplet.xyz'))
   new_file = open(new_file_name, 'w')

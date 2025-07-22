@@ -66,6 +66,8 @@ def get_host(work_dir):
     host = [platform.node()]
     ssh = False
 
+  ssh = False
+
   return proc_num, proc_num_per_node, host, ssh
 
 def read_gpuinfo(work_dir, gpuinfo_file):
