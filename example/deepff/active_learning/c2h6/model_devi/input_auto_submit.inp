@@ -117,7 +117,6 @@
     # in a file, then the cp2k_env_file is this file:
     # cp2k_env_file ./cp2k.sh
     cp2k_env_file //work/chem-lujb/bin/cp2k-8.2/tools/toolchain/install/setup
-    parallel_exe /work/chem-lujb/bin/parallel/bin/parallel
     cuda_dir /share/apps/cuda/11.3
     analyze_gpu false
     dp_version 2.0.2
