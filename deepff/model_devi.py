@@ -115,7 +115,7 @@ def choose_lmp_str(work_dir, iter_id, atoms_type_multi_sys, use_bias_tot, succes
               #frc_devi.append(calc_force_devi(frc_model[l], frc_model[m]))
 
         mean_frc = np.mean(np.array(frc_model), axis=0) #(N, 3)
-        deviations = frc_model - mean_frc               #(M, N, 3)
+        deviations = np.array(frc_model) - mean_frc     #(M, N, 3)
         squared_norms = np.sum(deviations**2, axis=2)   #(M, N)
         sigma = np.sqrt(np.mean(squared_norms, axis=0)) #(N)
 
