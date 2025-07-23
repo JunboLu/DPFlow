@@ -46,7 +46,7 @@ Email: lujunbo15@gmail.com
 
 * Environmental variable
 
-    !Caution: You may need to add environments of gcc
+    !Caution: You may need to add environments of gcc  
     export PYTHONPATH=../DPFlow_directory:$PYTHONPATH  
     change python_exe and DPFlow directory in DPFlow_directory/bin/DPFlow file  
     export PATH=DPFlow_directory/bin:$PATH  
