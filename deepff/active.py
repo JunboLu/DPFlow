@@ -56,7 +56,7 @@ def model_devi_iter(work_dir, inp_file, deepmd_dic, lammps_dic, cp2k_dic, active
   '''
 
   proc_num, proc_num_per_node, host, ssh = sys_info.get_host(work_dir)
-  parallel_exe = environ_dic['parallel_exe']
+  parallel_exe = sys_info.get_parallel_exe(work_dir)
   device = sys_info.analyze_gpu(host, ssh, parallel_exe, work_dir) 
 
   if ( len(host) > 1 and len(device[0]) >= 1 ):
@@ -112,7 +112,6 @@ def model_devi_iter(work_dir, inp_file, deepmd_dic, lammps_dic, cp2k_dic, active
 
   cp2k_exe = environ_dic['cp2k_exe']
   cp2k_env_file = environ_dic['cp2k_env_file']
-  parallel_exe = environ_dic['parallel_exe']
   cuda_dir = environ_dic['cuda_dir']
   dp_version = environ_dic['dp_version']
   cp2k_job_per_node = environ_dic['cp2k_job_per_node']
@@ -378,7 +377,7 @@ def dp_test_iter(work_dir, inp_file, deepmd_dic, lammps_dic, active_learn_dic, c
   '''
 
   proc_num, proc_num_per_node, host, ssh = sys_info.get_host(work_dir)
-  parallel_exe = environ_dic['parallel_exe']
+  parallel_exe = sys_info.get_parallel_exe(work_dir)
   device = sys_info.analyze_gpu(host, ssh, parallel_exe, work_dir)
 
   if ( len(host) > 1 and len(device[0]) >= 1 ):
@@ -443,7 +442,6 @@ def dp_test_iter(work_dir, inp_file, deepmd_dic, lammps_dic, active_learn_dic, c
 
   cp2k_exe = environ_dic['cp2k_exe']
   cp2k_env_file = environ_dic['cp2k_env_file']
-  parallel_exe = environ_dic['parallel_exe']
   cuda_dir = environ_dic['cuda_dir']
   dp_version = environ_dic['dp_version']
   cp2k_job_per_node = environ_dic['cp2k_job_per_node']

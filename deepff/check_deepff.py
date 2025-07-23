@@ -1629,16 +1629,16 @@ def check_environ(environ_dic, proc_num_one_node):
       log_info.log_error('Input error: cuda directory does not exist, please check or set deepff/environ/cuda_dir')
       exit()
 
-  if ( 'parallel_exe' in environ_dic.keys() ):
-    parallel_exe = environ_dic['parallel_exe']
-    if ( os.path.exists(os.path.abspath(os.path.expanduser(parallel_exe))) ):
-      environ_dic['parallel_exe'] = os.path.abspath(os.path.expanduser(parallel_exe))
-    else:
-      log_info.log_error('Input error: parallel executable file does not exist, please check or set deepff/environ/parallel_exe')
-      exit()
-  else:
-    log_info.log_error('Input error: no cp2k parallel file, please set deepff/environ/parallel_exe')
-    exit()
+  #if ( 'parallel_exe' in environ_dic.keys() ):
+  #  parallel_exe = environ_dic['parallel_exe']
+  #  if ( os.path.exists(os.path.abspath(os.path.expanduser(parallel_exe))) ):
+  #    environ_dic['parallel_exe'] = os.path.abspath(os.path.expanduser(parallel_exe))
+  #  else:
+  #    log_info.log_error('Input error: parallel executable file does not exist, please check or set deepff/environ/parallel_exe')
+  #    exit()
+  #else:
+  #  log_info.log_error('Input error: no cp2k parallel file, please set deepff/environ/parallel_exe')
+  #  exit()
 
   if ( 'analyze_gpu' in environ_dic.keys() ):
     analyze_gpu = environ_dic['analyze_gpu']

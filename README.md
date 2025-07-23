@@ -24,15 +24,6 @@ Email: lujunbo15@gmail.com
    Then add the environmental variable of deepmd-kit, it will include python   
    and numpy.  
 
-* Install GNU parallel
-
-    Download GNU parallel source code from https://www.gnu.org/software/parallel/  
-    tar -jxvf parallel-latest.tar.bz2  
-    cd parallel-latest  
-    ./configure --prefix=parallel_install_path  
-    make  
-    make install  
-
 * Compile core module
   
     git clone https://github.com/JunboLu/DPFlow.git  

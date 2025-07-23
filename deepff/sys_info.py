@@ -240,6 +240,26 @@ def get_lmp_path(work_dir):
 
   return lmp_exe[0], lmp_path
 
+def get_parallel_exe(work_dir):
+
+  '''
+  get_parallel_path: get the path of parallel.
+
+  Args:
+    work_dir: string
+      work_dir is the working directory of DPFlow.
+  Returns:
+    parallel_exe: string
+      parallel_exe is the parallel executable file.
+  '''
+
+  parallel_exe = call.call_returns_shell(work_dir, 'which parallel')
+  if ( len(parallel_exe) == 0 or 'no parallel in' in parallel_exe[0] ):
+    log_info.log_error('Envrionment error: can not find parallel executable file')
+    exit()
+  else:
+    return parallel_exe[0]
+
 def get_mpi_path(work_dir):
 
   '''
