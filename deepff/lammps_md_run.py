@@ -178,6 +178,7 @@ mpi_path=%s
 export PATH=$lmp_path/bin:$PATH
 export PATH=$mpi_path/bin:$PATH
 export LD_LIBRARY_PATH=$mpi_path/lib:$LD_LIBRARY_PATH
+export LAMMPS_PLUGIN_PATH=$lmp_path/lib/deepmd_lmp
 
 export OMP_NUM_THREADS=%d
 

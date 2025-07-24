@@ -182,6 +182,7 @@ lmp_path=%s
 
 export PATH=$lmp_path/bin:$PATH
 export LD_LIBRARY_PATH=$lmp_path/lib:$LD_LIBRARY_PATH
+export LAMMPS_PLUGIN_PATH=$lmp_path/lib/deepmd_lmp
 
 x=$1
 direc=$2
@@ -633,6 +634,7 @@ lmp_path=%s
 
 export PATH=$lmp_path/bin:$PATH
 export LD_LIBRARY_PATH=$lmp_path/lib:$LD_LIBRARY_PATH
+export LAMMPS_PLUGIN_PATH=$lmp_path/lib/deepmd_lmp
 
 x=$1
 direc=$2
