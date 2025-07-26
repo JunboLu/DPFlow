@@ -73,6 +73,7 @@
       use_prev_model true
       model_num 4
       neuron 140 140 140
+      epoch_num 10
       batch_size 2
       disp_freq 100
       numb_test 5

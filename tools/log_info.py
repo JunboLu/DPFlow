@@ -23,7 +23,7 @@ def log_logo():
 **                                                                            **
 **         DPFlow : A workflow to generate deep potential force field         **
 **                        Email : lujunbo15@gmail.com                         **
-**                                zhangyy17@tsinghua.org.cn                   **
+**                                                                            **
 **                                                                            **
 **                                                                            **
 ********************************************************************************

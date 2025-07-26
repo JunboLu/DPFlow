@@ -113,7 +113,7 @@ def revise_md_steps(cp2k_inp_file, md_steps, work_dir):
   cmd = 'rm %s' %(upper_file_name_abs)
   call.call_simple_shell(work_dir, cmd)
 
-def revise_basis_file_name(cp2k_inp_file, work_dir):
+def revise_basis_file_name(cp2k_inp_file, work_dir, change_direc=False):
 
   '''
   revise_basis_file_name: revise basis file name in cp2k input file.
@@ -135,25 +135,31 @@ def revise_basis_file_name(cp2k_inp_file, work_dir):
     basis_line = linecache.getline(cp2k_inp_file, basis_line_num)
     linecache.clearcache()
     basis_line_split = data_op.split_str(basis_line, ' ', '\n')
-    basis_file_name_abs = os.path.abspath(os.path.expanduser(basis_line_split[len(basis_line_split)-1]))
-    if ( os.path.exists(basis_file_name_abs) ):
-      basis_file_name_abs_split = data_op.split_str(basis_file_name_abs, '/')
-      for i in range(len(basis_file_name_abs_split)):
-        basis_file_name_abs_split[i] = '\/'+basis_file_name_abs_split[i]
-      basis_file_name_abs_trans = data_op.comb_list_2_str(basis_file_name_abs_split, '')
-      cmd = "sed -i '%ds/.*/     BASIS_SET_FILE_NAME %s/' %s" %(basis_line_num, basis_file_name_abs_trans, cp2k_inp_file)
-      call.call_simple_shell(work_dir, cmd)
+    if ( "/" in basis_line_split[len(basis_line_split)-1] ):
+      basis_file_name_abs = os.path.abspath(os.path.expanduser(basis_line_split[len(basis_line_split)-1]))
+      if ( os.path.exists(basis_file_name_abs) ):
+        if change_direc:
+          basis_file_name_abs_split = data_op.split_str(basis_file_name_abs, '/')
+          for i in range(len(basis_file_name_abs_split)):
+            basis_file_name_abs_split[i] = '\/'+basis_file_name_abs_split[i]
+          basis_file_name_abs_trans = data_op.comb_list_2_str(basis_file_name_abs_split, '')
+          cmd = "sed -i '%ds/.*/     BASIS_SET_FILE_NAME %s/' %s" %(basis_line_num, basis_file_name_abs_trans, cp2k_inp_file)
+          call.call_simple_shell(work_dir, cmd)
+      else:
+        log_info.log_error('Input error: basis set file cannot be found in %s file' %(cp2k_inp_file))
+        cmd = 'rm %s' %(upper_file_name_abs)
+        call.call_simple_shell(work_dir, cmd)
+        exit()
     else:
-      log_info.log_error('Input error: basis set file cannot be found in %s file' %(cp2k_inp_file))
+      log_info.log_error('Input error: no basis_set_file_name keyword in %s file' %(cp2k_inp_file))
+      cmd = 'rm %s' %(upper_file_name_abs)
+      call.call_simple_shell(work_dir, cmd)
       exit()
-  else:
-    log_info.log_error('Input error: no basis_set_file_name keyword in %s file' %(cp2k_inp_file))
-    exit()
 
   cmd = 'rm %s' %(upper_file_name_abs)
   call.call_simple_shell(work_dir, cmd)
 
-def revise_pot_file_name(cp2k_inp_file, work_dir):
+def revise_pot_file_name(cp2k_inp_file, work_dir, change_direc=False):
 
   '''
   revise_pot_file_name: revise potential file name in cp2k input file.
@@ -175,20 +181,26 @@ def revise_pot_file_name(cp2k_inp_file, work_dir):
     pot_line = linecache.getline(cp2k_inp_file, pot_line_num)
     linecache.clearcache()
     pot_line_split = data_op.split_str(pot_line, ' ', '\n')
-    pot_file_name_abs = os.path.abspath(os.path.expanduser(pot_line_split[len(pot_line_split)-1]))
-    if ( os.path.exists(pot_file_name_abs) ):
-      pot_file_name_abs_split = data_op.split_str(pot_file_name_abs, '/')
-      for i in range(len(pot_file_name_abs_split)):
-        pot_file_name_abs_split[i] = '\/'+pot_file_name_abs_split[i]
-      pot_file_name_abs_trans = data_op.comb_list_2_str(pot_file_name_abs_split, '')
-      cmd = "sed -i '%ds/.*/     POTENTIAL_FILE_NAME %s/' %s" %(pot_line_num, pot_file_name_abs_trans, cp2k_inp_file)
-      call.call_simple_shell(work_dir, cmd)
+    if ( "/" in pot_line_split[len(pot_line_split)-1] ):
+      pot_file_name_abs = os.path.abspath(os.path.expanduser(pot_line_split[len(pot_line_split)-1]))
+      if ( os.path.exists(pot_file_name_abs) ):
+        if change_direc:
+          pot_file_name_abs_split = data_op.split_str(pot_file_name_abs, '/')
+          for i in range(len(pot_file_name_abs_split)):
+            pot_file_name_abs_split[i] = '\/'+pot_file_name_abs_split[i]
+          pot_file_name_abs_trans = data_op.comb_list_2_str(pot_file_name_abs_split, '')
+          cmd = "sed -i '%ds/.*/     POTENTIAL_FILE_NAME %s/' %s" %(pot_line_num, pot_file_name_abs_trans, cp2k_inp_file)
+          call.call_simple_shell(work_dir, cmd)
+      else:
+        log_info.log_error('Input error: potential file cannot be found in %s file' %(cp2k_inp_file))
+        cmd = 'rm %s' %(upper_file_name_abs)
+        call.call_simple_shell(work_dir, cmd)
+        exit()
     else:
-      log_info.log_error('Input error: potential file cannot be found in %s file' %(cp2k_inp_file))
+      cmd = 'rm %s' %(upper_file_name_abs)
+      call.call_simple_shell(work_dir, cmd)
+      log_info.log_error('Input error: no potential_file_name keyword in %s file' %(cp2k_inp_file))
       exit()
-  else:
-    log_info.log_error('Input error: no potential_file_name keyword in %s file' %(cp2k_inp_file))
-    exit()
 
   cmd = 'rm %s' %(upper_file_name_abs)
   call.call_simple_shell(work_dir, cmd)

@@ -6,6 +6,7 @@ from DPFlow.tools import call
 from DPFlow.tools import get_cell
 from DPFlow.tools import data_op
 from DPFlow.tools import file_tools
+from DPFlow.tools import log_info
 
 def lmp_traj_info(lmp_traj_file, lmp_log_file, return_frames_num_fic=False):
 

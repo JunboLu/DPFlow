@@ -66,10 +66,12 @@ def gen_cp2kfrc_file(cp2k_param, work_dir, iter_id, sys_id, task_id, coord, box,
 
     cp2k_inp_file = cp2k_param['cp2k_inp_file'][sys_id]
     if ( cp2k_inp_file != 'none' ):
+      revise_cp2k_inp.revise_basis_file_name(cp2k_inp_file, work_dir)
+      revise_cp2k_inp.revise_pot_file_name(cp2k_inp_file, work_dir)
       cp2k_inp_bak_file_name_abs = ''.join((cp2k_sys_task_dir, '/cp2k_bak.inp'))
       call.call_simple_shell(work_dir, "cp %s %s" %(cp2k_inp_file, cp2k_inp_bak_file_name_abs))
-      revise_cp2k_inp.revise_basis_file_name(cp2k_inp_bak_file_name_abs, cp2k_sys_task_dir)
-      revise_cp2k_inp.revise_pot_file_name(cp2k_inp_bak_file_name_abs, cp2k_sys_task_dir)
+      revise_cp2k_inp.revise_basis_file_name(cp2k_inp_bak_file_name_abs, cp2k_sys_task_dir, True)
+      revise_cp2k_inp.revise_pot_file_name(cp2k_inp_bak_file_name_abs, cp2k_sys_task_dir, True)
       revise_cp2k_inp.revise_dftd3_file_name(cp2k_inp_bak_file_name_abs, cp2k_sys_task_dir)
       revise_cp2k_inp.revise_rvv10_file_name(cp2k_inp_bak_file_name_abs, cp2k_sys_task_dir)
 

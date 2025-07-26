@@ -260,7 +260,7 @@ Two suggestion for the following calculations:
 
     if ( restart_stage == 0 or restart_stage == 1 or restart_stage == 2 or restart_stage == 3 ):
       #Get force-force correlation and then choose new structures
-      print ('step 3: model deviation', flush=True)
+      print ('Step 3: model deviation', flush=True)
       sys_num, atoms_type_multi_sys, atoms_num_tot, use_bias_tot = \
       process.get_md_sys_info(lammps_dic, tot_atoms_type_dic)
 
