@@ -1128,7 +1128,7 @@ def check_active_learn(active_learn_dic):
       log_info.log_error('Input error: max_force_conv should be integer or float, please check or set deepff/model_devi/max_force_conv')
       exit()
   else:
-    active_learn_dic['max_force_conv'] = 0.40
+    active_learn_dic['max_force_conv'] = 0.30
 
   if ( 'energy_conv' in active_learn_dic.keys() ):
     energy_conv = active_learn_dic['energy_conv']

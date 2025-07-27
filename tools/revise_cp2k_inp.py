@@ -264,17 +264,18 @@ def revise_dftd3_file_name(cp2k_inp_file, work_dir):
     dftd3_line = linecache.getline(cp2k_inp_file, dftd3_line_num)
     linecache.clearcache()
     dftd3_line_split = data_op.split_str(dftd3_line, ' ', '\n')
-    dftd3_file_name_abs = os.path.abspath(os.path.expanduser(dftd3_line_split[len(dftd3_line_split)-1]))
-    if ( os.path.exists(dftd3_file_name_abs) ):
-      dftd3_file_name_abs_split = data_op.split_str(dftd3_file_name_abs, '/')
-      for i in range(len(dftd3_file_name_abs_split)):
-        dftd3_file_name_abs_split[i] = '\/'+dftd3_file_name_abs_split[i]
-      dftd3_file_name_abs_trans = data_op.comb_list_2_str(dftd3_file_name_abs_split, '')
-      cmd = "sed -i '%ds/.*/          PARAMETER_FILE_NAME %s/' %s" %(dftd3_line_num, dftd3_file_name_abs_trans, cp2k_inp_file)
-      call.call_simple_shell(work_dir, cmd)
-    else:
-      log_info.log_error('%s in cp2k input file does not exist' %(dftd3_line_split[len(dftd3_line_split)-1]))
-      exit()
+    if ( "/" in dftd3_line_split[len(dftd3_line_split)-1] ):
+      dftd3_file_name_abs = os.path.abspath(os.path.expanduser(dftd3_line_split[len(dftd3_line_split)-1]))
+      if ( os.path.exists(dftd3_file_name_abs) ):
+        dftd3_file_name_abs_split = data_op.split_str(dftd3_file_name_abs, '/')
+        for i in range(len(dftd3_file_name_abs_split)):
+          dftd3_file_name_abs_split[i] = '\/'+dftd3_file_name_abs_split[i]
+        dftd3_file_name_abs_trans = data_op.comb_list_2_str(dftd3_file_name_abs_split, '')
+        cmd = "sed -i '%ds/.*/          PARAMETER_FILE_NAME %s/' %s" %(dftd3_line_num, dftd3_file_name_abs_trans, cp2k_inp_file)
+        call.call_simple_shell(work_dir, cmd)
+      else:
+        log_info.log_error('%s in cp2k input file does not exist' %(dftd3_line_split[len(dftd3_line_split)-1]))
+        exit()
 
   cmd = 'rm %s' %(upper_file_name_abs)
   call.call_simple_shell(work_dir, cmd)
@@ -301,17 +302,18 @@ def revise_rvv10_file_name(cp2k_inp_file, work_dir):
     rvv10_line = linecache.getline(cp2k_inp_file, rvv10_line_num)
     linecache.clearcache()
     rvv10_line_split = data_op.split_str(rvv10_line, ' ', '\n')
-    rvv10_file_name_abs = os.path.abspath(os.path.expanduser(rvv10_line_split[len(rvv10_line_split)-1]))
-    if ( os.path.exists(rvv10_file_name_abs) ):
-      rvv10_file_name_abs_split = data_op.split_str(rvv10_file_name_abs, '/')
-      for i in range(len(rvv10_file_name_abs_split)):
-        rvv10_file_name_abs_split[i] = '\/'+rvv10_file_name_abs_split[i]
-      rvv10_file_name_abs_trans = data_op.comb_list_2_str(rvv10_file_name_abs_split, '')
-      cmd = "sed -i '%ds/.*/          KERNEL_FILE_NAME %s/' %s" %(rvv10_line_num, rvv10_file_name_abs_trans, cp2k_inp_file)
-      call.call_simple_shell(work_dir, cmd)
-    else:
-      log_info.log_error('%s in cp2k input file does not exist' %(rvv10_line_split[len(rvv10_line_split)-1]))
-      exit()
+    if ( "/" in rvv10_line_split[len(rvv10_line_split)-1] ):
+      rvv10_file_name_abs = os.path.abspath(os.path.expanduser(rvv10_line_split[len(rvv10_line_split)-1]))
+      if ( os.path.exists(rvv10_file_name_abs) ):
+        rvv10_file_name_abs_split = data_op.split_str(rvv10_file_name_abs, '/')
+        for i in range(len(rvv10_file_name_abs_split)):
+          rvv10_file_name_abs_split[i] = '\/'+rvv10_file_name_abs_split[i]
+        rvv10_file_name_abs_trans = data_op.comb_list_2_str(rvv10_file_name_abs_split, '')
+        cmd = "sed -i '%ds/.*/          KERNEL_FILE_NAME %s/' %s" %(rvv10_line_num, rvv10_file_name_abs_trans, cp2k_inp_file)
+        call.call_simple_shell(work_dir, cmd)
+      else:
+        log_info.log_error('%s in cp2k input file does not exist' %(rvv10_line_split[len(rvv10_line_split)-1]))
+        exit()
 
   cmd = 'rm %s' %(upper_file_name_abs)
   call.call_simple_shell(work_dir, cmd)
