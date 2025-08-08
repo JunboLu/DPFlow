@@ -166,5 +166,5 @@ linecache.clearcache()
 cmd = 'rm %s' %(space_file_name_abs)
 call.call_simple_shell(work_dir, cmd)
 
-#cmd = 'rm %s' %(input_tmp)
-#call.call_simple_shell(work_dir, cmd)
+cmd = 'rm %s' %(input_tmp)
+call.call_simple_shell(work_dir, cmd)
