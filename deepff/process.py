@@ -204,6 +204,7 @@ def get_atoms_type(deepmd_dic):
         start_frame = train_dic[key]['start_frame']
         coord_file = ''.join((data_dir, '/task_', str(start_frame), '/coord'))
         atoms_num = len(open(coord_file).readlines())
+        atoms = []
         for i in range(atoms_num):
           line_i = linecache.getline(coord_file, i+1)
           line_i_split = data_op.split_str(line_i, ' ', '\n')
