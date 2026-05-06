@@ -316,6 +316,11 @@ Two suggestion for the following calculations:
         cp2k_run.run_cp2kfrc_as(work_dir, i, cp2k_queue, cp2k_exe, max_cp2k_job, \
                                 cp2k_core_num, cp2k_env_file, submit_system, atoms_num_tot)
 
+      if ( restart_stage == 4 ):
+        struct_index, success_ratio_sys, success_ratio, success_devi_ratio = \
+        model_devi.choose_lmp_str(work_dir, i, atoms_type_multi_sys, use_bias_tot, \
+                                  success_force_conv, max_force_conv)
+
       #Dump new data of cp2k
       for j in range(sys_num):
         cp2k_sys_dir = ''.join((work_dir, '/iter_', str(i), '/03.cp2k_calc/sys_', str(j)))
@@ -340,8 +345,8 @@ Two suggestion for the following calculations:
             if ( test_data_num > numb_test ):
               data_num.append(train_data_num)
             if ( test_data_num < numb_test and success_ratio < float((active_learn_steps-train_data_num)/active_learn_steps) ):
-              log_info.log_error('Warning: little selected structures, check the deepmd training.')
-              exit()
+              log_info.log_error('Warning: little selected structures')
+              #exit()
 
       print ('  Success: dump new raw data of cp2k', flush=True)
       restart_stage = 0
