@@ -35,7 +35,8 @@ fi
 if [[ ${run_type} == deepff ]]; then
 if [ -f "DPFlow.restart" ] && [ ${inp_file} != "DPFlow.restart" ]; then
 echo "**********************************Warning**************************************"
-echo "There exist DPFlow.restart file, you may need to use DPFlow.restart as input"
+echo "There exist DPFlow.restart file, you may need to use DPFlow.restart as input!"
+echo "If you do not want to use DPFlow.restart as input, please delete it!"
 exit
 fi
 ${python_exe} ${DPFlow_path}/deepff/deepff_run.py ${work_dir} ${inp_file} ${deepff_type}

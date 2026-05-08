@@ -62,7 +62,8 @@ def gen_cp2kfrc_file(cp2k_param, work_dir, iter_id, sys_id, task_id, coord, box,
 
     std_inp_file.write('&FORCE_EVAL\n')
     std_inp_file.write('  METHOD Quickstep\n')
-    std_inp_file.write('  STRESS_TENSOR ANALYTICAL\n')
+    if train_stress:
+      std_inp_file.write('  STRESS_TENSOR ANALYTICAL\n')
 
     cp2k_inp_file = cp2k_param['cp2k_inp_file'][sys_id]
     if ( cp2k_inp_file != 'none' ):
