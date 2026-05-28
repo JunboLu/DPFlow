@@ -64,11 +64,11 @@ def check_cp2k_job(cp2k_calc_dir, sys_num, atoms_num_tot):
   check_cp2k_run = []
   for i in range(sys_num):
     cp2k_sys_dir = ''.join((cp2k_calc_dir, '/sys_', str(i)))
-    task_num = process.get_task_num(cp2k_sys_dir)
+    task_num, task_dir = process.get_task_num(cp2k_sys_dir, True)
     check_cp2k_run_i = []
     for j in range(task_num):
       check_cp2k_run_ij = []
-      cp2k_sys_task_dir = ''.join((cp2k_sys_dir, '/task_', str(j)))
+      cp2k_sys_task_dir = ''.join((cp2k_sys_dir, '/', task_dir[j]))
       traj_num = process.get_traj_num(cp2k_sys_task_dir)
       for k in range(traj_num):
         cp2k_sys_task_traj_dir = ''.join((cp2k_sys_task_dir, '/traj_', str(k)))
@@ -195,9 +195,9 @@ def run_undo_cp2kfrc(work_dir, iter_id, cp2k_env_file, cp2k_exe, atoms_num_tot, 
     else:
       for i in range(sys_num):
         cp2k_sys_dir = ''.join((cp2k_calc_dir, '/sys_', str(i)))
-        task_num = process.get_task_num(cp2k_sys_dir)
+        task_num, task_dir = process.get_task_num(cp2k_sys_dir, True)
         for j in range(task_num):
-          cp2k_sys_task_dir = ''.join((cp2k_sys_dir, '/task_', str(j)))
+          cp2k_sys_task_dir = ''.join((cp2k_sys_dir, '/', task_dir[j]))
           traj_num = process.get_traj_num(cp2k_sys_task_dir)
           undo_task = [index for (index,value) in enumerate(check_cp2k_run[i][j]) if value==1]
           if ( len(undo_task) != 0 and len(undo_task) < traj_num ):

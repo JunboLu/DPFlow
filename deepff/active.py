@@ -345,7 +345,7 @@ Two suggestion for the following calculations:
             if ( test_data_num > numb_test ):
               data_num.append(train_data_num)
             if ( test_data_num < numb_test and success_ratio < float((active_learn_steps-train_data_num)/active_learn_steps) ):
-              log_info.log_error('Warning: little selected structures')
+              print ('Warning: little selected structures!', flush=True)
               #exit()
 
       print ('  Success: dump new raw data of cp2k', flush=True)
